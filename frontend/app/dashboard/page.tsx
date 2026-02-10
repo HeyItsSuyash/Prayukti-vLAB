@@ -1,17 +1,12 @@
 "use client";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-
-export default function DashboardDispatcher() {
-    const router = useRouter();
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { LabRegistry, getLabsBySubject, Subject } from "@/lib/labs/registry";
 import { RoleGuard } from "@/lib/auth/withRole";
+import { getLabsBySubject, LabSubject } from "@/lib/labs/registry";
 
 export default function Dashboard() {
-    const subjects: { id: Subject; title: string; icon: string; bg: string; color: string; hoverColor: string; description: string }[] = [
+    const subjects: { id: LabSubject; title: string; icon: string; bg: string; color: string; hoverColor: string; description: string }[] = [
         {
             id: "DLD",
             title: "Digital Logic & Design (DLD)",
@@ -29,6 +24,15 @@ export default function Dashboard() {
             color: "bg-[#1976d2]",
             hoverColor: "hover:bg-[#1565c0]",
             description: "Explore the architecture of the internet, networking protocols, and the OSI/TCP-IP models."
+        },
+        {
+            id: "DBMS",
+            title: "Database Management Systems (DBMS)",
+            icon: "🗄️",
+            bg: "bg-green-100",
+            color: "bg-[#2e7d32]",
+            hoverColor: "hover:bg-[#1b5e20]",
+            description: "Learn to design, query, and manage relational databases using SQL."
         },
         {
             id: "OOPS",
@@ -98,36 +102,8 @@ export default function Dashboard() {
                             </div>
                         </div>
                     ))}
+                </div>
 
-    useEffect(() => {
-        // In a real app, successful login sets a cookie/token and we decode it here.
-        // For this prototype, we check localStorage or default to student for safety,
-        // OR better yet, we just redirect to student as default if no role found.
-
-        const userStr = typeof window !== 'undefined' ? localStorage.getItem("user") : null;
-        if (userStr) {
-            try {
-                const user = JSON.parse(userStr);
-                if (user.role === "TEACHER") {
-                    router.push("/teacher/dashboard");
-                } else if (user.role === "ADMIN") {
-                    router.push("/admin/dashboard");
-                } else {
-                    router.push("/student/dashboard");
-                }
-            } catch (e) {
-                // fallback
-                router.push("/student/dashboard");
-            }
-        } else {
-            // No user, redirect to login
-            router.push("/login");
-        }
-    }, [router]);
-
-    return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50">
-            <p className="text-gray-500">Redirecting to your dashboard...</p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-12">
                     <div>
                         <h2 className="text-2xl font-bold mb-6 text-gray-800">Recent Activity</h2>

@@ -7,28 +7,31 @@ import { LAB_CONTENT } from "@/lib/labs/rich-content";
 export default async function PracticalDetail({ params }: { params: Promise<{ experimentId: string }> }) {
     const { experimentId } = await params;
 
-    // 1. Fetch from Registry
-    // Handle both old IDs (1, 2) and new IDs (dbms-exp-1) for backward compatibility during migration?
-    // Actually, dashboard links now point to 'dbms-exp-X'.
-    // If user comes from old bookmark '1', this might break.
-    // Let's retry with 'dbms-exp-' prefix if plain number.
-    let labId = experimentId;
-    if (!isNaN(Number(experimentId))) {
-        labId = `dbms-exp-${experimentId}`;
-    }
+    // Use specific logic if we still have plain numbers, although listing uses full IDs now
+    const labId = !isNaN(Number(experimentId)) ? `dbms-exp-${experimentId}` : experimentId;
 
     const lab = getLabById(labId);
-    const content = LAB_CONTENT[labId] || LAB_CONTENT["dbms-exp-1"];
+    const content = LAB_CONTENT[labId];
 
-    if (!lab) {
-        return <div className="p-8">Experiment Not Found</div>;
+    if (!lab || !content) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-gray-50">
+                <div className="text-center">
+                    <h1 className="text-2xl font-bold text-gray-800 mb-4">Experiment Not Found</h1>
+                    <p className="text-gray-600 mb-6">The requested experiment ID "{labId}" does not exist.</p>
+                    <Link href="/dashboard/dbms">
+                        <Button>Return to Dashboard</Button>
+                    </Link>
+                </div>
+            </div>
+        );
     }
 
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col text-gray-900">
             <header className="bg-white border-b shadow-sm sticky top-0 z-10">
                 <div className="container mx-auto px-4 py-4 flex items-center gap-4">
-                    <Link href="/student/dashboard/dbms" className="text-gray-500 hover:text-black hover:bg-gray-100 p-1 rounded-full">
+                    <Link href="/dashboard/dbms" className="text-gray-500 hover:text-black hover:bg-gray-100 p-1 rounded-full">
                         <ArrowLeft className="h-5 w-5" />
                     </Link>
                     <span className="text-gray-300">|</span>
@@ -46,12 +49,12 @@ export default async function PracticalDetail({ params }: { params: Promise<{ ex
 
                     <section className="bg-white p-6 rounded-lg shadow-sm border">
                         <h2 className="text-xl font-bold text-[#d32f2f] mb-4 border-b pb-2">Theory</h2>
-                        {content.theory}
+                        <div className="text-gray-700 prose max-w-none" dangerouslySetInnerHTML={{ __html: content.theory }} />
                     </section>
 
                     <section className="bg-white p-6 rounded-lg shadow-sm border">
                         <h2 className="text-xl font-bold text-[#d32f2f] mb-4 border-b pb-2">Procedure</h2>
-                        {content.procedure}
+                        <div className="text-gray-700 prose max-w-none" dangerouslySetInnerHTML={{ __html: content.procedure }} />
                     </section>
                 </div>
 

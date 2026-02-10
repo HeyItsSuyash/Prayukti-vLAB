@@ -1,35 +1,62 @@
+"use client";
+
+import { use, useEffect, useState } from "react";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
-import { LabRegistry } from "@/lib/labs/registry";
-import { notFound } from "next/navigation";
+import { getLabById } from "@/lib/labs/registry";
 
-export default async function SimulationPage({ params }: { params: Promise<{ id: string }> }) {
-    const { id } = await params;
+export default function SimulationPage({ params }: { params: Promise<{ id: string }> }) {
+    const { id } = use(params);
 
-    const lab = LabRegistry["circuit-canvas"]; // For now, DLD only has one main engine
+    // Fallback for numeric IDs if needed
+    const labId = !isNaN(Number(id)) ? `dld-exp-${id}` : id;
+
+    const lab = getLabById(labId);
+    const [Component, setComponent] = useState<any>(null);
+
+    useEffect(() => {
+        if (lab?.component) {
+            setComponent(() => lab.component);
+        }
+    }, [lab]);
 
     if (!lab) {
-        notFound();
+        return <div className="p-8 text-center">Lab not found</div>;
     }
 
-    const SimulationComponent = lab.component;
+    if (!Component) {
+        return (
+            <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
+                <h1 className="text-xl font-bold mb-4">Simulation Loading...</h1>
+                <p className="text-gray-500">Please wait while we prepare the environment.</p>
+                <div className="mt-4">
+                    <Link href={`/dashboard/dld/${id}`}>
+                        <Button variant="outline">Go Back</Button>
+                    </Link>
+                </div>
+            </div>
+        );
+    }
 
     return (
-        <div className="h-screen flex flex-col bg-gray-50 overflow-hidden">
-            {/* Simulation Header */}
-            <header className="bg-white border-b shadow-sm h-14 flex items-center px-4 justify-between shrink-0 z-20">
+        <div className="flex flex-col h-screen bg-gray-100">
+            <header className="bg-white border-b shadow-sm px-4 py-3 flex items-center justify-between shrink-0">
                 <div className="flex items-center gap-4">
-                    <Link href={`/dashboard/dld/${id}`} className="text-gray-500 hover:text-black p-1">
+                    <Link href={`/dashboard/dld/${id}`} className="text-gray-500 hover:text-black p-1 rounded-full transition-colors">
                         <ArrowLeft className="h-5 w-5" />
                     </Link>
-                    <h1 className="font-bold text-gray-800">DLD Simulation Workbench <span className="text-gray-400 text-sm font-normal">| Practical {id}</span></h1>
+                    <h1 className="font-bold text-gray-800">{lab.metadata.title} - Simulation</h1>
+                </div>
+                <div>
+                    <span className="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded-full border border-orange-200">
+                        Circuit Designer
+                    </span>
                 </div>
             </header>
-
-            {/* Main Workbench Area */}
-            <main className="flex-1 relative">
-                <SimulationComponent />
-            </main>
+            <div className="flex-1 overflow-hidden relative">
+                <Component practicalId={labId} />
+            </div>
         </div>
     );
 }

@@ -1,53 +1,58 @@
+"use client";
+
+import { use, useEffect, useState } from "react";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
-import { LabRegistry } from "@/lib/labs/registry";
-import { notFound } from "next/navigation";
+import { getLabById } from "@/lib/labs/registry";
 
-export default async function SimulationPage({ params }: { params: Promise<{ id: string }> }) {
-    const { id } = await params;
+export default function SimulationPage({ params }: { params: Promise<{ id: string }> }) {
+    const { id } = use(params);
+    const lab = getLabById(id);
+    const [Component, setComponent] = useState<any>(null);
 
-    // Map the numeric ID used in the URL to the registry ID
-    const idMap: Record<string, string> = {
-        "1": "osi-model",
-        "2": "csma-cd",
-        "3": "token-protocols",
-        "4": "sliding-window"
-    };
-
-    const registryId = idMap[id];
-    const lab = registryId ? LabRegistry[registryId] : null;
+    useEffect(() => {
+        if (lab?.component) {
+            setComponent(() => lab.component);
+        }
+    }, [lab]);
 
     if (!lab) {
-        notFound();
+        return <div className="p-8 text-center">Lab not found</div>;
     }
 
-    const SimulationComponent = lab.component;
+    if (!Component) {
+        return (
+            <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
+                <h1 className="text-xl font-bold mb-4">Simulation Loading...</h1>
+                <p className="text-gray-500">Please wait while we prepare the environment.</p>
+                <div className="mt-4">
+                    <Link href={`/dashboard/cn/${id}`}>
+                        <Button variant="outline">Go Back</Button>
+                    </Link>
+                </div>
+            </div>
+        );
+    }
 
     return (
-        <div className="h-screen flex flex-col bg-gray-50 overflow-hidden">
-            {/* Simulation Header */}
-            <header className="bg-white border-b shadow-sm h-14 flex items-center px-4 justify-between shrink-0 z-20">
+        <div className="flex flex-col h-screen bg-gray-100">
+            <header className="bg-white border-b shadow-sm px-4 py-3 flex items-center justify-between shrink-0">
                 <div className="flex items-center gap-4">
-                    <Link href={`/dashboard/cn/${id}`} className="text-gray-500 hover:text-black p-1 transition-colors hover:bg-gray-100 rounded-full">
+                    <Link href={`/dashboard/cn/${id}`} className="text-gray-500 hover:text-black p-1 rounded-full transition-colors">
                         <ArrowLeft className="h-5 w-5" />
                     </Link>
-                    <h1 className="font-bold text-gray-800">
-                        CN Simulation Workbench
-                        <span className="text-gray-400 text-sm font-normal ml-2">| Practical {id}: {id === "1" ? "OSI vs TCP/IP" : id === "2" ? "CSMA/CD Protocol" : "Simulation"}</span>
-                    </h1>
+                    <h1 className="font-bold text-gray-800">{lab.metadata.title} - Simulation</h1>
                 </div>
-                <div className="flex items-center gap-2">
-                    <div className="flex items-center gap-1 bg-green-50 px-2 py-1 rounded border border-green-100">
-                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                        <span className="text-[10px] font-bold text-green-700 uppercase tracking-tighter">System Ready</span>
-                    </div>
+                <div>
+                    <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full border border-blue-200">
+                        Interactive Mode
+                    </span>
                 </div>
             </header>
-
-            {/* Main Workbench Area */}
-            <main className="flex-1 relative overflow-hidden">
-                <SimulationComponent />
-            </main>
+            <div className="flex-1 overflow-hidden relative">
+                <Component practicalId={id} />
+            </div>
         </div>
     );
 }

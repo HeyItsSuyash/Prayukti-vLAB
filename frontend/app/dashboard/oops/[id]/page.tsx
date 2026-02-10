@@ -1,40 +1,27 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, FlaskConical } from "lucide-react";
-
-// Mock Data for OOPs
-const practicalData = {
-    1: {
-        title: "Introduction to Classes and Objects",
-        aim: "To understand the basic concepts of classes and objects in Object-Oriented Programming.",
-        theory: `
-      <div class="space-y-4">
-        <p><strong>Class</strong> is a blueprint or template for creating objects. It defines a set of attributes and methods that the created objects will have.</p>
-        <p><strong>Object</strong> is an instance of a class. It is a real-world entity that has state and behavior.</p>
-        <div class="bg-purple-50 p-4 rounded-lg border border-purple-100">
-            <h4 class="font-bold text-purple-800 mb-2">Key Concepts:</h4>
-            <ul class="list-disc ml-6 space-y-1">
-                <li>Classes provide the structure.</li>
-                <li>Objects provide the data.</li>
-                <li>Method define the behavior.</li>
-            </ul>
-        </div>
-      </div>
-    `,
-        procedure: `
-      <ol class="list-decimal ml-6 space-y-2">
-        <li>Select the Classes and Objects simulation.</li>
-        <li>Define a class with properties and methods.</li>
-        <li>Instantiate objects using the class.</li>
-        <li>Interact with the objects to see how state changes.</li>
-      </ol>
-    `,
-    }
-};
+import { getLabById } from "@/lib/labs/registry";
+import { LAB_CONTENT } from "@/lib/labs/rich-content";
 
 export default async function PracticalDetail({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
-    const practical = practicalData[Number(id) as keyof typeof practicalData] || practicalData[1];
+    const lab = getLabById(id);
+    const content = LAB_CONTENT[id];
+
+    if (!lab || !content) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-gray-50">
+                <div className="text-center">
+                    <h1 className="text-2xl font-bold text-gray-800 mb-4">Experiment Not Found</h1>
+                    <p className="text-gray-600 mb-6">The requested experiment ID "{id}" does not exist.</p>
+                    <Link href="/dashboard/oops">
+                        <Button>Return to Dashboard</Button>
+                    </Link>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -44,7 +31,7 @@ export default async function PracticalDetail({ params }: { params: Promise<{ id
                         <ArrowLeft className="h-5 w-5" />
                     </Link>
                     <span className="text-gray-300">|</span>
-                    <h1 className="text-lg font-bold text-gray-800 truncate">{practical.title}</h1>
+                    <h1 className="text-lg font-bold text-gray-800 truncate">{lab.metadata.title}</h1>
                 </div>
             </header>
 
@@ -54,17 +41,17 @@ export default async function PracticalDetail({ params }: { params: Promise<{ id
                 <div className="lg:col-span-2 space-y-8">
                     <section className="bg-white p-6 rounded-lg shadow-sm border">
                         <h2 className="text-xl font-bold text-[#7b1fa2] mb-4 border-b pb-2">Aim</h2>
-                        <p className="text-gray-700">{practical.aim}</p>
+                        <p className="text-gray-700">{content.aim}</p>
                     </section>
 
                     <section className="bg-white p-6 rounded-lg shadow-sm border">
                         <h2 className="text-xl font-bold text-[#7b1fa2] mb-4 border-b pb-2">Theory</h2>
-                        <div className="text-gray-700 prose max-w-none" dangerouslySetInnerHTML={{ __html: practical.theory }} />
+                        <div className="text-gray-700 prose max-w-none" dangerouslySetInnerHTML={{ __html: content.theory }} />
                     </section>
 
                     <section className="bg-white p-6 rounded-lg shadow-sm border">
                         <h2 className="text-xl font-bold text-[#7b1fa2] mb-4 border-b pb-2">Procedure</h2>
-                        <div className="text-gray-700 prose max-w-none" dangerouslySetInnerHTML={{ __html: practical.procedure }} />
+                        <div className="text-gray-700 prose max-w-none" dangerouslySetInnerHTML={{ __html: content.procedure }} />
                     </section>
                 </div>
 
