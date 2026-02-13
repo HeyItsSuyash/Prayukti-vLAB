@@ -51,7 +51,7 @@ const initialEdges: Edge[] = [
     { id: 'e1-3', source: '1', target: '3', sourceHandle: 'a' },
 ];
 
-export default function CircuitCanvas() {
+export default function CircuitCanvas({ practicalId }: { practicalId?: string }) {
     const [nodes, setNodes, onNodesChange] = useNodesState<AppNode>(initialNodes);
     const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
@@ -109,7 +109,7 @@ export default function CircuitCanvas() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     userId,
-                    practicalId: '1', // Dynamic later
+                    practicalId: practicalId || 'unknown', // Dynamic
                     name: circuitName,
                     data: { nodes, edges }
                 })

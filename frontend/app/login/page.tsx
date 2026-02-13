@@ -201,6 +201,18 @@ export default function LoginPage() {
                             <Button
                                 onClick={handleContinue}
                                 className={`w-full text-white ${role === 'admin' ? 'bg-slate-800 hover:bg-slate-900' : 'bg-green-600 hover:bg-green-700'}`}
+                                onClick={() => {
+                                    if (typeof window !== 'undefined') {
+                                        let role = "STUDENT";
+                                        if (email.startsWith("prof") || email.startsWith("teacher")) role = "TEACHER";
+                                        if (email.startsWith("admin")) role = "ADMIN";
+
+                                        localStorage.setItem("token", "mock-jwt-token");
+                                        localStorage.setItem("user", JSON.stringify({ email, role }));
+                                    }
+                                    router.push("/dashboard");
+                                }}
+                                className="w-full bg-green-600 hover:bg-green-700 text-white"
                             >
                                 Continue to Dashboard
                             </Button>

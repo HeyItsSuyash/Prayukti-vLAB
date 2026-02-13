@@ -1,76 +1,235 @@
-import React from "react";
-import dynamic from "next/dynamic";
-
-export type Subject = "CN" | "OOPS" | "DLD";
+// Define strict types for the registry
+export type LabSubject = "DBMS" | "CN" | "OOPS" | "DLD";
+export type LabType = "learning" | "experimental";
+export type LabDifficulty = "Easy" | "Medium" | "Hard";
 
 export interface LabMetadata {
-    id: string;
     title: string;
-    subject: Subject;
-    difficulty: "Easy" | "Medium" | "Hard";
+    description?: string;
+    difficulty: LabDifficulty;
     prerequisites?: string[];
-    description: string;
+    estimatedTime?: string;
+    thumbnailUrl?: string; // Icon or Image path
 }
 
-export interface LabEntry extends LabMetadata {
-    component: React.ComponentType<any>;
+export interface LabManifest {
+    id: string; // e.g., "dbms-exp-1"
+    subject: LabSubject;
+    type: LabType;
+    metadata: LabMetadata;
+    componentId?: string; // For dynamic loading mapping if needed
 }
 
-// Dynamic imports to optimize bundle size
-const OSISimulation = dynamic(() => import("@/components/simulation/cn/OSISimulation"));
-const CSMASimulation = dynamic(() => import("@/components/simulation/cn/CSMASimulation"));
-const TokenProtocolsSimulation = dynamic(() => import("@/components/simulation/cn/TokenProtocolsSimulation"));
-const SlidingWindowSimulation = dynamic(() => import("@/components/simulation/cn/SlidingWindowSimulation"));
-const CircuitCanvas = dynamic(() => import("@/components/simulation/dld/CircuitCanvas"));
+// Unified Registry Data
+const Labs: LabManifest[] = [
+    // --- DBMS Labs ---
+    {
+        id: "dbms-exp-1",
+        subject: "DBMS",
+        type: "learning",
+        metadata: {
+            title: "Introduction to DBMS",
+            description: "Basic DDL/DML Operations (Create, Insert, Select)",
+            difficulty: "Easy",
+            prerequisites: ["None"],
+            estimatedTime: "30 min",
+            thumbnailUrl: "🗄️"
+        }
+    },
+    {
+        id: "dbms-exp-2",
+        subject: "DBMS",
+        type: "experimental",
+        metadata: {
+            title: "Database Application Development",
+            description: "Build a Store Management System with Finance & Inventory",
+            difficulty: "Medium",
+            prerequisites: ["Exp 1"],
+            estimatedTime: "45 min",
+            thumbnailUrl: "🗄️"
+        }
+    },
+    {
+        id: "dbms-exp-3",
+        subject: "DBMS",
+        type: "experimental",
+        metadata: {
+            title: "SQL Queries & Operations",
+            description: "Advanced SQL: Joins, Subqueries, Triggers, Views",
+            difficulty: "Hard",
+            prerequisites: ["Exp 2"],
+            estimatedTime: "60 min",
+            thumbnailUrl: "🗄️"
+        }
+    },
+    {
+        id: "dbms-exp-4",
+        subject: "DBMS",
+        type: "learning",
+        metadata: {
+            title: "Normalization",
+            description: "Analyze and Decompose schemas (1NF to 5NF)",
+            difficulty: "Hard",
+            prerequisites: ["Relational Model"],
+            estimatedTime: "40 min",
+            thumbnailUrl: "🗄️"
+        }
+    },
+    {
+        id: "dbms-exp-5",
+        subject: "DBMS",
+        type: "experimental",
+        metadata: {
+            title: "Host Language Interface",
+            description: "Embed SQL in Java/Python/C++ Applications",
+            difficulty: "Medium",
+            prerequisites: ["SQL Basics"],
+            estimatedTime: "30 min",
+            thumbnailUrl: "🗄️"
+        }
+    },
 
-export const LabRegistry: Record<string, LabEntry> = {
-    "osi-model": {
-        id: "osi-model",
-        title: "OSI vs TCP/IP Reference Models",
+    // --- CN Labs ---
+    {
+        id: "cn-exp-1",
         subject: "CN",
-        difficulty: "Easy",
-        description: "Comparative study of OSI 7-layer and TCP/IP 4-layer models.",
-        component: OSISimulation
+        type: "learning",
+        metadata: {
+            title: "OSI vs TCP/IP Reference Models",
+            description: "Comparative study of OSI 7-layer and TCP/IP 4-layer models.",
+            difficulty: "Easy",
+            thumbnailUrl: "🌐"
+        }
     },
-    "csma-cd": {
-        id: "csma-cd",
-        title: "CSMA/CD Protocol Study",
+    {
+        id: "cn-exp-2",
         subject: "CN",
-        difficulty: "Medium",
-        prerequisites: ["osi-model"],
-        description: "Interactive simulation of Carrier Sense Multiple Access with Collision Detection.",
-        component: CSMASimulation
+        type: "experimental",
+        metadata: {
+            title: "CSMA/CD Protocol Study",
+            description: "Interactive simulation of Carrier Sense Multiple Access with Collision Detection.",
+            difficulty: "Medium",
+            prerequisites: ["cn-exp-1"],
+            thumbnailUrl: "🌐"
+        }
     },
-    "token-protocols": {
-        id: "token-protocols",
-        title: "Token Bus and Token Ring Protocols",
+    {
+        id: "cn-exp-3",
         subject: "CN",
-        difficulty: "Medium",
-        description: "Study of deterministic channel access using token passing mechanisms.",
-        component: TokenProtocolsSimulation
+        type: "experimental",
+        metadata: {
+            title: "Token Bus and Token Ring Protocols",
+            description: "Study of deterministic channel access using token passing mechanisms.",
+            difficulty: "Medium",
+            thumbnailUrl: "🌐"
+        }
     },
-    "sliding-window": {
-        id: "sliding-window",
-        title: "Sliding Window Protocols",
+    {
+        id: "cn-exp-4",
         subject: "CN",
-        difficulty: "Hard",
-        description: "Visualizing Stop & Wait, Go-Back-N, and Selective Repeat flow control.",
-        component: SlidingWindowSimulation
+        type: "experimental",
+        metadata: {
+            title: "Sliding Window Protocols",
+            description: "Visualizing Stop & Wait, Go-Back-N, and Selective Repeat flow control.",
+            difficulty: "Hard",
+            thumbnailUrl: "🌐"
+        }
     },
-    "circuit-canvas": {
-        id: "circuit-canvas",
-        title: "Digital Circuit Designer",
+
+    // --- DLD Labs ---
+    {
+        id: "dld-exp-1",
         subject: "DLD",
-        difficulty: "Medium",
-        description: "Interactive logic gate simulator and circuit builder.",
-        component: CircuitCanvas
+        type: "experimental",
+        metadata: {
+            title: "Study and Verification of Logic Gates",
+            description: "Master the fundamentals of digital electronics, logic gates, and circuit design.",
+            difficulty: "Easy",
+            thumbnailUrl: "⚡"
+        }
+    },
+    {
+        id: "dld-exp-2",
+        subject: "DLD",
+        type: "experimental",
+        metadata: {
+            title: "Design and Implementation of Half Adder and Full Adder",
+            description: "Construct combinational circuits to perform addition.",
+            difficulty: "Medium",
+            thumbnailUrl: "⚡"
+        }
+    },
+    {
+        id: "dld-exp-3",
+        subject: "DLD",
+        type: "experimental",
+        metadata: {
+            title: "Design and Implementation of Half Subtractor and Full Subtractor",
+            description: "Construct combinational circuits to perform subtraction.",
+            difficulty: "Medium",
+            thumbnailUrl: "⚡"
+        }
+    },
+    {
+        id: "dld-exp-4",
+        subject: "DLD",
+        type: "experimental",
+        metadata: {
+            title: "Design of 4-bit Binary to Gray Code Converter",
+            description: "Learn code conversion techniques using logic gates.",
+            difficulty: "Hard",
+            thumbnailUrl: "⚡"
+        }
+    },
+
+    // --- OOPS Labs ---
+    {
+        id: "oops-exp-1",
+        subject: "OOPS",
+        type: "learning",
+        metadata: {
+            title: "Introduction to Classes and Objects",
+            description: "Understanding class structure, attributes, methods, and instantiation.",
+            difficulty: "Easy",
+            thumbnailUrl: "💻"
+        }
+    },
+    {
+        id: "oops-exp-2",
+        subject: "OOPS",
+        type: "learning",
+        metadata: {
+            title: "Implementation of Inheritance",
+            description: "Learn how to establish parent-child relationships between classes.",
+            difficulty: "Medium",
+            thumbnailUrl: "💻"
+        }
+    },
+    {
+        id: "oops-exp-3",
+        subject: "OOPS",
+        type: "learning",
+        metadata: {
+            title: "Demonstration of Polymorphism",
+            description: "Explore method overriding and overloading concepts.",
+            difficulty: "Medium",
+            thumbnailUrl: "💻"
+        }
+    },
+    {
+        id: "oops-exp-4",
+        subject: "OOPS",
+        type: "learning",
+        metadata: {
+            title: "Data Encapsulation and Abstraction",
+            description: "Master information hiding and abstract class design.",
+            difficulty: "Hard",
+            thumbnailUrl: "💻"
+        }
     }
-};
+];
 
-export const getLabsBySubject = (subject: Subject) => {
-    return Object.values(LabRegistry).filter(lab => lab.subject === subject);
-};
-
-export const getLabById = (id: string) => {
-    return LabRegistry[id];
-};
+// Helper Functions
+export const getLabs = () => Labs;
+export const getLabById = (id: string) => Labs.find(l => l.id === id);
+export const getLabsBySubject = (subject: LabSubject) => Labs.filter(l => l.subject === subject);

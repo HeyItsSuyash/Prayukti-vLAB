@@ -11,6 +11,16 @@
 
   --popover: 0 0% 100%;
   --popover-foreground: 222.2 84% 4.9%;
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 0%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 0%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 0%;
 
   /* Academic Blue Branding (Webestica Style) */
   --primary: 221.2 83.2% 53.3%;
@@ -34,6 +44,12 @@
 
   --radius: 0.75rem;
 }
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
+    --ring: 0 64% 41%;
+
+    --radius: 0.5rem;
+  }
 
 .dark {
   --background: 222.2 84% 4.9%;

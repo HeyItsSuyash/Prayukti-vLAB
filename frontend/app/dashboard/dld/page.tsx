@@ -38,8 +38,14 @@ const practicals = [
         duration: "60 mins"
     },
 ];
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { ChevronRight, PlayCircle } from "lucide-react";
+import { getLabsBySubject } from "@/lib/labs/registry";
 
 export default function DLDPage() {
+    const labs = getLabsBySubject("DLD");
+
     return (
         <div className="flex flex-col min-h-screen bg-slate-50 font-sans">
             <Navbar />
@@ -69,6 +75,22 @@ export default function DLDPage() {
                             <div className="text-center px-4">
                                 <span className="block text-2xl font-bold text-green-600">0%</span>
                                 <span className="text-xs text-slate-400 uppercase font-bold">Progress</span>
+                </div>
+
+                <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
+                    {labs.length === 0 && <div className="p-8 text-center text-gray-500">No experiments found.</div>}
+                    {labs.map((p, index) => (
+                        <div key={p.id} className="p-4 border-b last:border-b-0 flex items-center justify-between hover:bg-gray-50 transition-colors group">
+                            <div className="flex items-center gap-4">
+                                <div className="w-8 h-8 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center font-bold text-sm">
+                                    {index + 1}
+                                </div>
+                                <div>
+                                    <h3 className="font-medium text-gray-800">{p.metadata.title}</h3>
+                                    <span className={`text-xs px-2 py-0.5 rounded ${p.metadata.difficulty === 'Easy' ? 'bg-green-100 text-green-700' :
+                                        p.metadata.difficulty === 'Medium' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'
+                                        }`}>{p.metadata.difficulty}</span>
+                                </div>
                             </div>
                         </div>
                     </div>
