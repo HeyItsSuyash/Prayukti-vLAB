@@ -60,7 +60,7 @@ export const LAB_CONTENT: Record<string, LabContent> = {
                     <div className="bg-gray-100 p-2 rounded-full shrink-0">2</div>
                     <div>
                         <h4 className="font-bold text-gray-900">Create Database</h4>
-                        <p className="text-sm text-gray-600">Use the 'Create Database' command to initialize a new DB container.</p>
+                        <p className="text-sm text-gray-600">Use the &apos;Create Database&apos; command to initialize a new DB container.</p>
                     </div>
                 </div>
                 <div className="flex items-start gap-4">
@@ -225,7 +225,7 @@ export const LAB_CONTENT: Record<string, LabContent> = {
         theory: (
             <div className="space-y-6">
                 <p className="text-gray-700 leading-relaxed">
-                    A <strong>Host Language Interface</strong> allows SQL queries to be embedded in procedural programming languages (the "Host" language). This enables applications to interact with the database dynamically.
+                    A <strong>Host Language Interface</strong> allows SQL queries to be embedded in procedural programming languages (the &quot;Host&quot; language). This enables applications to interact with the database dynamically.
                 </p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">

@@ -13,7 +13,7 @@ export const calculateParity = (data: string, type: ParityType): { parityBit: st
 };
 
 export const calculateChecksum = (data: string): { sum: string; checksum: string; segments: string[]; wrappedSum: string; initialSum: number } => {
-    let segments: string[] = [];
+    const segments: string[] = [];
     const k = 8;
     const remainder = data.length % k;
     const padding = remainder === 0 ? 0 : k - remainder;
@@ -45,20 +45,55 @@ export const calculateChecksum = (data: string): { sum: string; checksum: string
     return { sum: sumBinary, checksum, segments, wrappedSum: sumBinary, initialSum };
 };
 
+export interface CRCStep {
+    currentSlice: string;
+    currentStartIdx: number;
+    quotientBit?: string;
+    xorResult?: string;
+    nextSlice?: string;
+}
+
+export interface HammingStep {
+    pPos: number;
+    coveredBits: number[];
+    parityValue: string;
+}
+
+export interface HammingResult {
+    encoded: string;
+    parityBits: Record<number, string>;
+    r: number;
+    steps: HammingStep[];
+}
+
+export interface SyndromeStep {
+    pPos: number;
+    count: number;
+    status: string;
+    checkedIndices: number[];
+}
+
+export interface HammingReceiverResult {
+    errorPosition: number;
+    corrected: string;
+    syndromeSteps: SyndromeStep[];
+}
+
 // CRC logic restored
 export const calculateCRC = (data: string, divisor: string) => {
     const appendedData = data + '0'.repeat(divisor.length - 1);
     const pick = divisor.length;
     let temp = appendedData.substring(0, pick);
     let quotient = "";
-    const steps: { currentStartIdx: number; currentSlice: string; quotientBit: string; xorResult: string; nextSlice: string }[] = [];
+    const steps: CRCStep[] = [];
 
     let currentIdx = pick;
 
     while (currentIdx <= appendedData.length) {
-        const step: any = {};
-        step.currentSlice = temp;
-        step.currentStartIdx = currentIdx - temp.length; // Approximate tracking
+        const step: CRCStep = {
+            currentSlice: temp,
+            currentStartIdx: currentIdx - temp.length
+        };
 
         if (temp[0] === '1') {
             quotient += '1';

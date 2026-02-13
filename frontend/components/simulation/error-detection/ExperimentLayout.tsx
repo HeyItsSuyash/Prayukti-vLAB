@@ -130,9 +130,9 @@ export default function ExperimentLayout({ children }: ExperimentLayoutProps) {
                                     <li>Select the algorithm you wish to simulate from the tabs in the Simulation section.</li>
                                     <li>Enter the binary data (e.g., 101101).</li>
                                     <li>For specific algorithms like CRC, enter the Generator Polynomial.</li>
-                                    <li>Click "Calculate" or "Send" to see the encoding process.</li>
+                                    <li>Click &quot;Calculate&quot; or &quot;Send&quot; to see the encoding process.</li>
                                     <li>You can optionally inject an error into the transmitted data to test the detection/correction mechanism.</li>
-                                    <li>Observe the receiver's verification steps and the final Result.</li>
+                                    <li>Observe the receiver&apos;s verification steps and the final Result.</li>
                                 </ol>
                             </CardContent>
                         </Card>

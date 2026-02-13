@@ -135,6 +135,17 @@ const Labs: LabManifest[] = [
             thumbnailUrl: "🌐"
         }
     },
+    {
+        id: "cn-exp-5",
+        subject: "CN",
+        type: "experimental",
+        metadata: {
+            title: "Cyclic Redundancy Check (CRC)",
+            description: "Implement and verify error detection using CRC polynomials.",
+            difficulty: "Medium",
+            thumbnailUrl: "🌐"
+        }
+    },
 
     // --- DLD Labs ---
     {

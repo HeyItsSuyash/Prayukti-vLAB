@@ -1,0 +1,272 @@
+
+> frontend@0.1.0 lint
+> eslint --max-warnings 0
+
+
+/home/suyash/Desktop/prayukti/Prayukti-vLAB/frontend/app/api/send-email/route.ts
+   9:26  warning  SMTP_HOST is not listed as a dependency in turbo.json  turbo/no-undeclared-env-vars
+  10:26  warning  SMTP_USER is not listed as a dependency in turbo.json  turbo/no-undeclared-env-vars
+  11:26  warning  SMTP_PASS is not listed as a dependency in turbo.json  turbo/no-undeclared-env-vars
+  26:35  warning  SMTP_PORT is not listed as a dependency in turbo.json  turbo/no-undeclared-env-vars
+  47:21  warning  Unexpected any. Specify a different type               @typescript-eslint/no-explicit-any
+
+/home/suyash/Desktop/prayukti/Prayukti-vLAB/frontend/app/dashboard/admin/page.tsx
+   6:66  warning  'Edit' is defined but never used          @typescript-eslint/no-unused-vars
+  16:75  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/suyash/Desktop/prayukti/Prayukti-vLAB/frontend/app/dashboard/cn/[id]/page.tsx
+  161:0  error  Parsing error: ',' expected
+
+/home/suyash/Desktop/prayukti/Prayukti-vLAB/frontend/app/dashboard/cn/page.tsx
+  144:20  error  Parsing error: ')' expected
+
+/home/suyash/Desktop/prayukti/Prayukti-vLAB/frontend/app/dashboard/dld/[id]/page.tsx
+  151:60  error  Parsing error: '}' expected
+
+/home/suyash/Desktop/prayukti/Prayukti-vLAB/frontend/app/dashboard/dld/page.tsx
+  96:20  error  Parsing error: ')' expected
+
+/home/suyash/Desktop/prayukti/Prayukti-vLAB/frontend/app/dashboard/oops/[id]/page.tsx
+  260:0  error  Parsing error: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+
+/home/suyash/Desktop/prayukti/Prayukti-vLAB/frontend/app/dashboard/oops/page.tsx
+  136:20  error  Parsing error: ')' expected
+
+/home/suyash/Desktop/prayukti/Prayukti-vLAB/frontend/app/dashboard/page.tsx
+  7:16  warning  'CardHeader' is defined but never used  @typescript-eslint/no-unused-vars
+  7:28  warning  'CardTitle' is defined but never used   @typescript-eslint/no-unused-vars
+  7:52  warning  'CardFooter' is defined but never used  @typescript-eslint/no-unused-vars
+  8:10  warning  'cn' is defined but never used          @typescript-eslint/no-unused-vars
+
+/home/suyash/Desktop/prayukti/Prayukti-vLAB/frontend/app/dashboard/teacher/AddStudentDialog.tsx
+  10:10  warning  'StudentMetric' is defined but never used  @typescript-eslint/no-unused-vars
+  15:29  warning  Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+
+/home/suyash/Desktop/prayukti/Prayukti-vLAB/frontend/app/dashboard/teacher/StudentDetailView.tsx
+  10:10  warning  'AlertCircle' is defined but never used  @typescript-eslint/no-unused-vars
+  10:23  warning  'Mail' is defined but never used         @typescript-eslint/no-unused-vars
+  10:60  warning  'Send' is defined but never used         @typescript-eslint/no-unused-vars
+
+/home/suyash/Desktop/prayukti/Prayukti-vLAB/frontend/app/dashboard/teacher/StudentTable.tsx
+   9:10  warning  'Input' is defined but never used             @typescript-eslint/no-unused-vars
+  10:23  warning  'Search' is defined but never used            @typescript-eslint/no-unused-vars
+  11:25  warning  'PerformanceLevel' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/suyash/Desktop/prayukti/Prayukti-vLAB/frontend/app/dashboard/teacher/page.tsx
+   7:10  warning  'AddStudentDialog' is defined but never used  @typescript-eslint/no-unused-vars
+   9:10  warning  'Plus' is defined but never used              @typescript-eslint/no-unused-vars
+  18:10  warning  'Button' is defined but never used            @typescript-eslint/no-unused-vars
+  22:74  warning  Unexpected any. Specify a different type      @typescript-eslint/no-explicit-any
+
+/home/suyash/Desktop/prayukti/Prayukti-vLAB/frontend/app/labs/page.tsx
+  4:10  warning  'Button' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/suyash/Desktop/prayukti/Prayukti-vLAB/frontend/app/login/page.tsx
+    9:7   warning  'API_URL' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  204:33  warning  No duplicate props allowed                    react/jsx-no-duplicate-props
+  215:33  warning  No duplicate props allowed                    react/jsx-no-duplicate-props
+
+/home/suyash/Desktop/prayukti/Prayukti-vLAB/frontend/app/page.tsx
+   44:18  warning  'Link' is not defined         react/jsx-no-undef
+   45:20  warning  'Button' is not defined       react/jsx-no-undef
+   49:18  warning  'Link' is not defined         react/jsx-no-undef
+   50:20  warning  'Button' is not defined       react/jsx-no-undef
+   63:18  warning  'SplineScene' is not defined  react/jsx-no-undef
+  121:20  warning  'Link' is not defined         react/jsx-no-undef
+  147:20  warning  'Link' is not defined         react/jsx-no-undef
+  173:20  warning  'Link' is not defined         react/jsx-no-undef
+  199:20  warning  'Link' is not defined         react/jsx-no-undef
+  259:16  warning  'Twitter' is not defined      react/jsx-no-undef
+  262:16  warning  'Facebook' is not defined     react/jsx-no-undef
+  265:16  warning  'Linkedin' is not defined     react/jsx-no-undef
+
+/home/suyash/Desktop/prayukti/Prayukti-vLAB/frontend/app/subjects/computer-networks/error-detection/page.tsx
+  68:118  warning  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+  68:207  warning  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+  90:43   warning  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  90:60   warning  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  92:62   warning  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  92:69   warning  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  94:45   warning  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  94:58   warning  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  95:43   warning  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  95:50   warning  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+
+/home/suyash/Desktop/prayukti/Prayukti-vLAB/frontend/app/subjects/dbms/experiments/basic-operations/procedure.tsx
+  69:43  warning  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  69:55  warning  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+
+/home/suyash/Desktop/prayukti/Prayukti-vLAB/frontend/app/subjects/dbms/experiments/basic-operations/simulation.tsx
+    2:20   warning  'Plus' is defined but never used   @typescript-eslint/no-unused-vars
+    2:54   warning  'Check' is defined but never used  @typescript-eslint/no-unused-vars
+  102:127  warning  Redundant double negation          no-extra-boolean-cast
+
+/home/suyash/Desktop/prayukti/Prayukti-vLAB/frontend/app/subjects/dbms/experiments/basic-operations/theory.tsx
+  76:183  warning  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  76:188  warning  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  76:193  warning  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  76:197  warning  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  89:193  warning  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  89:202  warning  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+
+/home/suyash/Desktop/prayukti/Prayukti-vLAB/frontend/app/subjects/oopj/experiments/experiment-1/editor.tsx
+   22:52  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   47:18  warning  'err' is defined but never used           @typescript-eslint/no-unused-vars
+   77:18  warning  'err' is defined but never used           @typescript-eslint/no-unused-vars
+  141:60  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/suyash/Desktop/prayukti/Prayukti-vLAB/frontend/app/subjects/oopj/experiments/experiment-1/page.tsx
+  7:10  warning  'Button' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/suyash/Desktop/prayukti/Prayukti-vLAB/frontend/app/subjects/oopj/experiments/experiment-1/problem.tsx
+  7:54  warning  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  7:71  warning  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+
+/home/suyash/Desktop/prayukti/Prayukti-vLAB/frontend/components/dashboard/ExperimentList.tsx
+  22:34  warning  'subject' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/suyash/Desktop/prayukti/Prayukti-vLAB/frontend/components/simulation/SimulationRenderer.tsx
+  60:57  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/suyash/Desktop/prayukti/Prayukti-vLAB/frontend/components/simulation/cn/CSMASimulation.tsx
+    5:10  warning  'Input' is defined but never used                             @typescript-eslint/no-unused-vars
+   12:5   warning  'AlertTriangle' is defined but never used                     @typescript-eslint/no-unused-vars
+  163:17  warning  'transmittingCount' is never reassigned. Use 'const' instead  prefer-const
+
+/home/suyash/Desktop/prayukti/Prayukti-vLAB/frontend/components/simulation/cn/OSISimulation.tsx
+  3:27  warning  'useEffect' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/suyash/Desktop/prayukti/Prayukti-vLAB/frontend/components/simulation/cn/SlidingWindowSimulation.tsx
+    6:49  warning  'AlertTriangle' is defined but never used                                                                                                      @typescript-eslint/no-unused-vars
+    7:23  warning  'BarChart3' is defined but never used                                                                                                          @typescript-eslint/no-unused-vars
+   22:11  warning  'ProtocolState' is defined but never used                                                                                                      @typescript-eslint/no-unused-vars
+   34:21  warning  'setTimeoutVal' is assigned a value but never used                                                                                             @typescript-eslint/no-unused-vars
+  100:8   warning  React Hook useCallback has a missing dependency: 'handleTimeout'. Either include it or remove the dependency array                             react-hooks/exhaustive-deps
+  156:8   warning  React Hook useEffect has missing dependencies: 'handleAckArrival' and 'handleDataArrival'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  266:60  warning  Unexpected any. Specify a different type                                                                                                       @typescript-eslint/no-explicit-any
+  297:90  warning  Unexpected any. Specify a different type                                                                                                       @typescript-eslint/no-explicit-any
+
+/home/suyash/Desktop/prayukti/Prayukti-vLAB/frontend/components/simulation/cn/TokenProtocolsSimulation.tsx
+     3:51   warning  'useRef' is defined but never used                                                                                                                                                                                    @typescript-eslint/no-unused-vars
+     6:5    warning  'ArrowRightLeft' is defined but never used                                                                                                                                                                            @typescript-eslint/no-unused-vars
+     6:21   warning  'Circle' is defined but never used                                                                                                                                                                                    @typescript-eslint/no-unused-vars
+     6:29   warning  'Database' is defined but never used                                                                                                                                                                                  @typescript-eslint/no-unused-vars
+     6:39   warning  'BarChart3' is defined but never used                                                                                                                                                                                 @typescript-eslint/no-unused-vars
+     7:34   warning  'ArrowRight' is defined but never used                                                                                                                                                                                @typescript-eslint/no-unused-vars
+   107:11   warning  'context' is assigned a value but never used                                                                                                                                                                          @typescript-eslint/no-unused-vars
+   111:24   warning  'setPacketSize' is assigned a value but never used                                                                                                                                                                    @typescript-eslint/no-unused-vars
+   112:22   warning  'setSimSpeed' is assigned a value but never used                                                                                                                                                                      @typescript-eslint/no-unused-vars
+   115:12   warning  'tokenHoldingTime' is assigned a value but never used                                                                                                                                                                 @typescript-eslint/no-unused-vars
+   115:30   warning  'setTokenHoldingTime' is assigned a value but never used                                                                                                                                                              @typescript-eslint/no-unused-vars
+   166:38   warning  Expected a `const` instead of a literal type assertion                                                                                                                                                                @typescript-eslint/prefer-as-const
+   170:35   warning  Expected a `const` instead of a literal type assertion                                                                                                                                                                @typescript-eslint/prefer-as-const
+   180:34   warning  Expected a `const` instead of a literal type assertion                                                                                                                                                                @typescript-eslint/prefer-as-const
+   184:31   warning  Expected a `const` instead of a literal type assertion                                                                                                                                                                @typescript-eslint/prefer-as-const
+   189:67   warning  Expected a `const` instead of a literal type assertion                                                                                                                                                                @typescript-eslint/prefer-as-const
+   189:136  warning  Expected a `const` instead of a literal type assertion                                                                                                                                                                @typescript-eslint/prefer-as-const
+   196:42   warning  Expected a `const` instead of a literal type assertion                                                                                                                                                                @typescript-eslint/prefer-as-const
+   200:39   warning  Expected a `const` instead of a literal type assertion                                                                                                                                                                @typescript-eslint/prefer-as-const
+   213:38   warning  Expected a `const` instead of a literal type assertion                                                                                                                                                                @typescript-eslint/prefer-as-const
+   217:35   warning  Expected a `const` instead of a literal type assertion                                                                                                                                                                @typescript-eslint/prefer-as-const
+   260:8    warning  React Hook useEffect has a missing dependency: 'nodes'. Either include it or remove the dependency array                                                                                                              react-hooks/exhaustive-deps
+   430:8    warning  React Hook useCallback has a missing dependency: 'nodes'. Either include it or remove the dependency array. You can also do a functional update 'setNodes(n => ...)' if you only need 'nodes' in the 'setNodes' call  react-hooks/exhaustive-deps
+   473:31   warning  'e' is defined but never used                                                                                                                                                                                         @typescript-eslint/no-unused-vars
+   505:11   warning  'resetSimulation' is assigned a value but never used                                                                                                                                                                  @typescript-eslint/no-unused-vars
+   515:11   warning  'serializeState' is assigned a value but never used                                                                                                                                                                   @typescript-eslint/no-unused-vars
+   529:11   warning  'restoreState' is assigned a value but never used                                                                                                                                                                     @typescript-eslint/no-unused-vars
+   542:18   warning  'e' is defined but never used                                                                                                                                                                                         @typescript-eslint/no-unused-vars
+   582:60   warning  Unexpected any. Specify a different type                                                                                                                                                                              @typescript-eslint/no-explicit-any
+   839:109  warning  Unexpected any. Specify a different type                                                                                                                                                                              @typescript-eslint/no-explicit-any
+   878:109  warning  Unexpected any. Specify a different type                                                                                                                                                                              @typescript-eslint/no-explicit-any
+   987:55   warning  Unexpected any. Specify a different type                                                                                                                                                                              @typescript-eslint/no-explicit-any
+  1171:20   warning  Unknown property 'jsx' found                                                                                                                                                                                          react/no-unknown-property
+  1171:24   warning  Unknown property 'global' found                                                                                                                                                                                       react/no-unknown-property
+  1187:158  warning  Unexpected any. Specify a different type                                                                                                                                                                              @typescript-eslint/no-explicit-any
+  1195:41   warning  Unexpected any. Specify a different type                                                                                                                                                                              @typescript-eslint/no-explicit-any
+  1252:46   warning  Unexpected any. Specify a different type                                                                                                                                                                              @typescript-eslint/no-explicit-any
+  1260:46   warning  Unexpected any. Specify a different type                                                                                                                                                                              @typescript-eslint/no-explicit-any
+  1274:39   warning  Unexpected any. Specify a different type                                                                                                                                                                              @typescript-eslint/no-explicit-any
+  1293:70   warning  Unexpected any. Specify a different type                                                                                                                                                                              @typescript-eslint/no-explicit-any
+  1395:31   warning  Unexpected any. Specify a different type                                                                                                                                                                              @typescript-eslint/no-explicit-any
+  1448:43   warning  Unexpected any. Specify a different type                                                                                                                                                                              @typescript-eslint/no-explicit-any
+
+/home/suyash/Desktop/prayukti/Prayukti-vLAB/frontend/components/simulation/dbms/ApplicationDevelopmentSimulation.tsx
+    5:70  warning  'CheckCircle2' is defined but never used        @typescript-eslint/no-unused-vars
+    5:84  warning  'AlertCircle' is defined but never used         @typescript-eslint/no-unused-vars
+   36:11  warning  'isExam' is assigned a value but never used     @typescript-eslint/no-unused-vars
+   43:38  warning  Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
+   65:50  warning  Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
+  102:34  warning  Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
+  113:23  warning  'tableName' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  120:21  warning  Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
+  128:70  warning  Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
+  133:47  warning  Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
+  149:62  warning  Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
+  171:63  warning  Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
+  194:54  warning  Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
+  206:62  warning  Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
+  219:62  warning  Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
+  259:64  warning  Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
+  279:63  warning  Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
+  322:44  warning  Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
+  337:91  warning  Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
+  443:79  warning  Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
+  447:78  warning  Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
+  465:78  warning  Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
+  476:85  warning  Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
+  501:80  warning  Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
+  518:84  warning  Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
+
+/home/suyash/Desktop/prayukti/Prayukti-vLAB/frontend/components/simulation/dbms/BasicOperationsSimulation.tsx
+   36:11  warning  'isExam' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  124:21  warning  Unexpected any. Specify a different type     @typescript-eslint/no-explicit-any
+
+/home/suyash/Desktop/prayukti/Prayukti-vLAB/frontend/components/simulation/dbms/HostLanguageSimulation.tsx
+  209:11   warning  'isExam' is assigned a value but never used                             @typescript-eslint/no-unused-vars
+  313:51   warning  Unexpected any. Specify a different type                                @typescript-eslint/no-explicit-any
+  334:72   warning  Unexpected any. Specify a different type                                @typescript-eslint/no-explicit-any
+  348:18   warning  'e' is defined but never used                                           @typescript-eslint/no-unused-vars
+  445:99   warning  Comments inside children section of tag should be placed inside braces  react/jsx-no-comment-textnodes
+  502:125  warning  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`         react/no-unescaped-entities
+  502:127  warning  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`         react/no-unescaped-entities
+  503:125  warning  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`         react/no-unescaped-entities
+  503:157  warning  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`         react/no-unescaped-entities
+  503:162  warning  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`         react/no-unescaped-entities
+  503:169  warning  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`         react/no-unescaped-entities
+
+/home/suyash/Desktop/prayukti/Prayukti-vLAB/frontend/components/simulation/dbms/NormalizationSimulation.tsx
+    4:94   warning  'Database' is defined but never used                             @typescript-eslint/no-unused-vars
+   22:11   warning  'isExam' is assigned a value but never used                      @typescript-eslint/no-unused-vars
+  120:74   warning  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+  231:86   warning  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+  231:90   warning  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+  231:100  warning  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+  231:103  warning  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+  417:40   warning  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  417:47   warning  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+
+/home/suyash/Desktop/prayukti/Prayukti-vLAB/frontend/components/simulation/dbms/SQLQueriesSimulation.tsx
+    3:20   warning  'useEffect' is defined but never used                            @typescript-eslint/no-unused-vars
+    5:114  warning  'Info' is defined but never used                                 @typescript-eslint/no-unused-vars
+    5:126  warning  'Plus' is defined but never used                                 @typescript-eslint/no-unused-vars
+    5:132  warning  'Trash2' is defined but never used                               @typescript-eslint/no-unused-vars
+   48:11   warning  'isExam' is assigned a value but never used                      @typescript-eslint/no-unused-vars
+   52:12   warning  'courses' is assigned a value but never used                     @typescript-eslint/no-unused-vars
+   63:50   warning  Unexpected any. Specify a different type                         @typescript-eslint/no-explicit-any
+   92:22   warning  'setFormDept' is assigned a value but never used                 @typescript-eslint/no-unused-vars
+  240:21   warning  Unexpected any. Specify a different type                         @typescript-eslint/no-explicit-any
+  308:210  warning  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+  308:214  warning  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+  310:223  warning  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+  310:226  warning  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+
+✖ 189 problems (6 errors, 183 warnings)
+  0 errors and 12 warnings potentially fixable with the `--fix` option.
+
+npm error Lifecycle script `lint` failed with error:
+npm error code 1
+npm error path /home/suyash/Desktop/prayukti/Prayukti-vLAB/frontend
+npm error workspace frontend@0.1.0
+npm error location /home/suyash/Desktop/prayukti/Prayukti-vLAB/frontend
+npm error command failed
+npm error command sh -c eslint --max-warnings 0

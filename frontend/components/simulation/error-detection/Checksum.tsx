@@ -103,7 +103,7 @@ export default function Checksum() {
                                     </div>
                                     <div className="border-t my-2 w-32"></div>
                                     <p>2. Sum (Decimal): {result.initialSum}</p>
-                                    <p>3. Wrapped Sum (1's Compl. Add): {parseInt(result.wrappedSum, 2)} ({result.wrappedSum})</p>
+                                    <p>3. Wrapped Sum (1&apos;s Compl. Add): {parseInt(result.wrappedSum, 2)} ({result.wrappedSum})</p>
                                     <p>4. Checksum (Complement): <span className="font-bold text-red-600">{result.checksum}</span></p>
                                 </div>
                             </div>

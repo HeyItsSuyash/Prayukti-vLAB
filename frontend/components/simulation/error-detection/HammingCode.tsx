@@ -4,16 +4,16 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { calculateHamming, checkHamming } from "@/lib/error-detection-utils";
+import { calculateHamming, checkHamming, HammingStep, HammingResult, HammingReceiverResult, SyndromeStep } from "@/lib/error-detection-utils";
 
 export default function HammingCode() {
     const [dataComp, setDataComp] = useState("1011");
     // Updated result types
-    const [result, setResult] = useState<{ encoded: string, parityBits: any, r: number, steps: any[] } | null>(null);
+    const [result, setResult] = useState<HammingResult | null>(null);
 
     // Transmission
     const [transmittedCodeword, setTransmittedCodeword] = useState("");
-    const [receiverResult, setReceiverResult] = useState<{ errorPosition: number, corrected: string, syndromeSteps: any[] } | null>(null);
+    const [receiverResult, setReceiverResult] = useState<HammingReceiverResult | null>(null);
 
     const handleCalculate = () => {
         if (!/^[01]+$/.test(dataComp)) return;
@@ -63,7 +63,7 @@ export default function HammingCode() {
                             <div className="text-sm border rounded p-2">
                                 <p className="font-semibold mb-2">Parity Calculation Steps:</p>
                                 <ul className="space-y-1">
-                                    {result.steps && result.steps.map((step: any, idx: number) => (
+                                    {result.steps && result.steps.map((step: HammingStep, idx: number) => (
                                         <li key={step.pPos || idx}>
                                             P{step.pPos}: Checks bits at {Array.isArray(step.coveredBits) ? step.coveredBits.join(', ') : ''} &rarr; Parity = {step.parityValue}
                                         </li>
@@ -127,7 +127,7 @@ export default function HammingCode() {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {receiverResult.syndromeSteps.map((step: any) => (
+                                            {receiverResult.syndromeSteps.map((step: SyndromeStep) => (
                                                 <tr key={step.pPos} className="border-t">
                                                     <td className="p-2">P{step.pPos} Check</td>
                                                     <td className="p-2">{step.count} (1s)</td>

@@ -12,7 +12,7 @@ import { StudentMetric } from "@/data/mock-teacher-data";
 interface AddStudentDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    onAddStudent: (student: any) => void;
+    onAddStudent: (student: StudentMetric) => void;
 }
 
 export function AddStudentDialog({ open, onOpenChange, onAddStudent }: AddStudentDialogProps) {
@@ -40,7 +40,7 @@ export function AddStudentDialog({ open, onOpenChange, onAddStudent }: AddStuden
                 avgAttempts: 0,
                 totalTimeSpent: 0,
                 lastActive: new Date().toISOString(),
-                status: 'Average', // Default status
+                status: 'Average' as const, // Default status
                 quizTrend: [],
                 completedPracticals: [],
                 weakAreas: []

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Play, RotateCcw } from "lucide-react";
 
-export default function OOPSCompiler({ practicalId }: { practicalId?: string }) {
+export default function OOPSCompiler() {
     const [code, setCode] = useState<string>(`public class Main {
     public static void main(String[] args) {
         System.out.println("Hello, World!");
@@ -31,7 +31,7 @@ export default function OOPSCompiler({ practicalId }: { practicalId?: string }) 
             } else {
                 setOutput(`Error:\n${data.error}\n\nOutput:\n${data.output}`);
             }
-        } catch (error) {
+        } catch {
             setOutput("Failed to connect to compilation server.");
         } finally {
             setIsRunning(false);

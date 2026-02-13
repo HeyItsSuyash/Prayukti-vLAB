@@ -10,11 +10,12 @@ export default function CRC() {
     const [dataComp, setDataComp] = useState("100100");
     const [divisor, setDivisor] = useState("1101");
     // Updated type to include steps
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [result, setResult] = useState<{ codeword: string, remainder: string, quotient: string, appendedData: string, steps: any[] } | null>(null);
 
     // Transmission
     const [transmittedCodeword, setTransmittedCodeword] = useState("");
-    const [receiverRemainder, setReceiverRemainder] = useState<string>("");
+    // receiverRemainder removed as it was unused
     const [receiverStatus, setReceiverStatus] = useState("");
 
     const handleCalculate = () => {
@@ -24,7 +25,6 @@ export default function CRC() {
         setResult(res);
         setTransmittedCodeword(res.codeword);
         setReceiverStatus("");
-        setReceiverRemainder("");
     };
 
     const handleInjectError = () => {
@@ -37,8 +37,7 @@ export default function CRC() {
 
     const verify = () => {
         const rem = checkCRC(transmittedCodeword, divisor);
-        setReceiverRemainder(rem);
-
+        
         if (parseInt(rem, 2) === 0) {
             setReceiverStatus("Data Accepted. Remainder is Zero.");
         } else {
@@ -50,7 +49,6 @@ export default function CRC() {
         if (!result) return;
         setTransmittedCodeword(result.codeword);
         setReceiverStatus("");
-        setReceiverRemainder("");
     };
 
     const isCorrupted = result ? transmittedCodeword !== result.codeword : false;
@@ -96,13 +94,12 @@ export default function CRC() {
 
                                     <pre className="mt-2 font-mono whitespace-pre text-xs md:text-sm text-gray-800">
                                         {(() => {
-                                            const width = result.appendedData.length + divisor.length + 5;
                                             const indent = (n: number) => " ".repeat(n);
                                             let viz = "";
                                             viz += indent(divisor.length + 2) + result.quotient + "\n";
                                             viz += indent(divisor.length + 1) + "_".repeat(result.appendedData.length + 2) + "\n";
                                             viz += divisor + " ) " + result.appendedData + "\n";
-                                            result.steps.forEach((step, i) => {
+                                            result.steps.forEach((step) => {
                                                 const currentIndent = step.currentStartIdx;
                                                 const operand = step.quotientBit === '1' ? divisor : "0".repeat(divisor.length);
                                                 viz += indent(divisor.length + 3 + currentIndent) + operand + "\n";
