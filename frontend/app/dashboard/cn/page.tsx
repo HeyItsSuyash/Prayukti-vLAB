@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronRight, PlayCircle, ArrowLeft } from "lucide-react";
 import { getLabsBySubject } from "@/lib/labs/registry";
 import { Badge } from "@/components/ui/badge";
+import { Chatbot } from "@/components/lab/Chatbot";
 import Footer from "@/components/layout/Footer";
 
 export default function CNPage() {
@@ -73,6 +74,8 @@ export default function CNPage() {
                     ))}
                 </div>
             </main>
+            <Chatbot subject="CN" labTitle="Computer Networks Lab" />
+        </div>
 
             <Footer />
         </div >

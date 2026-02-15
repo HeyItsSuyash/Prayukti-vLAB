@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronRight, PlayCircle, ArrowLeft } from "lucide-react";
 import { getLabsBySubject } from "@/lib/labs/registry";
 import { Badge } from "@/components/ui/badge";
+import { Chatbot } from "@/components/lab/Chatbot";
 
 export default function DBMSPage() {
     const labs = getLabsBySubject("DBMS");
@@ -49,8 +50,8 @@ export default function DBMSPage() {
                                 <div>
                                     <div className="flex items-center gap-3 mb-2">
                                         <Badge variant="outline" className={`rounded-none uppercase text-[10px] font-bold tracking-widest border-2 ${p.metadata.difficulty === 'Easy' ? 'border-green-600 text-green-700 bg-green-50' :
-                                                p.metadata.difficulty === 'Medium' ? 'border-yellow-600 text-yellow-700 bg-yellow-50' :
-                                                    'border-red-600 text-red-700 bg-red-50'
+                                            p.metadata.difficulty === 'Medium' ? 'border-yellow-600 text-yellow-700 bg-yellow-50' :
+                                                'border-red-600 text-red-700 bg-red-50'
                                             }`}>
                                             {p.metadata.difficulty}
                                         </Badge>
@@ -69,6 +70,7 @@ export default function DBMSPage() {
                     ))}
                 </div>
             </main>
+            <Chatbot subject="DBMS" />
         </div>
     );
 }
