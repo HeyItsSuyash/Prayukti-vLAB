@@ -11,11 +11,15 @@ export async function POST(req: Request) {
         const smtpPass = process.env.SMTP_PASS;
 
         if (!smtpHost || !smtpUser || !smtpPass) {
+            console.error("❌ SMTP CONFIGURATION MISSING:");
+            console.error(`- SMTP_HOST: ${smtpHost ? "Set" : "Missing"}`);
+            console.error(`- SMTP_USER: ${smtpUser ? "Set" : "Missing"}`);
+            console.error(`- SMTP_PASS: ${smtpPass ? "Set" : "Missing"}`);
             console.log("---------------------------------------------------");
             console.log("⚠️  MOCK EMAIL SIMULATION (No SMTP Configured) ⚠️");
             console.log(`TO: ${to}`);
             console.log(`SUBJECT: ${subject}`);
-            console.log(`BODY: ${html.substring(0, 50)}...`);
+            console.log(`BODY (Preview): ${html.substring(0, 100)}...`);
             console.log("---------------------------------------------------");
 
             // Return success even in mock mode so frontend doesn't break
@@ -34,6 +38,15 @@ export async function POST(req: Request) {
             },
         });
 
+        // Verify connection configuration
+        try {
+            await transporter.verify();
+            console.log("✅ SMTP Connection Verified");
+        } catch (verifyError: any) {
+            console.error("❌ SMTP Connection Verification Failed:", verifyError);
+            return NextResponse.json({ success: false, error: `SMTP Connection Failed: ${verifyError.message}` }, { status: 500 });
+        }
+
         // 3. Send Email
         const info = await transporter.sendMail({
             from: `"Prayukti vLab" <${smtpUser}>`,
@@ -45,7 +58,8 @@ export async function POST(req: Request) {
         return NextResponse.json({ success: true, messageId: info.messageId });
 
     } catch (error: any) {
-        console.error("Email API Error:", error);
+        console.error("Email API Error Full Details:", JSON.stringify(error, null, 2));
+        console.error("Email API Error Message:", error.message);
 
         let errorMessage = error.message;
         if (error.responseCode === 535) {
