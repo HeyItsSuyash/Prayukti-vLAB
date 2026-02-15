@@ -1,43 +1,6 @@
+import { NextResponse } from 'next/server';
+import nodemailer from 'nodemailer';
 import dns from 'dns';
-
-// ... (keep existing code)
-
-// 2. Configure Transporter
-// Default to Port 465 (Secure) if no port is specified, as 587 is timing out
-const smtpPort = parseInt(process.env.SMTP_PORT?.trim() || '465');
-
-console.log(`📧 Attempting SMTP Connection: ${smtpHost}:${smtpPort} (Secure: ${smtpPort === 465})`);
-console.log(`👤 SMTP User: ${smtpUser}`);
-
-// Define transport options type
-let transportOptions: any = {
-    host: smtpHost,
-    port: smtpPort,
-    secure: smtpPort === 465, // true for 465, false for other ports
-    auth: {
-        user: smtpUser,
-        pass: smtpPass,
-    },
-    logger: true,
-    debug: true,
-    connectionTimeout: 20000, // 20 seconds (Slightly reduced to fail faster if blocked)
-    greetingTimeout: 20000,
-    socketTimeout: 20000,
-    // Custom lookup to STRICTLY enforce IPv4 and prevent IPv6 fallback
-    lookup: (hostname: string, options: any, callback: (err: NodeJS.ErrnoException | null, address: string, family: number) => void) => {
-        const ipv4Options = { ...options, family: 4 };
-        dns.lookup(hostname, ipv4Options, (err, address, family) => {
-            if (err) {
-                console.error(`❌ DNS Lookup Failed for ${hostname}:`, err);
-                return callback(err, "", 0);
-            }
-            console.log(`🔍 DNS Lookup Resolved: ${hostname} -> ${address} (Family: ${family})`);
-            callback(null, address, family);
-        });
-    }
-};
-
-const transporter = nodemailer.createTransport(transportOptions);
 
 export async function POST(req: Request) {
     try {
@@ -61,48 +24,53 @@ export async function POST(req: Request) {
             console.log(`BODY (Preview): ${html.substring(0, 100)}...`);
             console.log("---------------------------------------------------");
 
-            // Return success even in mock mode so frontend doesn't break
             return NextResponse.json({ success: true, message: "Mock email logged to console." });
         }
 
         // 2. Configure Transporter
-        const smtpPort = parseInt(process.env.SMTP_PORT?.trim() || '587');
+        // Default to Port 465 (Secure) if no port is specified, as 587 is timing out
+        let smtpPort = parseInt(process.env.SMTP_PORT?.trim() || '465');
+        let useSecure = smtpPort === 465;
 
-        console.log(`📧 Attempting SMTP Connection: ${smtpHost}:${smtpPort} (Secure: ${smtpPort === 465})`);
+        // Auto-override for Gmail if the user has set 587 (which is failing)
+        if (smtpHost.includes('gmail.com') || smtpHost.includes('googlemail.com')) {
+            if (smtpPort !== 465) {
+                console.log("⚠️ GMAIL DETECTED: Overriding config to enforce Port 465 (SSL) to avoid timeouts");
+                smtpPort = 465;
+                useSecure = true;
+            }
+        }
+
+        console.log(`📧 Attempting SMTP Connection: ${smtpHost}:${smtpPort} (Secure: ${useSecure})`);
         console.log(`👤 SMTP User: ${smtpUser}`);
 
         // Define transport options type
         let transportOptions: any = {
+            host: smtpHost,
+            port: smtpPort,
+            secure: useSecure, // true for 465, false for other ports
             auth: {
                 user: smtpUser,
                 pass: smtpPass,
             },
             logger: true,
             debug: true,
-            connectionTimeout: 30000, // 30 seconds (Increased)
-            greetingTimeout: 30000,   // 30 seconds (Increased)
-            socketTimeout: 30000,     // 30 seconds (Increased)
-            family: 4,                // Force IPv4
+            connectionTimeout: 20000, // 20 seconds
+            greetingTimeout: 20000,
+            socketTimeout: 20000,
+            // Custom lookup to STRICTLY enforce IPv4 and prevent IPv6 fallback
+            lookup: (hostname: string, options: any, callback: (err: NodeJS.ErrnoException | null, address: string, family: number) => void) => {
+                const ipv4Options = { ...options, family: 4 };
+                dns.lookup(hostname, ipv4Options, (err, address, family) => {
+                    if (err) {
+                        console.error(`❌ DNS Lookup Failed for ${hostname}:`, err);
+                        return callback(err, "", 0);
+                    }
+                    console.log(`🔍 DNS Lookup Resolved: ${hostname} -> ${address} (Family: ${family})`);
+                    callback(null, address, family);
+                });
+            }
         };
-
-        // Detect Gmail and force correct settings if needed, but DO NOT use 'service: gmail' shorthand
-        // as it may override the IPv4 enforcement (family: 4)
-        if (smtpHost && smtpHost.includes("gmail") && !process.env.SMTP_PORT) {
-            console.log("GMAIL DETECTED: Forcing standard Gmail ports (587) due to missing config");
-            // Default to 587 for proper TLS upgrade if not specified
-            transportOptions.host = 'smtp.gmail.com';
-            transportOptions.port = 587;
-            transportOptions.secure = false; // 587 is STARTTLS, so secure: false
-        } else {
-            transportOptions.host = smtpHost;
-            transportOptions.port = smtpPort;
-            transportOptions.secure = smtpPort === 465;
-        }
-
-        // Explicitly force IPv4 even harder
-        transportOptions.family = 4;
-
-        console.log(`📧 Final Configuration -> Host: ${transportOptions.host}, Port: ${transportOptions.port}, Secure: ${transportOptions.secure}, Family: ${transportOptions.family}`);
 
         const transporter = nodemailer.createTransport(transportOptions);
 
