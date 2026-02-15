@@ -1,5 +1,43 @@
-import { NextResponse } from 'next/server';
-import nodemailer from 'nodemailer';
+import dns from 'dns';
+
+// ... (keep existing code)
+
+// 2. Configure Transporter
+// Default to Port 465 (Secure) if no port is specified, as 587 is timing out
+const smtpPort = parseInt(process.env.SMTP_PORT?.trim() || '465');
+
+console.log(`📧 Attempting SMTP Connection: ${smtpHost}:${smtpPort} (Secure: ${smtpPort === 465})`);
+console.log(`👤 SMTP User: ${smtpUser}`);
+
+// Define transport options type
+let transportOptions: any = {
+    host: smtpHost,
+    port: smtpPort,
+    secure: smtpPort === 465, // true for 465, false for other ports
+    auth: {
+        user: smtpUser,
+        pass: smtpPass,
+    },
+    logger: true,
+    debug: true,
+    connectionTimeout: 20000, // 20 seconds (Slightly reduced to fail faster if blocked)
+    greetingTimeout: 20000,
+    socketTimeout: 20000,
+    // Custom lookup to STRICTLY enforce IPv4 and prevent IPv6 fallback
+    lookup: (hostname: string, options: any, callback: (err: NodeJS.ErrnoException | null, address: string, family: number) => void) => {
+        const ipv4Options = { ...options, family: 4 };
+        dns.lookup(hostname, ipv4Options, (err, address, family) => {
+            if (err) {
+                console.error(`❌ DNS Lookup Failed for ${hostname}:`, err);
+                return callback(err, "", 0);
+            }
+            console.log(`🔍 DNS Lookup Resolved: ${hostname} -> ${address} (Family: ${family})`);
+            callback(null, address, family);
+        });
+    }
+};
+
+const transporter = nodemailer.createTransport(transportOptions);
 
 export async function POST(req: Request) {
     try {
