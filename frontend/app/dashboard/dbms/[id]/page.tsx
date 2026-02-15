@@ -7,6 +7,7 @@ import { getLabById } from "@/lib/labs/registry";
 import { LAB_CONTENT } from "@/lib/labs/rich-content";
 import { Badge } from "@/components/ui/badge";
 import { use } from "react";
+import { Chatbot } from "@/components/lab/Chatbot";
 
 export default function PracticalDetail({ params }: { params: Promise<{ id: string }> }) {
     const { id } = use(params);
@@ -56,8 +57,8 @@ export default function PracticalDetail({ params }: { params: Promise<{ id: stri
                     <div>
                         <div className="flex items-center gap-3 mb-4">
                             <Badge variant="outline" className={`rounded-none uppercase text-[10px] font-bold tracking-widest border-2 ${lab.metadata.difficulty === 'Easy' ? 'border-green-600 text-green-700 bg-green-50' :
-                                    lab.metadata.difficulty === 'Medium' ? 'border-yellow-600 text-yellow-700 bg-yellow-50' :
-                                        'border-red-600 text-red-700 bg-red-50'
+                                lab.metadata.difficulty === 'Medium' ? 'border-yellow-600 text-yellow-700 bg-yellow-50' :
+                                    'border-red-600 text-red-700 bg-red-50'
                                 }`}>
                                 {lab.metadata.difficulty}
                             </Badge>
@@ -128,6 +129,7 @@ export default function PracticalDetail({ params }: { params: Promise<{ id: stri
                 </div>
 
             </main>
+            <Chatbot subject="DBMS" labTitle={lab.metadata.title} />
         </div>
     );
 }

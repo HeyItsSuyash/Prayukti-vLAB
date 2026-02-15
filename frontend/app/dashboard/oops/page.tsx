@@ -75,11 +75,7 @@ export default function OOPSPage() {
                 </div>
             </main>
             <Chatbot subject="OOPS" />
-        </div>
-
-            </main >
-
             <Footer />
-        </div >
+        </div>
     );
 }

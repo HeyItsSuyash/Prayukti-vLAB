@@ -75,9 +75,7 @@ export default function CNPage() {
                 </div>
             </main>
             <Chatbot subject="CN" labTitle="Computer Networks Lab" />
-        </div>
-
             <Footer />
-        </div >
+        </div>
     );
 }

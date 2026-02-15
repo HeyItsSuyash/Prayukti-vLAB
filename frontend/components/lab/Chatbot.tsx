@@ -69,7 +69,7 @@ export function Chatbot({ subject = "General", labTitle }: ChatbotProps) {
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: userMsg.text, subject }),
+        body: JSON.stringify({ message: userMsg.text, subject, labTitle }),
       });
 
       const data = await response.json();

@@ -8,6 +8,7 @@ import { LAB_CONTENT } from "@/lib/labs/rich-content";
 import { Badge } from "@/components/ui/badge";
 import Footer from "@/components/layout/Footer";
 import { use } from "react";
+import { Chatbot } from "@/components/lab/Chatbot";
 
 export default function PracticalDetail({ params }: { params: Promise<{ id: string }> }) {
     const { id } = use(params);
@@ -125,6 +126,8 @@ export default function PracticalDetail({ params }: { params: Promise<{ id: stri
                     </div>
                 </div>
             </main>
+
+            <Chatbot subject="OOPs" labTitle={lab.metadata.title} />
 
             <Footer />
         </div>

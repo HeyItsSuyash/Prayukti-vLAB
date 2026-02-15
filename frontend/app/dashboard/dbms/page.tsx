@@ -6,6 +6,7 @@ import { ChevronRight, PlayCircle, ArrowLeft } from "lucide-react";
 import { getLabsBySubject } from "@/lib/labs/registry";
 import { Badge } from "@/components/ui/badge";
 import { Chatbot } from "@/components/lab/Chatbot";
+import Footer from "@/components/layout/Footer";
 
 export default function DBMSPage() {
     const labs = getLabsBySubject("DBMS");
@@ -71,6 +72,7 @@ export default function DBMSPage() {
                 </div>
             </main>
             <Chatbot subject="DBMS" />
+            <Footer />
         </div>
     );
 }

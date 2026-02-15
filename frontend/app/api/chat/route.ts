@@ -26,7 +26,7 @@ export async function POST(req: Request) {
 
     try {
         const body = await req.json();
-        const { message, subject } = body;
+        const { message, subject, labTitle } = body;
 
         // 2. Input Validation
         if (!message || typeof message !== 'string') {
@@ -44,6 +44,10 @@ export async function POST(req: Request) {
         // Sanitize input (basic)
         const sanitizedMessage = message.trim();
         const sanitizedSubject = subject.trim();
+        const sanitizedLabTitle = labTitle ? labTitle.trim() : "";
+
+        const systemPrompt = `You are a helpful and knowledgeable Lab Assistant for the subject "${sanitizedSubject}"${sanitizedLabTitle ? `, specifically assisting with the experiment "${sanitizedLabTitle}"` : ""}. 
+Your goal is to help students understand concepts related to ${sanitizedSubject}${sanitizedLabTitle ? ` and the "${sanitizedLabTitle}" experiment` : ""}.`;
 
         const response = await fetch(API_URL, {
             method: 'POST',
@@ -56,8 +60,9 @@ export async function POST(req: Request) {
                 messages: [
                     {
                         role: "system",
-                        content: `You are a helpful and knowledgeable Lab Assistant for the subject "${sanitizedSubject}". 
-Your goal is to help students understand concepts related to ${sanitizedSubject}. 
+                        content: `${systemPrompt}
+
+Formatting Guidelines:
 
 Formatting Guidelines:
 - **Structure**: Organize your response into clear sections with descriptive headers if needed.
