@@ -6,9 +6,10 @@ export async function POST(req: Request) {
         const { to, subject, html } = await req.json();
 
         // 1. Check for SMTP credentials
-        const smtpHost = process.env.SMTP_HOST;
-        const smtpUser = process.env.SMTP_USER;
-        const smtpPass = process.env.SMTP_PASS;
+        // Sanitize inputs to remove accidental whitespace
+        const smtpHost = process.env.SMTP_HOST?.trim();
+        const smtpUser = process.env.SMTP_USER?.trim();
+        const smtpPass = process.env.SMTP_PASS?.trim();
 
         if (!smtpHost || !smtpUser || !smtpPass) {
             console.error("❌ SMTP CONFIGURATION MISSING:");
@@ -27,26 +28,37 @@ export async function POST(req: Request) {
         }
 
         // 2. Configure Transporter
-        const smtpPort = parseInt(process.env.SMTP_PORT || '587');
+        const smtpPort = parseInt(process.env.SMTP_PORT?.trim() || '587');
 
         console.log(`📧 Attempting SMTP Connection: ${smtpHost}:${smtpPort} (Secure: ${smtpPort === 465})`);
         console.log(`👤 SMTP User: ${smtpUser}`);
 
-        const transporter = nodemailer.createTransport({
-            host: smtpHost,
-            port: smtpPort,
-            secure: smtpPort === 465, // true for 465, false for other ports
+        // Define transport options type
+        let transportOptions: any = {
             auth: {
                 user: smtpUser,
                 pass: smtpPass,
             },
-            logger: true, // Log to console
-            debug: true, // Include debug info
-            connectionTimeout: 10000, // 10 seconds
-            greetingTimeout: 5000,    // 5 seconds
-            socketTimeout: 10000,     // 10 seconds
-            family: 4,                // Force IPv4 to avoid ENETUNREACH on IPv6
-        });
+            logger: true,
+            debug: true,
+            connectionTimeout: 30000, // 30 seconds (Increased)
+            greetingTimeout: 30000,   // 30 seconds (Increased)
+            socketTimeout: 30000,     // 30 seconds (Increased)
+            family: 4,                // Force IPv4
+        };
+
+        // Use 'service' shorthand for Gmail to handle host/port/secure automatically
+        if (smtpHost && smtpHost.includes("gmail")) {
+            console.log("GMAIL DETECTED: Using 'service: gmail' mode");
+            transportOptions.service = 'gmail';
+        } else {
+            console.log("CUSTOM SMTP MSG: Using explicit host/port config");
+            transportOptions.host = smtpHost;
+            transportOptions.port = smtpPort;
+            transportOptions.secure = smtpPort === 465;
+        }
+
+        const transporter = nodemailer.createTransport(transportOptions);
 
         // Verify connection configuration
         try {
