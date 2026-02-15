@@ -43,35 +43,42 @@ export async function POST(req: Request) {
             }
         }
 
-        console.log(`📧 Attempting SMTP Connection: ${smtpHost}:${smtpPort} (Secure: ${useSecure})`);
+        // 3. Pre-resolve DNS to IPv4 to bypass any IPv6/Nodemailer limitations
+        console.log(`🔍 Resolving IPv4 for ${smtpHost}...`);
+        let resolvedHost = smtpHost;
+        try {
+            const addresses = await dns.promises.resolve4(smtpHost);
+            if (addresses && addresses.length > 0) {
+                resolvedHost = addresses[0];
+                console.log(`✅ Resolved ${smtpHost} -> ${resolvedHost} (IPv4)`);
+            } else {
+                console.warn(`⚠️ No IPv4 addresses found for ${smtpHost}, using original host.`);
+            }
+        } catch (dnsError) {
+            console.error(`❌ DNS Resolution failed for ${smtpHost}:`, dnsError);
+            // Fallback to original host if resolution fails
+        }
+
+        console.log(`📧 Attempting SMTP Connection to IP: ${resolvedHost}:${smtpPort} (Secure: ${useSecure})`);
         console.log(`👤 SMTP User: ${smtpUser}`);
 
         // Define transport options type
         let transportOptions: any = {
-            host: smtpHost,
+            host: resolvedHost, // Use IP address directly
             port: smtpPort,
-            secure: useSecure, // true for 465, false for other ports
+            secure: useSecure,
             auth: {
                 user: smtpUser,
                 pass: smtpPass,
             },
+            tls: {
+                servername: smtpHost, // REQUIRED: Original hostname for TLS verification (SNI)
+            },
             logger: true,
             debug: true,
-            connectionTimeout: 20000, // 20 seconds
-            greetingTimeout: 20000,
-            socketTimeout: 20000,
-            // Custom lookup to STRICTLY enforce IPv4 and prevent IPv6 fallback
-            lookup: (hostname: string, options: any, callback: (err: NodeJS.ErrnoException | null, address: string, family: number) => void) => {
-                const ipv4Options = { ...options, family: 4 };
-                dns.lookup(hostname, ipv4Options, (err, address, family) => {
-                    if (err) {
-                        console.error(`❌ DNS Lookup Failed for ${hostname}:`, err);
-                        return callback(err, "", 0);
-                    }
-                    console.log(`🔍 DNS Lookup Resolved: ${hostname} -> ${address} (Family: ${family})`);
-                    callback(null, address, family);
-                });
-            }
+            connectionTimeout: 30000,
+            greetingTimeout: 30000,
+            socketTimeout: 30000,
         };
 
         const transporter = nodemailer.createTransport(transportOptions);
