@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import * as dotenv from "dotenv";
+import runJavaRoute from "./routes/run-java.js";
 
 dotenv.config();
 
@@ -12,6 +13,7 @@ app.use(cors({
     credentials: true
 }));
 app.use(express.json());
+app.use("/api", runJavaRoute);
 
 import authRoutes from "./routes/auth.js";
 import circuitRoutes from "./routes/circuit.js";
