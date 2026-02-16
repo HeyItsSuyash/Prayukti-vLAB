@@ -22,8 +22,9 @@ export class Intel8085 {
     registers: CPURegisters;
     flags: CPUFlags;
     memory: Uint8Array;
-    ports: Uint8Array;
     isHalted: boolean = false;
+    interruptEnabled: boolean = false;
+    interruptMask: number = 0; // Bits for 7.5, 6.5, 5.5 etc.
 
     constructor() {
         this.registers = {
@@ -33,7 +34,6 @@ export class Intel8085 {
             S: false, Z: false, AC: false, P: false, CY: false
         };
         this.memory = new Uint8Array(65536); // 64KB
-        this.ports = new Uint8Array(256); // 256 I/O ports
     }
 
     reset() {
@@ -43,7 +43,6 @@ export class Intel8085 {
         this.flags = {
             S: false, Z: false, AC: false, P: false, CY: false
         };
-        this.ports.fill(0);
         this.isHalted = false;
     }
 
@@ -110,7 +109,7 @@ export class Intel8085 {
     setHL(val: number) { this.registers.H = (val >> 8) & 0xFF; this.registers.L = val & 0xFF; }
 
     // Execute one instruction
-    step(): { opcode: number, mnemonic: string, bytes: number, pc: number } {
+    step(): { opcode: number, mnemonic: string, bytes: number, pc: number, error?: string } {
         if (this.isHalted) return { opcode: 0, mnemonic: "HLT", bytes: 1, pc: this.registers.PC };
 
         const pc = this.registers.PC;
@@ -118,10 +117,14 @@ export class Intel8085 {
         this.registers.PC++;
 
         const result = this.executeOpcode(opcode);
+        if (result.mnemonic === "UNKNOWN") {
+            this.isHalted = true;
+            return { ...result, pc, error: `Unknown opcode: ${opcode.toString(16).toUpperCase()}H` };
+        }
         return { ...result, pc };
     }
 
-    private updateAllFlags(res: number) {
+    private updateZSP(res: number) {
         this.flags.Z = (res & 0xFF) === 0;
         this.flags.S = (res & 0x80) !== 0;
         this.flags.P = this.calculateParity(res & 0xFF);
@@ -242,16 +245,8 @@ export class Intel8085 {
             }
 
             // IN / OUT
-            case 0xD3: {
-                const port = this.readByte(this.registers.PC++);
-                this.outPort(port, this.registers.A);
-                return { opcode, mnemonic: "OUT", bytes: 2 };
-            }
-            case 0xDB: {
-                const port = this.readByte(this.registers.PC++);
-                this.registers.A = this.inPort(port);
-                return { opcode, mnemonic: "IN", bytes: 2 };
-            }
+            case 0xD3: this.registers.PC++; return { opcode, mnemonic: "OUT", bytes: 2 }; // Stub
+            case 0xDB: this.registers.PC++; return { opcode, mnemonic: "IN", bytes: 2 };  // Stub
 
             // ADD
             case 0x80: this.add(this.registers.B); return { opcode, mnemonic: "ADD B", bytes: 1 };
@@ -347,7 +342,7 @@ export class Intel8085 {
                     this.flags.CY = true;
                 }
                 this.registers.A = res & 0xFF;
-                this.updateAllFlags(this.registers.A);
+                this.updateZSP(this.registers.A);
                 return { opcode, mnemonic: "DAA", bytes: 1 };
             }
 
@@ -482,11 +477,24 @@ export class Intel8085 {
             }
 
             // Machine Control
-
-            case 0xFB: return { opcode, mnemonic: "EI", bytes: 1 }; // Enable Interrupts (stub)
-            case 0xF3: return { opcode, mnemonic: "DI", bytes: 1 }; // Disable Interrupts (stub)
-            case 0x20: this.registers.A = this.rim(); return { opcode, mnemonic: "RIM", bytes: 1 };
-            case 0x30: this.sim(this.registers.A); return { opcode, mnemonic: "SIM", bytes: 1 };
+            case 0xFB: this.interruptEnabled = true; return { opcode, mnemonic: "EI", bytes: 1 };
+            case 0xF3: this.interruptEnabled = false; return { opcode, mnemonic: "DI", bytes: 1 };
+            case 0x20: { // RIM
+                let res = 0;
+                if (this.interruptEnabled) res |= 0x08;
+                res |= (this.interruptMask & 0x07);
+                // Stub for serial input and pending interrupts
+                this.registers.A = res;
+                return { opcode, mnemonic: "RIM", bytes: 1 };
+            }
+            case 0x30: { // SIM
+                const val = this.registers.A;
+                if (val & 0x08) { // MSE (Mask Set Enable)
+                    this.interruptMask = val & 0x07;
+                }
+                // Stub for SOD (Serial Output Data)
+                return { opcode, mnemonic: "SIM", bytes: 1 };
+            }
 
             default:
                 this.isHalted = true;
@@ -495,24 +503,11 @@ export class Intel8085 {
     }
 
     // --- Core Instruction Implementations ---
-    private rim(): number {
-        // RIM (Read Interrupt Mask) - Simplified hardware replica
-        // Returns status of interrupts and pending bits
-        return 0x00; // Stub: all interrupts masked/disabled
-    }
-
-    private sim(val: number) {
-        // SIM (Set Interrupt Mask) - Simplified hardware replica
-        // Logic for bit 6 (L7.5), bit 3 (MSE), bits 0-2 (Masks)
-        console.log(`SIM: ${val.toString(16).toUpperCase()}H`);
-    }
-
-    // --- Core Instruction Implementations ---
     private add(val: number) {
         const res = this.registers.A + val;
         this.flags.AC = ((this.registers.A & 0x0F) + (val & 0x0F)) > 0x0F;
         this.registers.A = res & 0xFF;
-        this.updateAllFlags(this.registers.A);
+        this.updateZSP(this.registers.A);
         this.flags.CY = res > 0xFF;
     }
 
@@ -521,7 +516,7 @@ export class Intel8085 {
         const res = this.registers.A + val + carry;
         this.flags.AC = ((this.registers.A & 0x0F) + (val & 0x0F) + carry) > 0x0F;
         this.registers.A = res & 0xFF;
-        this.updateAllFlags(this.registers.A);
+        this.updateZSP(this.registers.A);
         this.flags.CY = res > 0xFF;
     }
 
@@ -529,7 +524,7 @@ export class Intel8085 {
         const res = this.registers.A - val;
         this.flags.AC = ((this.registers.A & 0x0F) - (val & 0x0F)) < 0;
         this.registers.A = res & 0xFF;
-        this.updateAllFlags(this.registers.A);
+        this.updateZSP(this.registers.A);
         this.flags.CY = res < 0;
     }
 
@@ -538,21 +533,21 @@ export class Intel8085 {
         const res = this.registers.A - val - carry;
         this.flags.AC = ((this.registers.A & 0x0F) - (val & 0x0F) - carry) < 0;
         this.registers.A = res & 0xFF;
-        this.updateAllFlags(this.registers.A);
+        this.updateZSP(this.registers.A);
         this.flags.CY = res < 0;
     }
 
     private inr(val: number): number {
         const res = (val + 1) & 0xFF;
         this.flags.AC = (val & 0x0F) === 0x0F;
-        this.updateAllFlags(res);
+        this.updateZSP(res);
         return res;
     }
 
     private dcr(val: number): number {
         const res = (val - 1) & 0xFF;
         this.flags.AC = (val & 0x0F) === 0x00;
-        this.updateAllFlags(res);
+        this.updateZSP(res);
         return res;
     }
 
@@ -565,21 +560,21 @@ export class Intel8085 {
 
     private ana(val: number) {
         this.registers.A &= val;
-        this.updateAllFlags(this.registers.A);
+        this.updateZSP(this.registers.A);
         this.flags.CY = false;
         this.flags.AC = true; // 8085 spec: AC is set for ANA
     }
 
     private ora(val: number) {
         this.registers.A |= val;
-        this.updateAllFlags(this.registers.A);
+        this.updateZSP(this.registers.A);
         this.flags.CY = false;
         this.flags.AC = false;
     }
 
     private xra(val: number) {
         this.registers.A ^= val;
-        this.updateAllFlags(this.registers.A);
+        this.updateZSP(this.registers.A);
         this.flags.CY = false;
         this.flags.AC = false;
     }
@@ -640,11 +635,12 @@ export class Intel8085 {
         this.flags.CY = (psw & 0x01) !== 0;
     }
     private inPort(port: number): number {
-        return this.ports[port & 0xFF] || 0;
+        // Dummy I/O for now
+        return 0;
     }
 
     private outPort(port: number, val: number) {
-        this.ports[port & 0xFF] = val & 0xFF;
-        console.log(`OUT Port ${port.toString(16).toUpperCase().padStart(2, "0")}H: ${val.toString(16).toUpperCase().padStart(2, "0")}H`);
+        // Dummy I/O for now
+        console.log(`OUT Port ${port.toString(16).toUpperCase()}: ${val.toString(16).toUpperCase()}H`);
     }
 }

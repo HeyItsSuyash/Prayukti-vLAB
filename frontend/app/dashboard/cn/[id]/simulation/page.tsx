@@ -1,14 +1,19 @@
 "use client";
 
-import { use } from "react";
+import { use, useEffect } from "react";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import SimulationRenderer from "@/components/simulation/SimulationRenderer";
 import { Button } from "@/components/ui/button";
+import { updateLabProgress } from "@/lib/progress-utils";
 
 export default function SimulationPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = use(params);
     const labId = id.startsWith('cn-exp-') ? id : `cn-exp-${id}`; // Adjust prefix if needed
+
+    useEffect(() => {
+        updateLabProgress("cn", id, 100);
+    }, [id]);
 
     return (
         <div className="flex flex-col h-screen bg-white">

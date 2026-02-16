@@ -50,10 +50,6 @@ export const OPCODE_MAP: Record<string, { opcode: number, bytes: number }> = {
     "ADD D": { opcode: 0x82, bytes: 1 }, "ADD E": { opcode: 0x83, bytes: 1 }, "ADD H": { opcode: 0x84, bytes: 1 },
     "ADD L": { opcode: 0x85, bytes: 1 }, "ADD M": { opcode: 0x86, bytes: 1 },
     "ADI": { opcode: 0xC6, bytes: 2 },
-    "ADC A": { opcode: 0x8F, bytes: 1 }, "ADC B": { opcode: 0x88, bytes: 1 }, "ADC C": { opcode: 0x89, bytes: 1 },
-    "ADC D": { opcode: 0x8A, bytes: 1 }, "ADC E": { opcode: 0x8B, bytes: 1 }, "ADC H": { opcode: 0x8C, bytes: 1 },
-    "ADC L": { opcode: 0x8D, bytes: 1 }, "ADC M": { opcode: 0x8E, bytes: 1 },
-    "ACI": { opcode: 0xCE, bytes: 2 },
 
     "SUB A": { opcode: 0x97, bytes: 1 }, "SUB B": { opcode: 0x90, bytes: 1 }, "SUB C": { opcode: 0x91, bytes: 1 },
     "SUB D": { opcode: 0x92, bytes: 1 }, "SUB E": { opcode: 0x93, bytes: 1 }, "SUB H": { opcode: 0x94, bytes: 1 },
@@ -119,7 +115,6 @@ export const OPCODE_MAP: Record<string, { opcode: number, bytes: number }> = {
     "IN": { opcode: 0xDB, bytes: 2 }, "OUT": { opcode: 0xD3, bytes: 2 },
 
     // Machine Control
-    "HLT": { opcode: 0x76, bytes: 1 },
     "EI": { opcode: 0xFB, bytes: 1 }, "DI": { opcode: 0xF3, bytes: 1 },
     "SIM": { opcode: 0x30, bytes: 1 }, "RIM": { opcode: 0x20, bytes: 1 },
 };
@@ -145,21 +140,26 @@ export class Assembler {
                 if (!rest) return;
             }
 
-            const instruction = clean.replace(/^(\w+):/, "").trim().toUpperCase();
-            const normalized = instruction.replace(/\s*,\s*/g, ",").replace(/\s+/g, " ");
+            const instruction = clean.replace(/^(\w+):/, "").trim();
+            const normalized = instruction.replace(/,\s*/g, " ").replace(/\s+/g, " ").toUpperCase();
 
+            // Resolve bytes needed
             let found = false;
-            // Key order for prefix matching (longer keys first)
+            // Check for longest matching key first to avoid partial matches (e.g., MOV A matching MOV A, B)
             const sortedKeys = Object.keys(OPCODE_MAP).sort((a, b) => b.length - a.length);
-
             for (const key of sortedKeys) {
                 if (normalized.startsWith(key)) {
-                    currentAddr += OPCODE_MAP[key]!.bytes;
-                    found = true;
-                    break;
+                    const mapOp = OPCODE_MAP[key];
+                    if (mapOp) {
+                        currentAddr += mapOp.bytes;
+                        found = true;
+                        break;
+                    }
                 }
             }
-            if (!found) currentAddr += 1;
+            if (!found && instruction) {
+                currentAddr += 1; // Default to 1 byte for unknown or invalid
+            }
         });
 
         // Pass 2: Generate Opcodes
@@ -170,16 +170,16 @@ export class Assembler {
                 if (!clean) return;
 
                 lineMap[idx] = currentAddr;
-
                 const instruction = clean.replace(/^(\w+):/, "").trim();
                 if (!instruction) return;
 
-                const normalized = instruction.toUpperCase().replace(/\s*,\s*/g, ",").replace(/\s+/g, " ");
+                const normalized = instruction.replace(/,\s*/g, " ").replace(/\s+/g, " ").toUpperCase();
 
+                // Match best opcode
                 let match = null;
                 let keyMatch = "";
-                const sortedKeys = Object.keys(OPCODE_MAP).sort((a, b) => b.length - a.length);
 
+                const sortedKeys = Object.keys(OPCODE_MAP).sort((a, b) => b.length - a.length);
                 for (const key of sortedKeys) {
                     if (normalized.startsWith(key)) {
                         match = OPCODE_MAP[key];
@@ -188,27 +188,36 @@ export class Assembler {
                     }
                 }
 
-                if (!match) throw new Error(`Unknown instruction: ${instruction}`);
+                if (!match) throw new Error(`Unknown instruction on line ${idx + 1}: ${instruction}`);
 
                 hex.push(match.opcode);
                 currentAddr++;
 
                 if (match.bytes > 1) {
-                    // Extract operand from the original instruction after the mnemonic part
-                    // Use keyMatch to skip the opcode part in normalized string
+                    // Extract operand from the normalized string by removing the instruction key
                     let operand = normalized.substring(keyMatch.length).trim();
-                    // If operand is empty in normalized, stay with empty
-                    if (operand.startsWith(",")) operand = operand.substring(1).trim();
+                    if (!operand) {
+                        // Support cases where operand might be separated by comma original instruction
+                        // But normalized already replaced commas with spaces
+                        throw new Error(`Missing operand for ${keyMatch} on line ${idx + 1}`);
+                    }
 
                     let val = 0;
                     if (labels[operand] !== undefined) {
                         val = labels[operand]!;
                     } else {
-                        val = parseInt(operand.replace(/H$/i, ""), 16);
-                        if (isNaN(val)) val = parseInt(operand);
+                        // Handle Hex (1234H), Decimal (1234), and potentially Binary?
+                        const hexMatch = operand.match(/^([0-9A-F]+)H$/i);
+                        if (hexMatch) {
+                            val = parseInt(hexMatch[1], 16);
+                        } else {
+                            val = parseInt(operand);
+                            // If decimal parse fails or result is NaN, try hex fallback if it looks like hex
+                            if (isNaN(val)) val = parseInt(operand, 16);
+                        }
                     }
 
-                    if (isNaN(val)) throw new Error(`Invalid operand: ${operand} for instruction ${keyMatch}`);
+                    if (isNaN(val)) throw new Error(`Invalid operand '${operand}' on line ${idx + 1}`);
 
                     if (match.bytes === 2) {
                         hex.push(val & 0xFF);

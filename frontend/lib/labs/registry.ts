@@ -240,6 +240,96 @@ const Labs: LabManifest[] = [
             difficulty: "Hard",
             thumbnailUrl: "💻"
         }
+    },
+
+    // --- MPMC Labs ---
+    {
+        id: "mpmc-exp-1",
+        subject: "MPMC",
+        type: "experimental",
+        metadata: {
+            title: "Decimal Addition & Subtraction",
+            description: "Binary Coded Decimal (BCD) arithmetic using DAA instruction.",
+            difficulty: "Medium",
+            thumbnailUrl: "📟"
+        }
+    },
+    {
+        id: "mpmc-exp-2",
+        subject: "MPMC",
+        type: "experimental",
+        metadata: {
+            title: "Hexadecimal Addition & Subtraction",
+            description: "8-bit hexadecimal arithmetic operations.",
+            difficulty: "Easy",
+            thumbnailUrl: "📟"
+        }
+    },
+    {
+        id: "mpmc-exp-3",
+        subject: "MPMC",
+        type: "experimental",
+        metadata: {
+            title: "Addition & Subtraction of Two BCD Numbers",
+            description: "Advanced BCD operations with carry/borrow handling.",
+            difficulty: "Hard",
+            thumbnailUrl: "📟"
+        }
+    },
+    {
+        id: "mpmc-exp-4",
+        subject: "MPMC",
+        type: "experimental",
+        metadata: {
+            title: "Multiplication & Division of Two 8-bit Numbers",
+            description: "Repeated addition and repeated subtraction methods.",
+            difficulty: "Medium",
+            thumbnailUrl: "📟"
+        }
+    },
+    {
+        id: "mpmc-exp-5",
+        subject: "MPMC",
+        type: "experimental",
+        metadata: {
+            title: "Find Largest & Smallest Number in an Array",
+            description: "Array traversal and comparison logic.",
+            difficulty: "Medium",
+            thumbnailUrl: "📟"
+        }
+    },
+    {
+        id: "mpmc-exp-6",
+        subject: "MPMC",
+        type: "experimental",
+        metadata: {
+            title: "Arrange Array in Ascending Order",
+            description: "Bubble sort implementation on 8085.",
+            difficulty: "Hard",
+            thumbnailUrl: "📟"
+        }
+    },
+    {
+        id: "mpmc-exp-7",
+        subject: "MPMC",
+        type: "experimental",
+        metadata: {
+            title: "Arrange Array in Descending Order",
+            description: "Selection/Bubble sort for descending order.",
+            difficulty: "Hard",
+            thumbnailUrl: "📟"
+        }
+    },
+    {
+        id: "mpmc-exp-8",
+        subject: "MPMC",
+        type: "experimental",
+        metadata: {
+            title: "Hexadecimal to ASCII & Vice Versa",
+            description: "Character encoding and data conversion.",
+            difficulty: "Medium",
+            thumbnailUrl: "📟"
+        }
     }
 ];
 

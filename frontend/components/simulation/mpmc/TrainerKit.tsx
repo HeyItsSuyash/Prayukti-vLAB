@@ -13,7 +13,6 @@ import {
     Monitor
 } from "lucide-react";
 import { OpcodeGuide } from "./OpcodeGuide";
-import { SevenSegmentDigit } from "./SevenSegment";
 
 interface TrainerKitProps {
     cpu: Intel8085;
@@ -128,7 +127,7 @@ export const TrainerKit: React.FC<TrainerKitProps> = ({ cpu, onSync }) => {
                     setBuffer("");
                     setSelectedRegister("A");
                     setFeedback("EXAMINE REGISTER: A");
-                } else if (key === "G") {
+                } else if (key === "G" || key === ":") {
                     setMode("EXEC_ADDR");
                     setBuffer("");
                     setFeedback("GO TO: TYPE START ADDRESS");
@@ -242,6 +241,8 @@ export const TrainerKit: React.FC<TrainerKitProps> = ({ cpu, onSync }) => {
             case "EXEC_ADDR":
                 if (/^[0-9A-F]$/.test(key)) {
                     if (buffer.length < 4) setBuffer(prev => prev + key);
+                } else if (key === "BACKSPACE") {
+                    setBuffer(prev => prev.slice(0, -1));
                 } else if (key === "ENTER") {
                     const addr = parseInt(buffer.padStart(4, "0"), 16);
                     handleRun(addr);
@@ -331,35 +332,17 @@ export const TrainerKit: React.FC<TrainerKitProps> = ({ cpu, onSync }) => {
                 {showGuide && <OpcodeGuide onClose={() => setShowGuide(false)} />}
 
                 {/* Display Console */}
-                <div className="bg-black p-8 rounded border-b-4 border-r-4 border-[#222] mb-8 shadow-inner flex justify-center gap-12 overflow-hidden">
+                <div className="bg-[#050505] p-8 rounded-2xl border-b-8 border-r-8 border-black/40 mb-8 shadow-2xl flex justify-center gap-16 overflow-hidden relative">
+                    <div className="absolute inset-0 bg-gradient-to-t from-red-500/5 to-transparent pointer-events-none" />
                     {/* Address LED */}
-                    <div className="space-y-2">
-                        <div className="text-[10px] text-slate-800 font-black uppercase tracking-widest text-center">Address / Reg</div>
-                        {/* Address Side */}
-                        <div className="flex gap-1 bg-black/40 p-2 rounded-lg border border-white/5 shadow-inner">
-                            {displayAddressHex.padStart(4, " ").split('').map((char: string, i: number) => (
-                                <SevenSegmentDigit key={`addr-${i}`} value={char} size="lg" activeColor="#ff3131" />
-                            ))}
-                        </div>
-
-                        {/* Divider */}
-                        <div className="h-12 w-[2px] bg-gradient-to-b from-transparent via-white/10 to-transparent mx-2 invisible md:visible" />
-
-                        {/* Data Side */}
-                        <div className="flex gap-1 bg-black/40 p-2 rounded-lg border border-white/5 shadow-inner">
-                            {displayDataHex.padStart(2, " ").split('').map((char: string, i: number) => (
-                                <SevenSegmentDigit key={`data-${i}`} value={char} size="lg" activeColor="#ff3131" />
-                            ))}
-                        </div>
+                    <div className="space-y-3 z-10">
+                        <div className="text-[11px] text-slate-700 font-black uppercase tracking-[0.2em] text-center">Address / Register</div>
+                        <HexDisplay value={displayAddressHex} length={displayAddressHex.length} size="lg" />
                     </div>
                     {/* Data LED */}
-                    <div className="space-y-2">
-                        <div className="text-[10px] text-slate-800 font-black uppercase tracking-widest text-center">Data / Value</div>
-                        <div className="flex gap-1 bg-black/40 p-2 rounded-lg border border-white/5 shadow-inner">
-                            {displayDataHex.padStart(2, " ").split('').map((char: string, i: number) => (
-                                <SevenSegmentDigit key={`data-${i}`} value={char} size="lg" activeColor="#ff3131" />
-                            ))}
-                        </div>
+                    <div className="space-y-3 z-10">
+                        <div className="text-[11px] text-slate-800 font-black uppercase tracking-[0.2em] text-center">Data / Value</div>
+                        <HexDisplay value={displayAddressHex.length > 4 ? displayDataHex.slice(-4) : displayDataHex} length={2} size="lg" />
                     </div>
                 </div>
 
@@ -367,11 +350,11 @@ export const TrainerKit: React.FC<TrainerKitProps> = ({ cpu, onSync }) => {
                 <div className="grid grid-cols-12 gap-6">
                     {/* Left: Registers and Flags */}
                     <div className="col-span-8 space-y-6">
-                        <div className="bg-[#121212] p-4 rounded border border-[#222]">
-                            <div className="text-[10px] text-slate-600 font-bold uppercase tracking-widest mb-4 flex items-center gap-2">
-                                <Cpu className="h-3 w-3" /> Register Matrix
+                        <div className="bg-[#0a0a0a] p-5 rounded-2xl border border-white/5 shadow-xl">
+                            <div className="text-[10px] text-slate-700 font-bold uppercase tracking-[0.3em] mb-6 flex items-center gap-2">
+                                <Cpu className="h-3 w-3 text-red-900" /> Internal Processor State
                             </div>
-                            <div className="grid grid-cols-4 gap-3">
+                            <div className="grid grid-cols-4 gap-4">
                                 {['A', 'B', 'C', 'D', 'E', 'H', 'L'].map(reg => (
                                     <StatBox
                                         key={reg}
@@ -381,56 +364,41 @@ export const TrainerKit: React.FC<TrainerKitProps> = ({ cpu, onSync }) => {
                                     />
                                 ))}
                                 <StatBox
-                                    label="M"
+                                    label="M (HL)"
                                     val={cpu.readByte(cpu.getHL())}
                                     active={false}
                                 />
                             </div>
-                            <div className="mt-4 pt-4 border-t border-[#222] flex justify-between gap-4 items-center">
-                                <div className="flex gap-4">
-                                    <RegisterPair label="PC" val={cpu.registers.PC} active={selectedRegister === "PC"} />
-                                    <RegisterPair label="SP" val={cpu.registers.SP} active={selectedRegister === "SP"} />
+                            <div className="mt-8 pt-6 border-t border-white/5 flex justify-between items-end gap-6">
+                                <div className="flex gap-6">
+                                    <RegisterPair label="PC" h={cpu.registers.PC >> 8} l={cpu.registers.PC & 0xFF} activeH={selectedRegister === "PC"} activeL={selectedRegister === "PC"} />
+                                    <RegisterPair label="SP" h={cpu.registers.SP >> 8} l={cpu.registers.SP & 0xFF} activeH={selectedRegister === "SP"} activeL={selectedRegister === "SP"} />
                                 </div>
 
-                                {/* Discrete Flag LED Strip */}
-                                <div className="flex items-center gap-6 px-4 py-2 bg-black/30 rounded-xl border border-white/5">
-                                    {["S", "Z", "AC", "P", "CY"].map((f) => {
-                                        const active = (cpu.flags as any)[f];
-                                        return (
-                                            <div key={f} className="flex flex-col items-center gap-1">
-                                                <div className="text-[9px] text-slate-500 font-bold">{f}</div>
-                                                <div className={`w-3 h-3 rounded-full transition-all duration-300 ${active ? "bg-red-500 shadow-[0_0_8px_#ef4444]" : "bg-red-950/30"}`} />
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-
-                                <div className="bg-black/20 p-2 rounded flex items-center gap-3 border border-[#222]">
-                                    <Monitor className="h-3 w-3 text-slate-700" />
-                                    <div className="flex flex-col">
-                                        <span className="text-[7px] text-slate-800 font-bold uppercase">I/O Port 01H</span>
-                                        <span className="text-xs font-mono text-slate-600">00H</span>
-                                    </div>
+                                <div className="flex bg-black/40 p-3 rounded-xl border border-white/5 gap-6 items-center px-6">
+                                    {Object.entries(cpu.flags).map(([f, v]) => (
+                                        <FlagLED key={f} label={f} status={v} />
+                                    ))}
                                 </div>
                             </div>
                         </div>
 
                         {/* Status & Feedback */}
-                        <div className="bg-[#0a0a0a] border border-[#222] p-3 rounded flex items-center gap-3">
-                            <Terminal className="h-4 w-4 text-green-700" />
-                            <span className="text-xs text-green-800 font-bold uppercase tracking-tighter truncate">{feedback}</span>
+                        <div className="bg-black/60 border border-white/5 p-4 rounded-xl flex items-center gap-3 shadow-inner">
+                            <Terminal className="h-4 w-4 text-emerald-900" />
+                            <span className="text-xs text-emerald-500/80 font-mono tracking-tight truncate uppercase">{feedback}</span>
                         </div>
 
                         {/* Keyboard Help */}
-                        <div className="grid grid-cols-4 gap-2">
-                            <KeyHelp k="M" t="Exm Mem" />
-                            <KeyHelp k="R" t="Exm Reg" />
-                            <KeyHelp k="G" t="Go" />
-                            <KeyHelp k="S" k2="F7" t="Step" />
-                            <KeyHelp k="F5" t="Run" />
-                            <KeyHelp k="ENT / ↓" t="Next" />
-                            <KeyHelp k=", / ↑" t="Prev" />
-                            <KeyHelp k="ESC" t="Reset" />
+                        <div className="grid grid-cols-4 gap-3">
+                            <KeyHelp k="M" t="SET ADDR" desc="Exm Mem" />
+                            <KeyHelp k="R" t="SET REG" desc="Exm Reg" />
+                            <KeyHelp k="G" t="EXECUTE" desc="Go" />
+                            <KeyHelp k="S" k2="F7" t="STEP" desc="Next Inst" />
+                            <KeyHelp k="F5" t="RUN" desc="Auto Mode" />
+                            <KeyHelp k="ENT" k2="↓" t="INCR" desc="Next Loc" />
+                            <KeyHelp k="." k2="↑" t="DECR" desc="Prev Loc" />
+                            <KeyHelp k="ESC" t="RESET" desc="Warm Start" />
                         </div>
 
                         {/* Memory Trace Panel */}
@@ -483,27 +451,93 @@ export const TrainerKit: React.FC<TrainerKitProps> = ({ cpu, onSync }) => {
     );
 };
 
+/**
+ * Authentic 8-bit Seven Segment Display Segment mapping
+ * Based on common cathode/anode patterns
+ */
+const SevenSegment = ({ val, active = true, size = "md" }: { val: string, active?: boolean, size?: "sm" | "md" | "lg" }) => {
+    // Map hex digit to segments (a, b, c, d, e, f, g)
+    const segments: Record<string, boolean[]> = {
+        '0': [true, true, true, true, true, true, false],
+        '1': [false, true, true, false, false, false, false],
+        '2': [true, true, false, true, true, false, true],
+        '3': [true, true, true, true, false, false, true],
+        '4': [false, true, true, false, false, true, true],
+        '5': [true, false, true, true, false, true, true],
+        '6': [true, false, true, true, true, true, true],
+        '7': [true, true, true, false, false, false, false],
+        '8': [true, true, true, true, true, true, true],
+        '9': [true, true, true, true, false, true, true],
+        'A': [true, true, true, false, true, true, true],
+        'B': [false, false, true, true, true, true, true],
+        'C': [true, false, false, true, true, true, false],
+        'D': [false, true, true, true, true, false, true],
+        'E': [true, false, false, true, true, true, true],
+        'F': [true, false, false, false, true, true, true],
+    };
+
+    const s = segments[val.toUpperCase()] || [false, false, false, false, false, false, true]; // Default to dash or empty
+    const scale = size === "sm" ? "scale-75" : size === "lg" ? "scale-125" : "scale-100";
+
+    return (
+        <div className={`relative w-8 h-12 inline-block ${scale} ${active ? "text-red-500" : "text-red-950/20"}`}>
+            {/* Top (a) */}
+            <div className={`absolute top-0 left-1 right-1 h-1 rounded-full transition-colors ${s[0] ? "bg-current shadow-[0_0_8px_rgba(239,68,68,0.6)]" : "bg-current/10"}`} />
+            {/* Top Right (b) */}
+            <div className={`absolute top-1 right-0 w-1 h-4 rounded-full transition-colors ${s[1] ? "bg-current shadow-[0_0_8px_rgba(239,68,68,0.6)]" : "bg-current/10"}`} />
+            {/* Bottom Right (c) */}
+            <div className={`absolute bottom-1 right-0 w-1 h-4 rounded-full transition-colors ${s[2] ? "bg-current shadow-[0_0_8px_rgba(239,68,68,0.6)]" : "bg-current/10"}`} />
+            {/* Bottom (d) */}
+            <div className={`absolute bottom-0 left-1 right-1 h-1 rounded-full transition-colors ${s[3] ? "bg-current shadow-[0_0_8px_rgba(239,68,68,0.6)]" : "bg-current/10"}`} />
+            {/* Bottom Left (e) */}
+            <div className={`absolute bottom-1 left-0 w-1 h-4 rounded-full transition-colors ${s[4] ? "bg-current shadow-[0_0_8px_rgba(239,68,68,0.6)]" : "bg-current/10"}`} />
+            {/* Top Left (f) */}
+            <div className={`absolute top-1 left-0 w-1 h-4 rounded-full transition-colors ${s[5] ? "bg-current shadow-[0_0_8px_rgba(239,68,68,0.6)]" : "bg-current/10"}`} />
+            {/* Middle (g) */}
+            <div className={`absolute top-1/2 left-1 right-1 h-1 -translate-y-1/2 rounded-full transition-colors ${s[6] ? "bg-current shadow-[0_0_8px_rgba(239,68,68,0.6)]" : "bg-current/10"}`} />
+        </div>
+    );
+};
+
+const HexDisplay = ({ value, length = 2, size = "md", active = true }: { value: number | string, length?: number, size?: "sm" | "md" | "lg", active?: boolean }) => {
+    const str = (typeof value === "number" ? value.toString(16) : value).toUpperCase().padStart(length, "0");
+    return (
+        <div className="flex gap-1.5 items-center justify-center p-2 bg-black/80 rounded-lg border border-white/5 shadow-inner">
+            {str.split("").map((char, i) => (
+                <SevenSegment key={i} val={char} size={size} active={active} />
+            ))}
+        </div>
+    );
+};
+
 const StatBox = ({ label, val, active }: { label: string, val: number, active: boolean }) => (
-    <div className={`p-2 rounded border transition-all ${active ? "bg-red-900/20 border-red-500/50 shadow-[0_0_10px_rgba(239,68,68,0.2)]" : "bg-black/40 border-[#222]"}`}>
-        <div className="text-[8px] text-slate-700 font-bold mb-1">{label}</div>
-        <div className={`text-xl font-bold ${active ? "text-red-500" : "text-slate-500"}`}>
-            {val.toString(16).toUpperCase().padStart(2, "0")}
+    <div className={`p-2 rounded-xl border border-white/5 transition-all bg-black/40 ${active ? "shadow-[inset_0_0_15px_rgba(239,68,68,0.1)] border-red-500/20" : ""}`}>
+        <div className="text-[9px] text-slate-500 font-bold mb-2 uppercase tracking-tight text-center">{label}</div>
+        <HexDisplay value={val} length={2} active={active} />
+    </div>
+);
+
+const RegisterPair = ({ label, h, l, activeH, activeL }: { label: string, h: number, l: number, activeH: boolean, activeL: boolean }) => (
+    <div className="space-y-2">
+        <div className="text-[10px] text-slate-400 font-black text-center">{label}</div>
+        <div className="grid grid-cols-2 gap-2">
+            <StatBox label={label[0]} val={h} active={activeH} />
+            <StatBox label={label[1]} val={l} active={activeL} />
         </div>
     </div>
 );
 
-const RegisterPair = ({ label, val, active }: { label: string, val: number, active: boolean }) => (
-    <div className={`p-2 px-4 rounded border transition-all flex items-center gap-4 ${active ? "bg-red-900/20 border-red-500/50" : "bg-black/40 border-[#222]"}`}>
-        <div className="text-[9px] text-slate-700 font-bold">{label}</div>
-        <div className={`text-lg font-bold ${active ? "text-red-500" : "text-slate-500"}`}>
-            {val.toString(16).toUpperCase().padStart(4, "0")}
-        </div>
+const FlagLED = ({ label, status }: { label: string, status: boolean }) => (
+    <div className="flex flex-col items-center gap-1">
+        <div className={`w-3 h-3 rounded-full border-2 border-black/50 transition-all ${status ? "bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.8)]" : "bg-red-950/30"}`} />
+        <span className={`text-[9px] font-bold ${status ? "text-red-400" : "text-slate-600"}`}>{label}</span>
     </div>
 );
 
-const KeyHelp = ({ k, k2, t }: { k: string, k2?: string, t: string }) => (
-    <div className="flex flex-col items-center bg-black/40 p-1 rounded border border-[#222]">
-        <span className="text-[8px] text-slate-400 font-black">{k}{k2 ? ` / ${k2}` : ''}</span>
-        <span className="text-[7px] text-slate-700 font-bold uppercase">{t}</span>
+const KeyHelp = ({ k, k2, t, desc }: { k: string, k2?: string, t: string, desc?: string }) => (
+    <div className="flex flex-col items-center bg-black/40 p-1.5 rounded border border-white/5 shadow-sm">
+        <span className="text-[9px] text-slate-400 font-black tracking-widest">{k}{k2 ? ` / ${k2}` : ''}</span>
+        <span className="text-[7px] text-slate-600 font-bold uppercase mt-0.5">{t}</span>
+        {desc && <span className="text-[6px] text-slate-800 font-medium">{desc}</span>}
     </div>
 );

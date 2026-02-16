@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Globe, Cpu, Terminal } from "lucide-react";
+import { ArrowRight, Globe, Cpu, Terminal, Database } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const labs = [
@@ -31,6 +31,24 @@ const labs = [
         color: "hover:border-indigo-200 hover:shadow-indigo-100",
         bg: "bg-indigo-50",
         accent: "text-indigo-600",
+    },
+    {
+        title: "Database Management",
+        description: "Design schemas, normalize tables, and execute complex SQL queries in a visual environment.",
+        icon: <Database className="w-8 h-8 text-emerald-600" />,
+        href: "/dashboard/dbms",
+        color: "hover:border-emerald-200 hover:shadow-emerald-100",
+        bg: "bg-emerald-50",
+        accent: "text-emerald-600",
+    },
+    {
+        title: "Microprocessors (MPMC)",
+        description: "Study 8085 architecture and programming through an interactive virtual trainer kit.",
+        icon: <Cpu className="w-8 h-8 text-orange-600" />,
+        href: "/dashboard/mpmc",
+        color: "hover:border-orange-200 hover:shadow-orange-100",
+        bg: "bg-orange-50",
+        accent: "text-orange-600",
     },
 ];
 

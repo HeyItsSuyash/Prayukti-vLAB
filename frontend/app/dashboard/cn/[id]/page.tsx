@@ -12,9 +12,10 @@ import { Chatbot } from "@/components/lab/Chatbot";
 
 export default function PracticalDetail({ params }: { params: Promise<{ id: string }> }) {
     const { id } = use(params);
+    const labId = !isNaN(Number(id)) ? `cn-exp-${id}` : id;
 
-    const lab = getLabById(id);
-    const content = LAB_CONTENT[id];
+    const lab = getLabById(labId);
+    const content = LAB_CONTENT[labId];
 
     if (!lab || !content) {
         return (
@@ -99,7 +100,7 @@ export default function PracticalDetail({ params }: { params: Promise<{ id: stri
                             <p className="text-sm font-medium text-blue-800/70 mb-8 relative z-10 leading-relaxed">
                                 Launch the virtual simulator to visualize the network layers and verify protocols.
                             </p>
-                            <Link href={`/dashboard/cn/${id}/simulation`}>
+                            <Link href={`/dashboard/cn/${labId}/simulation`}>
                                 <Button className="w-full h-14 bg-blue-600 hover:bg-blue-700 text-white uppercase font-bold tracking-wider rounded-lg shadow-lg hover:shadow-blue-200 hover:-translate-y-1 transition-all relative z-10">
                                     <FlaskConical className="mr-2 h-5 w-5" />
                                     Launch Simulator

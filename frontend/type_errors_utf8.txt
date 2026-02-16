@@ -1,0 +1,52 @@
+﻿
+> frontend@0.1.0 check-types
+> next typegen && tsc --noEmit
+
+node.exe : Invalid 
+project directory 
+provided, no such 
+directory: C:\Users\v
+aibh\Desktop\Prayukti
+-vLAB\frontend\typege
+n
+At line:1 char:1
++ & "C:\Program Files
+\nodejs/node.exe" 
+"C:\Program 
+Files\nodejs/node_mo 
+...
++ ~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~
+    + CategoryInfo   
+           : NotSpe  
+  cified: (Invalid   
+  project...ronte    
+nd\typegen:Strin    
+g) [], RemoteExc    
+eption
+    + FullyQualified 
+   ErrorId : Native  
+  CommandError
+ 
+npm error Lifecycle 
+script `check-types` 
+failed with error:
+npm error code 1
+npm error path C:\Use
+rs\vaibh\Desktop\Pray
+ukti-vLAB\frontend
+npm error workspace 
+frontend@0.1.0
+npm error location C:
+\Users\vaibh\Desktop\
+Prayukti-vLAB\fronten
+d
+npm error command 
+failed
+npm error command C:\
+WINDOWS\system32\cmd.
+exe /d /s /c next 
+typegen && tsc 
+--noEmit

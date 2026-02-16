@@ -1,15 +1,22 @@
 "use client";
 
-import { use } from "react";
+import { use, useEffect } from "react";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import SimulationRenderer from "@/components/simulation/SimulationRenderer";
 import { Button } from "@/components/ui/button";
+import { updateLabProgress } from "@/lib/progress-utils";
 
 export default function SimulationPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = use(params);
     // Handle potential duplicate prefixes if any
     const labId = id.startsWith('dld-exp-') ? id : `dld-exp-${id}`;
+
+    useEffect(() => {
+        // Mark as 100% since they attended the lab
+        // We use 'dld' as subject and the original id (e.g. 1) as labId to match registry mapping in page.tsx
+        updateLabProgress("dld", id, 100);
+    }, [id]);
 
     return (
         <div className="flex flex-col h-screen bg-white">

@@ -48,6 +48,10 @@ const HostLanguageSimulation = dynamic(() => import("@/components/simulation/dbm
     ssr: false,
     loading: () => <LoadingSpinner />
 });
+const MPMCSimulator = dynamic(() => import("@/components/simulation/mpmc/MPMCSimulator"), {
+    ssr: false,
+    loading: () => <LoadingSpinner />
+});
 
 const LoadingSpinner = () => (
     <div className="flex h-full w-full items-center justify-center p-8">
@@ -82,6 +86,16 @@ const COMPONENT_MAP: Record<string, React.ComponentType<any>> = {
     "dbms-exp-3": SQLQueriesSimulation,
     "dbms-exp-4": NormalizationSimulation,
     "dbms-exp-5": HostLanguageSimulation,
+
+    // MPMC
+    "mpmc-exp-1": MPMCSimulator,
+    "mpmc-exp-2": MPMCSimulator,
+    "mpmc-exp-3": MPMCSimulator,
+    "mpmc-exp-4": MPMCSimulator,
+    "mpmc-exp-5": MPMCSimulator,
+    "mpmc-exp-6": MPMCSimulator,
+    "mpmc-exp-7": MPMCSimulator,
+    "mpmc-exp-8": MPMCSimulator,
 };
 
 export default function SimulationRenderer({ labId }: { labId: string }) {
@@ -95,5 +109,7 @@ export default function SimulationRenderer({ labId }: { labId: string }) {
         );
     }
 
-    return <Component practicalId={labId} />;
+    // Pass labId to the component. Some older components might ignore it, 
+    // but newer ones like MPMCSimulator expect it.
+    return <Component labId={labId} practicalId={labId} />;
 }

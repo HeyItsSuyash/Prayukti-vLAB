@@ -12,9 +12,10 @@ import { Chatbot } from "@/components/lab/Chatbot";
 
 export default function PracticalDetail({ params }: { params: Promise<{ id: string }> }) {
     const { id } = use(params);
+    const labId = !isNaN(Number(id)) ? `oops-exp-${id}` : id;
 
-    const lab = getLabById(id);
-    const content = LAB_CONTENT[id];
+    const lab = getLabById(labId);
+    const content = LAB_CONTENT[labId];
 
     if (!lab || !content) {
         return (
@@ -98,7 +99,7 @@ export default function PracticalDetail({ params }: { params: Promise<{ id: stri
                             <p className="text-sm font-medium text-purple-800/70 mb-8 relative z-10 leading-relaxed">
                                 Launch the virtual simulator to build and test your classes.
                             </p>
-                            <Link href={`/dashboard/oops/${id}/simulation`}>
+                            <Link href={`/dashboard/oops/${labId}/simulation`}>
                                 <Button className="w-full h-14 bg-purple-600 hover:bg-purple-700 text-white uppercase font-bold tracking-wider rounded-lg shadow-lg hover:shadow-purple-200 hover:-translate-y-1 transition-all relative z-10">
                                     <FlaskConical className="mr-2 h-5 w-5" />
                                     Launch Simulator
@@ -127,7 +128,7 @@ export default function PracticalDetail({ params }: { params: Promise<{ id: stri
                 </div>
             </main>
 
-            <Chatbot subject="OOPs" labTitle={lab.metadata.title} />
+            <Chatbot subject="OOPS" labTitle={lab.metadata.title} />
 
             <Footer />
         </div>
