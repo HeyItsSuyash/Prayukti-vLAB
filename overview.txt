@@ -1,120 +1,105 @@
-# Prayukti-vLAB: Technical Project Overview
+# Prayukti-vLAB: Application Overview & Technical Documentation
 
-## 1. Project Vision
-Prayukti-vLAB is a premium, high-fidelity virtual laboratory ecosystem designed for engineering students (B.Tech). It provides interactive simulations for complex technical subjects like Computer Networks (CN) and Object-Oriented Programming (OOPS), focused on visual learning and deterministic protocol analysis.
+## 1. Introduction & Vision
+**Prayukti-vLAB** (Virtual Laboratory) is a premium, high-fidelity educational ecosystem designed to democratize access to laboratory resources for engineering students. Built primarily for **Madan Mohan Malaviya University of Technology (MMMUT)**, it bridges the gap between theoretical concepts and practical application through interactive, deterministic simulations.
 
-## 2. Tech Stack
-- **Framework**: Next.js 14+ (App Router)
-- **Frontend**: React with TypeScript
-- **Styling**: Tailwind CSS (Glassmorphism, Vibrant Dark/Light themes)
-- **Icons**: Lucide React
-- **Animations**: CSS Keyframes & SVG-based procedural animations
-- **Components**: Shadcn/UI (Built on Radix UI) for premium accessibility and aesthetics
+The platform provides a "glamorous" yet rigorous learning environment where students can design, simulate, and verify experiments in key technical subjects, accessible from anywhere via a web browser.
 
-## 3. Directory Structure
+## 2. Scope & Features
+
+### Core Subjects
+*   **Computer Networks (CN)**: Interactive visualization of protocols (OSI, CSMA/CD, Token Ring, Sliding Window).
+*   **Object-Oriented Programming (OOPS)**: Concepts of classes, objects, and memory management.
+*   **Digital Logic Design (DLD)**: A full-fledged circuit simulator for logic gates and combinational circuits.
+*   **Database Management Systems (DBMS)**: Interactive SQL query execution and schema design (In Development).
+
+### Key Features
+*   **Interactive Simulation Engine**:
+    *   **CN**: Procedural SVG animations driven by mathematical models.
+    *   **DLD**: Drag-and-drop circuit builder with real-time state propagation and truth table generation.
+*   **Visual Learning**: High-quality "Glassmorphism" UI with vibrant animations to make abstract concepts tangible.
+*   **Assessment System**:
+    *   Pre-lab and Post-lab quizzes (MCQs).
+    *   Automated observation tables for collecting simulation data.
+*   **Role-Based Access**:
+    *   **Student Dashboard**: View enrolled subjects, track progress, and perform experiments.
+    *   **Teacher/Admin Dashboard**: Manage subjects, monitor student performance, and content updates.
+*   **University Integration**:
+    *   Restricted access to institution domains (e.g., `@mmmut.ac.in`).
+    *   Official branding and academic rigor.
+
+## 3. Technology Stack
+
+### Frontend (User Interface)
+*   **Framework**: **Next.js 15** (App Router) for server-side rendering and routing.
+*   **Language**: **TypeScript** (Strict mode) for type safety.
+*   **Styling**: **Tailwind CSS** with **Shadcn/UI** (Radix UI primitives).
+*   **State Management**: **Zustand** for global client state.
+*   **Visualization & Graphics**:
+    *   **Framer Motion**: For smooth, complex UI animations.
+    *   **@xyflow/react (React Flow)**: For node-based editors (DLD Circuit Builder).
+    *   **Recharts**: For plotting graphs and data visualization.
+    *   **Spline**: For 3D interactive elements.
+    *   **Lucide React**: For iconography.
+
+### Backend (API & Logic)
+*   **Runtime**: **Node.js** with **Express.js**.
+*   **Language**: **TypeScript**.
+*   **Database**: **MongoDB** with **Mongoose ODM**.
+*   **Validation**: **Zod** for schema validation.
+*   **Authentication**: Custom JWT-based auth with secure HttpOnly cookies.
+*   **Security**: Bcrypt for password hashing.
+*   **Communication**: RESTful API architecture.
+
+### DevOps & Tooling
+*   **Monorepo**: Managed by **TurboRepo** for efficient build and caching.
+*   **Linting/Formatting**: ESLint, Prettier.
+*   **Package Manager**: npm/yarn/pnpm (implied).
+
+## 4. Directory Structure Overview
 ```
 Prayukti-vLAB/
-├── frontend/
+├── frontend/                   # Next.js Application
 │   ├── app/
-│   │   ├── dashboard/          # Main lab entry points
-│   │   │   ├── cn/             # Computer Networks Lab
-│   │   │   │   ├── [id]/       # Practical landing pages (Aim, Theory)
-│   │   │   │   └── simulation/ # Interactive lab instances
-│   │   │   ├── oops/           # OOPs Lab (Java/C++)
-│   │   │   └── dld/            # Digital Logic Design (Future)
+│   │   ├── dashboard/          # Main student interface
+│   │   │   ├── cn/             # Computer Networks experiments
+│   │   │   ├── dld/            # Digital Logic Design experiments
+│   │   │   ├── oops/           # OOPS experiments
+│   │   │   └── dbms/           # DBMS experiments
+│   │   ├── admin/              # Administrative control panel
+│   │   └── api/                # Next.js API routes (if used for proxy/edge)
 │   ├── components/
-│   │   ├── simulation/         # core simulation logic
-│   │   │   ├── OSISimulation.tsx
-│   │   │   ├── CSMASimulation.tsx
-│   │   │   ├── TokenProtocolsSimulation.tsx
-│   │   │   └── SlidingWindowSimulation.tsx
-│   │   └── ui/                 # Reusable Radix/Tailwind components
+│   │   ├── simulation/         # Core logic for specific simulations
+│   │   └── ui/                 # Reusable Shadcn/Tailwind components
+│   └── lib/                    # Utilities, types, and hooks
+├── backend/                    # Express.js Server
+│   ├── src/
+│   │   ├── models/             # Mongoose schemas
+│   │   ├── controllers/        # Business logic
+│   │   └── routes/             # API endpoints
+│   └── .env                    # Environment config
+└── packages/                   # Shared libraries (if any)
 ```
 
-## 4. User Journey
-1. **Authentication**: (Future) Secure login portal.
-2. **Dashboard**: Subject selection (CN, OOPS, etc.).
-3. **Practical Selection**: List of experiments (e.g., CSMA/CD, Token Ring).
-4. **Learning Phase**: Study Aim, Theory, and Procedure via tabbed navigation.
-5. **Simulation Phase**:
-    - Adjust environment parameters (Node count, packet size, speed).
-    - Run simulation (Real-time SVG visualization).
-    - Inject faults (Node failure, token loss) to see protocol recovery.
-6. **Data Collection**: Auto-filled observation tables with throughput/efficiency stats.
-7. **Assessment**: Randomized MCQs with immediate feedback.
+## 5. User Journey
+1.  **Authentication**: Secure login (Student/Teacher) featuring domain validation.
+2.  **Dashboard**: Landing area to select the specific Laboratory (Subject).
+3.  **Experiment Selection**: List of practicals (e.g., "Implement CSMA/CD Protocol").
+4.  **Learning Phase**: Structured tabs for **Aim**, **Theory**, and **Procedure**.
+5.  **Simulation Phase**:
+    *   User configures parameters (e.g., packet size, propagation delay).
+    *   User interacts with component (e.g., wiring gates, clicking "Transmit").
+    *   System provides visual feedback (animations, logs, graphs).
+6.  **Analysis**: User records observations in the automated table.
+7.  **Submission**: Results are saved (Future: Gradebook integration).
 
-## 5. UI and UX Design Philosophy
-- **Aesthetic**: "Glassmorphism" — Semi-transparent panels with background blurs and vibrant accent colors (Cyan, Indigo, Emerald).
-- **Interactivity**: Procedural SVG animations that reflect mathematical protocol models rather than just "loops".
-- **Feedback**: Real-time logging banners and pulsing glow effects on active data points.
-- **Responsiveness**: Fluid layout that adapts across desktop and tablet interfaces.
-
-## 6. Current Implementation Highlights
-- **Computer Networks**:
-    - **OSI vs TCP/IP**: Visualization of data encapsulation.
-    - **CSMA/CD**: Binary Exponential Backoff logic with interactive flowcharts.
-    - **Token Protocols**: Dynamic Ring, Bus, Star, Mesh, and Hybrid topologies with independent coordinate engines.
-    - **Sliding Window**: Stop & Wait, GBN, and Selective Repeat logic with window slider animations.
-
-## 7. Future Extensions & Suggestions
-- **Dynamic Topology Builder**: Full drag-and-drop node placement and manual edge connection (Hybrid Designer Mode).
-- **Multiplayer Lab**: Secure WebSockets to allow "Pair Lab" sessions where students collaborate on network configurations.
-- **AI Tutors (Neelam)**: Integrated NLP to answer theory questions while the student is in the simulation tab.
-- **Code Execution Environment**: For OOPs labs, a sandboxed compiler (WebAssembly) to run real Java/C++ code and visualize object memory.
-- **Export System**: Auto-generation of PDF Lab Reports containing simulation results and screenshots.
-- **Mobile Companion**: AR/VR views for visualizing data packets "flying" through a room.
+## 6. Future Scope & Roadmap
+*   **Oditor.ai Integration**: A planned "Oditor Beta Platform" module incorporating Sandbox Manager, Flow Discovery, and Policy Engine for advanced network security and auditing simulations.
+*   **Multiplayer Labs**: Real-time collaborative experiments using WebSockets (Socket.io) for "Pair Programming" style labs.
+*   **AI Tutor (Neelam)**: Context-aware AI assistant to answer theory questions and debug student circuits in real-time.
+*   **Code Execution Playground**: Sandboxed environment (WebAssembly) for safely running C++/Java code in OOPS/DBMS labs.
+*   **Mobile Companion**: Optimized mobile view or PWA for studying theory and viewing results on the go.
+*   **LMS Integration**: LTI support to sync grades directly with university ERP systems.
 
 ---
-*Document Generated on: 2026-02-04*
-
----
-Prayukti vLAB - Application Overview
-
-1. INTRODUCTION & MOTIVE
--------------------------
-"Prayukti vLAB" (Virtual Laboratory) is a web-based educational platform designed for Madan Mohan Malaviya University of Technology (MMMUT). 
-
-The primary motive is to democratize access to laboratory resources, specifically for the "Digital Logic & Design (DLD)" curriculum. It aims to bridge the gap between theoretical concepts and practical application by allowing students to design, simulate, and verify digital circuits in a virtual web environment, accessible from anywhere.
-
-2. TECHNOLOGY STACK
--------------------
-The application is built using a modern Monorepo architecture managed by TurboRepo.
-
-*   **Frontend**: Next.js 15 (App Router), React 19, TypeScript
-    *   UI Framework: Tailwind CSS, Shadcn UI
-    *   Visualisation: React Flow (@xyflow/react) for the circuit canvas.
-    *   State Management: Zustand / React Hooks.
-*   **Backend**: Node.js, Express.js
-    *   Database: MongoDB (with Mongoose ODM).
-    *   Language: TypeScript.
-*   **DevOps/Tooling**: TurboRepo, ESLint, Prettier.
-
-3. KEY FEATURES
----------------
-A.  **MMMUT Identity**: The application features a landing page that strictly adheres to the University's branding guidelines (Colors: #d32f2f, #f57f17), providing an official look and feel.
-B.  **Restricted Access**: Built-in domain validation restricting login to `@mmmut.ac.in` email addresses, ensuring exclusive access for university students/faculty.
-C.  **Interactive Simulation Engine**: 
-    *   Drag-and-drop interface for logic gates (AND, OR, NOT, NAND, NOR, XOR, XNOR).
-    *   Interactive Input (Switches) and Output (LED bulbs) nodes.
-    *   Wire-based connections between components.
-D.  **Real-Time Logic Evaluation**: The circuit state updates instantly as inputs change, providing visual feedback (Red=High/1, Gray=Low/0).
-E.  **Persistence**: Users can save their circuit designs to the database and reload them later.
-F.  **Dashboard**: A student-centric dashboard to view enrolled subjects and available practical lists.
-
-4. CURRENT IMPLEMENTATION DETAILS
----------------------------------
-*   **Circuit Engine**: Located in `frontend/lib/circuit-engine.ts`. It uses an iterative propagation algorithm (max 10 passes) to stabilize and calculate logic states across the graph. This effectively handles combinational logic circuits.
-*   **Data Storage**: Circuits are stored as generic JSON objects (compatible with React Flow's proprietary format) in MongoDB, linked to a User ID and Practical ID.
-*   **Bypassed Auth**: For the prototype phase, a simplified authentication flow simulates token generation and verification without a full OAuth provider.
-*   **Styling**: Uses standard CSS modules and Tailwind utility classes for a responsive design.
-
-5. FUTURE ASPECTS & ROADMAP
----------------------------
-To evolve from a prototype to a production-grade system, the following enhancements are envisioned:
-
-*   **Sequential Logic Support**: Upgrade the simulation engine to handle clock cycles and state memory for Flip-Flops, Counters, and Registers.
-*   **Advanced Components**: Add Multiplexers, Decoders, 7-Segment Displays, and IC chips.
-*   **Collaboration**: WebSocket-based real-time "multiplayer" editing for group projects.
-*   **LMS Integration**: LTI (Learning Tools Interoperability) support to integrate grades directly with the University's ERP/LMS.
-*   **AI Tutor**: An embedded AI assistant to help debug circuit errors or explain logic concepts to students in real-time.
-*   **Virtual Breadboard**: A "Realistic Mode" viewing option that maps the schematic to a physical breadboard layout.
+*Document Updated: February 2026*

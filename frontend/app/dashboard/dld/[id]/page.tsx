@@ -1,94 +1,145 @@
+"use client";
+
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, FlaskConical } from "lucide-react";
+import { ArrowLeft, FlaskConical, BookOpen, ChevronRight } from "lucide-react";
+import { getLabById } from "@/lib/labs/registry";
+import { LAB_CONTENT } from "@/lib/labs/rich-content";
+import { Badge } from "@/components/ui/badge";
+import Footer from "@/components/layout/Footer";
+import { use } from "react";
+import { Chatbot } from "@/components/lab/Chatbot";
 
-// Mock Data for Prototype
-const practicalData = {
-    1: {
-        title: "Study and Verification of Logic Gates",
-        aim: "To study and verify the truth tables of basic logic gates (AND, OR, NOT, NAND, NOR, XOR, XNOR).",
-        theory: `
-      <p><strong>Logic Gates</strong> are the basic building blocks of any digital system. It is an electronic circuit having one or more than one input and only one output. The relationship between the input and the output is based on a certain logic.</p>
-      <ul class="list-disc ml-6 mt-2 space-y-1">
-        <li><strong>AND Gate:</strong> Output is high only if all inputs are high.</li>
-        <li><strong>OR Gate:</strong> Output is high if at least one input is high.</li>
-        <li><strong>NOT Gate:</strong> Output is the complement of the input.</li>
-      </ul>
-    `,
-        procedure: `
-      <ol class="list-decimal ml-6 space-y-2">
-        <li>Connect the inputs to the logic gate terminals.</li>
-        <li>Apply different combinations of logic 0 and 1.</li>
-        <li>Observe the output LED status.</li>
-        <li>Verify with the truth table.</li>
-      </ol>
-    `,
+export default function PracticalDetail({ params }: { params: Promise<{ id: string }> }) {
+    const { id } = use(params);
+
+    // Fallback logic if needed, but registry uses full IDs
+    const labId = !isNaN(Number(id)) ? `dld-exp-${id}` : id;
+
+    const lab = getLabById(labId);
+    const content = LAB_CONTENT[labId];
+
+    if (!lab || !content) {
+        return (
+            <div className="min-h-screen flex flex-col items-center justify-center bg-white text-black">
+                <div className="text-center space-y-4">
+                    <h1 className="text-4xl font-black uppercase tracking-tighter">Experiment Not Found</h1>
+                    <p className="text-gray-500 font-medium">The requested experiment ID <span className="font-mono bg-gray-100 px-1 rounded">{labId}</span> does not exist.</p>
+                    <Link href="/dashboard/dld">
+                        <Button className="h-12 px-8 uppercase font-bold tracking-wider rounded-none bg-black text-white hover:bg-gray-800">
+                            Return to Dashboard
+                        </Button>
+                    </Link>
+                </div>
+            </div>
+        );
     }
-};
-
-export default async function PracticalDetail({ params }: { params: Promise<{ id: string }> }) {
-    // Await params object for dynamic routing
-    const { id } = await params;
-    const practical = practicalData[Number(id) as keyof typeof practicalData] || practicalData[1];
 
     return (
-        <div className="min-h-screen bg-gray-50 flex flex-col">
-            <header className="bg-white border-b shadow-sm sticky top-0 z-10">
+        <div className="min-h-screen bg-white text-black font-sans selection:bg-black selection:text-white">
+            <header className="bg-white border-b-2 border-black/5 sticky top-0 z-20 backdrop-blur-md bg-white/80">
                 <div className="container mx-auto px-4 py-4 flex items-center gap-4">
-                    <Link href="/dashboard/dld" className="text-gray-500 hover:text-black hover:bg-gray-100 p-1 rounded-full">
-                        <ArrowLeft className="h-5 w-5" />
+
+                    <Link href="/dashboard/dld">
+                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full hover:bg-black/5">
+                            <ArrowLeft className="h-4 w-4" />
+                        </Button>
                     </Link>
-                    <span className="text-gray-300">|</span>
-                    <h1 className="text-lg font-bold text-gray-800 truncate">{practical.title}</h1>
+                    <div className="h-4 w-[2px] bg-black/10"></div>
+                    <span className="text-sm font-bold uppercase tracking-wider text-gray-400">DLD</span>
+                    <ChevronRight className="h-4 w-4 text-gray-300" />
+                    <h1 className="text-lg font-bold uppercase tracking-tight truncate max-w-md">{lab.metadata.title}</h1>
                 </div>
             </header>
 
-            <main className="container mx-auto px-4 py-8 flex-1 grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <main className="container mx-auto px-4 py-12 grid grid-cols-1 lg:grid-cols-12 gap-12">
 
                 {/* Left Content (Theory) */}
-                <div className="lg:col-span-2 space-y-8">
-                    <section className="bg-white p-6 rounded-lg shadow-sm border">
-                        <h2 className="text-xl font-bold text-[#d32f2f] mb-4 border-b pb-2">Aim</h2>
-                        <p className="text-gray-700">{practical.aim}</p>
-                    </section>
+                <div className="lg:col-span-8 space-y-12">
+                    <div>
+                        <div className="flex items-center gap-3 mb-4">
+                            <Badge variant="outline" className={`rounded-none uppercase text-[10px] font-bold tracking-widest border-2 ${lab.metadata.difficulty === 'Easy' ? 'border-green-600 text-green-700 bg-green-50' :
+                                lab.metadata.difficulty === 'Medium' ? 'border-yellow-600 text-yellow-700 bg-yellow-50' :
+                                    'border-red-600 text-red-700 bg-red-50'
+                                }`}>
+                                {lab.metadata.difficulty}
+                            </Badge>
+                            <span className="text-xs font-bold text-gray-400 tracking-wider">EST. TIME: {lab.metadata.estimatedTime || "45 min"}</span>
+                        </div>
+                        <h1 className="text-4xl md:text-5xl font-black uppercase tracking-tighter leading-none mb-6 text-orange-600">
+                            {lab.metadata.title}
+                        </h1>
+                        <p className="text-xl text-gray-600 font-medium leading-relaxed border-l-4 border-orange-200 pl-6">
+                            {content.aim}
+                        </p>
+                    </div>
 
-                    <section className="bg-white p-6 rounded-lg shadow-sm border">
-                        <h2 className="text-xl font-bold text-[#d32f2f] mb-4 border-b pb-2">Theory</h2>
-                        <div className="text-gray-700 prose max-w-none" dangerouslySetInnerHTML={{ __html: practical.theory }} />
-                    </section>
+                    <div className="space-y-8">
+                        <section className="bg-white rounded-xl border-2 border-black/5 p-8 shadow-sm">
+                            <div className="flex items-center gap-3 mb-6 border-b-2 border-black/5 pb-4">
+                                <BookOpen className="w-6 h-6 text-orange-600" />
+                                <h2 className="text-2xl font-black uppercase tracking-tight">Theory</h2>
+                            </div>
+                            <div className="prose prose-lg max-w-none prose-headings:font-bold prose-headings:uppercase prose-p:text-gray-600 prose-strong:text-black" dangerouslySetInnerHTML={{ __html: content.theory }} />
+                        </section>
 
-                    <section className="bg-white p-6 rounded-lg shadow-sm border">
-                        <h2 className="text-xl font-bold text-[#d32f2f] mb-4 border-b pb-2">Procedure</h2>
-                        <div className="text-gray-700 prose max-w-none" dangerouslySetInnerHTML={{ __html: practical.procedure }} />
-                    </section>
+                        <section className="bg-white rounded-xl border-2 border-black/5 p-8 shadow-sm">
+                            <div className="flex items-center gap-3 mb-6 border-b-2 border-black/5 pb-4">
+                                <FlaskConical className="w-6 h-6 text-orange-600" />
+                                <h2 className="text-2xl font-black uppercase tracking-tight">Procedure</h2>
+                            </div>
+                            <div className="prose prose-lg max-w-none prose-headings:font-bold prose-headings:uppercase prose-p:text-gray-600 prose-strong:text-black" dangerouslySetInnerHTML={{ __html: content.procedure }} />
+                        </section>
+                    </div>
                 </div>
 
                 {/* Right Sidebar (Actions) */}
-                <div className="space-y-6">
-                    <div className="bg-white p-6 rounded-lg shadow-md border border-orange-200">
-                        <h3 className="font-bold text-lg mb-2">Ready to Experiment?</h3>
-                        <p className="text-sm text-gray-500 mb-6">
-                            Launch the virtual simulator to build this circuit and verify the outputs in real-time.
-                        </p>
-                        <Link href={`/dashboard/dld/${id}/simulation`}>
-                            <Button className="w-full bg-[#f57f17] hover:bg-[#e65100] text-lg font-bold py-6 shadow-lg hover:shadow-xl transition-all">
-                                <FlaskConical className="mr-2 h-6 w-6" />
-                                Enter Simulation
-                            </Button>
-                        </Link>
-                    </div>
+                <div className="lg:col-span-4 space-y-8">
+                    <div className="sticky top-24 space-y-8">
+                        <div className="bg-orange-50 border-2 border-orange-100 rounded-xl p-8 relative overflow-hidden group">
+                            <div className="absolute top-0 right-0 p-24 bg-orange-200/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+                            <h3 className="font-black text-xl uppercase tracking-tight mb-2 relative z-10 text-orange-900">Ready to Start?</h3>
+                            <p className="text-sm font-medium text-orange-800/70 mb-8 relative z-10 leading-relaxed">
+                                Launch the virtual simulator to build this circuit and verify the outputs in real-time.
+                            </p>
+                            <Link href={`/dashboard/dld/${labId}/simulation`}>
+                                <Button className="w-full h-14 bg-orange-600 hover:bg-orange-700 text-white uppercase font-bold tracking-wider rounded-lg shadow-lg hover:shadow-orange-200 hover:-translate-y-1 transition-all relative z-10">
+                                    <FlaskConical className="mr-2 h-5 w-5" />
+                                    Launch Simulator
+                                </Button>
+                            </Link>
+                        </div>
 
-                    <div className="bg-white p-6 rounded-lg shadow-sm border">
-                        <h3 className="font-bold text-md mb-4 text-gray-800">Resources</h3>
-                        <ul className="space-y-2 text-sm text-[#d32f2f]">
-                            <li className="cursor-pointer hover:underline">Datasheet (7400 Series)</li>
-                            <li className="cursor-pointer hover:underline">Video Tutorial</li>
-                            <li className="cursor-pointer hover:underline">Viva Questions</li>
-                        </ul>
+                        <div className="bg-white rounded-xl border-2 border-black/5 p-8">
+                            <h3 className="font-black text-lg uppercase tracking-tight mb-6">Resources</h3>
+                            <ul className="space-y-4">
+                                <li className="flex items-center gap-3 group cursor-pointer">
+                                    <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center group-hover:bg-orange-50 transition-colors">
+                                        <div className="w-2 h-2 rounded-full bg-gray-300 group-hover:bg-orange-500"></div>
+                                    </div>
+                                    <span className="font-bold text-sm text-gray-600 group-hover:text-black transition-colors uppercase tracking-wide">Datasheet (7400 Series)</span>
+                                </li>
+                                <li className="flex items-center gap-3 group cursor-pointer">
+                                    <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center group-hover:bg-orange-50 transition-colors">
+                                        <div className="w-2 h-2 rounded-full bg-gray-300 group-hover:bg-orange-500"></div>
+                                    </div>
+                                    <span className="font-bold text-sm text-gray-600 group-hover:text-black transition-colors uppercase tracking-wide">Video Tutorial</span>
+                                </li>
+                                <li className="flex items-center gap-3 group cursor-pointer">
+                                    <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center group-hover:bg-orange-50 transition-colors">
+                                        <div className="w-2 h-2 rounded-full bg-gray-300 group-hover:bg-orange-500"></div>
+                                    </div>
+                                    <span className="font-bold text-sm text-gray-600 group-hover:text-black transition-colors uppercase tracking-wide">Viva Questions</span>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
-
             </main>
+
+            <Chatbot subject="DLD" labTitle={lab.metadata.title} />
+
+            <Footer />
         </div>
     );
 }

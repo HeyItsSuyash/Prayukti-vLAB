@@ -1,6 +1,15 @@
 node_modules
 dist
+
+# Environment variables
 .env
+.env.local
+.env.*.local
+*.env
+*.env.*
+
+# Ignore .env.example if it contains secrets (user request implies this)
+.env.example
 .DS_Store
 .turbo
 apps/web/.next

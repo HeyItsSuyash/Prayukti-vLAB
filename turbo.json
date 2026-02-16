@@ -34,5 +34,16 @@
       "cache": false,
       "persistent": true
     }
-  }
+  },
+  "globalDependencies": [
+    ".env"
+  ],
+  "globalEnv": [
+    "FRONTEND_SMTP_HOST",
+    "FRONTEND_SMTP_PORT",
+    "FRONTEND_SMTP_USER",
+    "FRONTEND_SMTP_PASS",
+    "FRONTEND_GROQ_API_KEY",
+    "BACKEND_MONGO_URI"
+  ]
 }
