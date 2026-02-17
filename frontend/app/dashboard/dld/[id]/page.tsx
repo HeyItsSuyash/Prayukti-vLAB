@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import Footer from "@/components/layout/Footer";
 import { use } from "react";
 import { Chatbot } from "@/components/lab/Chatbot";
+import SimulationRenderer from "@/components/simulation/SimulationRenderer";
 
 export default function PracticalDetail({ params }: { params: Promise<{ id: string }> }) {
     const { id } = use(params);
@@ -138,6 +139,11 @@ export default function PracticalDetail({ params }: { params: Promise<{ id: stri
             </main>
 
             <Chatbot subject="DLD" labTitle={lab.metadata.title} />
+
+            {/* Preload Simulation Chunk in Background */}
+            <div className="hidden" aria-hidden="true">
+                <SimulationRenderer labId={labId} />
+            </div>
 
             <Footer />
         </div>
