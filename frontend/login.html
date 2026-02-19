@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Prayukti-vLAB</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: #f4f7f6;
+            margin: 0;
+        }
+
+        .card {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        h2 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1rem;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background: #2980b9;
+        }
+
+        .error {
+            color: #e74c3c;
+            font-size: 0.85rem;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .link {
+            text-align: center;
+            font-size: 0.9rem;
+            margin-top: 15px;
+        }
+
+        .link a {
+            color: #3498db;
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="card">
+        <h2>Login</h2>
+        <div id="error" class="error"></div>
+        <input type="email" id="email" placeholder="Email" required>
+        <input type="password" id="password" placeholder="Password" required>
+        <button id="loginBtn">Sign In</button>
+        <div class="link">Don't have an account? <a href="register.html">Signup</a></div>
+    </div>
+
+    <script>
+        const API_BASE = "http://localhost:5000/api/auth";
+
+        document.getElementById('loginBtn').addEventListener('click', async () => {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const errorDiv = document.getElementById('error');
+            const loginBtn = document.getElementById('loginBtn');
+
+            errorDiv.innerText = "";
+            loginBtn.disabled = true;
+            loginBtn.innerText = "Signing in...";
+
+            try {
+                const response = await fetch(`${API_BASE}/signin`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) throw new Error(data.message || "Login failed");
+
+                localStorage.setItem('user', JSON.stringify(data.user));
+                alert(`Login Successful! Welcome, ${data.user.fullName}`);
+
+                // Redirect to main dashboard
+                window.location.href = "/dashboard";
+            } catch (err) {
+                errorDiv.innerText = err.message;
+                loginBtn.disabled = false;
+                loginBtn.innerText = "Sign In";
+            }
+        });
+    </script>
+</body>
+
+</html>

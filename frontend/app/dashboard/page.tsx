@@ -59,21 +59,33 @@ export default function Dashboard() {
 
                     <div className="flex gap-6 items-center">
                         <div className="hidden md:flex flex-col items-end text-sm">
+                            {typeof window !== 'undefined' && localStorage.getItem('user') && (
+                                <span className="font-black text-slate-900 mb-1">
+                                    {JSON.parse(localStorage.getItem('user')!).fullName}
+                                </span>
+                            )}
                             <RoleGuard allowedRoles={["STUDENT"]}>
-                                <span className="font-bold uppercase tracking-wide text-xs text-gray-500">Role</span>
-                                <span className="font-bold">Student</span>
+                                <span className="font-bold uppercase tracking-wide text-[10px] text-orange-600 bg-orange-50 px-2 rounded-full border border-orange-100">Student</span>
                             </RoleGuard>
                             <RoleGuard allowedRoles={["TEACHER"]}>
-                                <span className="font-bold uppercase tracking-wide text-xs text-gray-500">Role</span>
-                                <span className="font-bold">Teacher</span>
+                                <span className="font-bold uppercase tracking-wide text-[10px] text-blue-600 bg-blue-50 px-2 rounded-full border border-blue-100">Teacher</span>
                             </RoleGuard>
                             <RoleGuard allowedRoles={["ADMIN"]}>
-                                <span className="font-bold uppercase tracking-wide text-xs text-gray-500">Role</span>
-                                <span className="font-bold">Admin</span>
+                                <span className="font-bold uppercase tracking-wide text-[10px] text-slate-600 bg-slate-50 px-2 rounded-full border border-slate-100">Admin</span>
                             </RoleGuard>
                         </div>
                         <Link href="/">
-                            <Button variant="outline" size="sm" className="h-9 px-4 uppercase text-xs font-bold tracking-wider hover:bg-black hover:text-white transition-all">Logout</Button>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                className="h-9 px-4 uppercase text-xs font-bold tracking-wider hover:bg-black hover:text-white transition-all rounded-lg"
+                                onClick={() => {
+                                    localStorage.removeItem('token');
+                                    localStorage.removeItem('user');
+                                }}
+                            >
+                                Logout
+                            </Button>
                         </Link>
                     </div>
                 </div>

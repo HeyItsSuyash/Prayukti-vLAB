@@ -34,7 +34,7 @@ export default function Home() {
               </p>
 
               <div className="flex flex-wrap gap-4 pt-4">
-                <Link href="/login">
+                <Link href="/student-auth">
                   <Button size="lg" className="h-16 px-10 text-lg bg-black text-white hover:bg-slate-900 rounded-none border-2 border-transparent shadow-[4px_4px_0px_0px_rgba(211,47,47,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all">
                     Start Experimenting
                   </Button>

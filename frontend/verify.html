@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify OTP - Prayukti-vLAB</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: #f4f7f6;
+            margin: 0;
+        }
+
+        .card {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        input {
+            width: 100%;
+            padding: 15px;
+            margin: 20px 0;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            box-sizing: border-box;
+            text-align: center;
+            font-size: 1.8rem;
+            letter-spacing: 8px;
+            font-weight: bold;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+
+        button:hover {
+            background: #219150;
+        }
+
+        .error {
+            color: #e74c3c;
+            font-size: 0.85rem;
+            margin-bottom: 15px;
+        }
+
+        #info {
+            color: #7f8c8d;
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="card">
+        <h2>Email Verification</h2>
+        <p id="info">Checking status...</p>
+        <div id="error" class="error"></div>
+        <input type="text" id="otp" placeholder="000000" maxlength="6">
+        <button id="verifyBtn">Verify & Activate</button>
+    </div>
+
+    <script>
+        const API_BASE = "http://localhost:5000/api/auth";
+        const email = localStorage.getItem('pendingEmail');
+
+        if (!email) {
+            window.location.href = "register.html";
+        } else {
+            document.getElementById('info').innerHTML = `We sent a 6-digit code to:<br><b>${email}</b>`;
+        }
+
+        document.getElementById('verifyBtn').addEventListener('click', async () => {
+            const otp = document.getElementById('otp').value;
+            const errorDiv = document.getElementById('error');
+            const verifyBtn = document.getElementById('verifyBtn');
+
+            errorDiv.innerText = "";
+            verifyBtn.disabled = true;
+            verifyBtn.innerText = "Verifying...";
+
+            try {
+                const response = await fetch(`${API_BASE}/verify-otp`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, otp })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) throw new Error(data.message || "Verification failed");
+
+                alert("Account verified successfully! You can now login.");
+                localStorage.removeItem('pendingEmail');
+                window.location.href = "login.html";
+            } catch (err) {
+                errorDiv.innerText = err.message;
+                verifyBtn.disabled = false;
+                verifyBtn.innerText = "Verify & Activate";
+            }
+        });
+    </script>
+</body>
+
+</html>
