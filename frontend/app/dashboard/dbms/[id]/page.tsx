@@ -87,7 +87,7 @@ export default function PracticalDetail({ params }: { params: Promise<{ id: stri
                             </div>
                         </section>
 
-                        <ResourcesSection resources={content.resources} />
+                        <ResourcesSection resources={content.resources} labId={labId} />
                     </div>
                 </div>
 

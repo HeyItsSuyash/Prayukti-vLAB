@@ -15,8 +15,11 @@ import { ResourcesSection } from "@/components/lab/ResourcesSection";
 export default function PracticalDetail({ params }: { params: Promise<{ id: string }> }) {
     const { id } = use(params);
 
-    const lab = getLabById(id);
-    const content = LAB_CONTENT[id];
+    // Fallback logic if needed, but registry uses full IDs
+    const labId = !isNaN(Number(id)) ? `oops-exp-${id}` : id;
+
+    const lab = getLabById(labId);
+    const content = LAB_CONTENT[labId];
 
     if (!lab || !content) {
         return (
@@ -85,7 +88,7 @@ export default function PracticalDetail({ params }: { params: Promise<{ id: stri
                             </div>
                         </section>
 
-                        <ResourcesSection resources={content.resources} />
+                        <ResourcesSection resources={content.resources} labId={labId} />
                     </div>
                 </div>
 

@@ -4,17 +4,18 @@ import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { MOCK_TEACHER_DATA, StudentMetric } from '@/data/mock-teacher-data';
-import { Users, UserPlus, Activity, ShieldCheck, Search, Trash2, Edit, LogOut } from 'lucide-react';
+import { Users, UserPlus, Activity, ShieldCheck, Search, Trash2, Edit, LogOut, Video, LucideIcon } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { StudentTable } from '../teacher/StudentTable';
 import { AddTeacherDialog, Teacher } from './AddTeacherDialog';
+import { VideoManager } from '@/components/admin/VideoManager';
 import { AddStudentDialog } from '../teacher/AddStudentDialog';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { StudentDetailView } from '../teacher/StudentDetailView';
 
 // --- Admin Stats Component ---
-import { LucideIcon } from 'lucide-react';
+// import { LucideIcon } from 'lucide-react'; // Removing duplicate, already imported above or better to use named import if needed
 
 // --- Admin Stats Component ---
 interface AdminStatCardProps {
@@ -45,6 +46,7 @@ export default function AdminDashboard() {
     const [searchQuery, setSearchQuery] = useState("");
     const [isAddStudentOpen, setIsAddStudentOpen] = useState(false);
     const [isAddTeacherOpen, setIsAddTeacherOpen] = useState(false); // New dialog state
+    const [isVideoManagerOpen, setIsVideoManagerOpen] = useState(false); // New video manager state
     const [selectedStudent, setSelectedStudent] = useState<StudentMetric | null>(null);
     const [isClient, setIsClient] = useState(false);
 
@@ -142,6 +144,9 @@ export default function AdminDashboard() {
                                 />
                             </div>
                             <div className="flex gap-2">
+                                <Button onClick={() => setIsVideoManagerOpen(true)} variant="outline" className="border-slate-300">
+                                    <Video className="mr-2 h-4 w-4" /> Manage Videos
+                                </Button>
                                 <Button onClick={() => setIsAddTeacherOpen(true)} variant="outline" className="border-slate-300">
                                     <UserPlus className="mr-2 h-4 w-4" /> Add Teacher
                                 </Button>
@@ -202,6 +207,18 @@ export default function AdminDashboard() {
                         </Card>
 
                         {/* Dialogs */}
+                        <Dialog open={isVideoManagerOpen} onOpenChange={setIsVideoManagerOpen}>
+                            <DialogContent className="max-w-2xl">
+                                <DialogHeader>
+                                    <DialogTitle>Experiment Video Manager</DialogTitle>
+                                    <DialogDescription>
+                                        Assign YouTube videos to experiments.
+                                    </DialogDescription>
+                                </DialogHeader>
+                                <VideoManager />
+                            </DialogContent>
+                        </Dialog>
+
                         <AddStudentDialog
                             open={isAddStudentOpen}
                             onOpenChange={setIsAddStudentOpen}

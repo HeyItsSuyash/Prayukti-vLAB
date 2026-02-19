@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { PlayCircle, BookOpen, HelpCircle, Link as LinkIcon, ExternalLink, Download } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -9,12 +9,28 @@ import { motion } from "framer-motion";
 
 interface ResourcesSectionProps {
     resources?: LabResources;
+    labId?: string; // Add labId prop
 }
 
 type ResourceType = 'video' | 'notes' | 'quiz' | 'reading' | null;
 
-export function ResourcesSection({ resources }: ResourcesSectionProps) {
+export function ResourcesSection({ resources, labId }: ResourcesSectionProps) {
     const [selectedType, setSelectedType] = useState<ResourceType>(null);
+    const [dynamicVideoUrl, setDynamicVideoUrl] = useState<string | null>(null);
+
+    // Fetch dynamic video if labId is provided
+    useEffect(() => {
+        if (labId) {
+            fetch("/api/videos")
+                .then(res => res.json())
+                .then(data => {
+                    if (data[labId]) {
+                        setDynamicVideoUrl(data[labId]);
+                    }
+                })
+                .catch(err => console.error("Error fetching video:", err));
+        }
+    }, [labId]);
 
     if (!resources) {
         return (
@@ -28,10 +44,32 @@ export function ResourcesSection({ resources }: ResourcesSectionProps) {
     const openResource = (type: ResourceType) => setSelectedType(type);
     const closeResource = () => setSelectedType(null);
 
+    // Use dynamic video if available, otherwise fallback to static
+    const videoData = resources.video ? { ...resources.video } : undefined;
+    if (dynamicVideoUrl && videoData) {
+        videoData.url = dynamicVideoUrl;
+    } else if (dynamicVideoUrl && !videoData) {
+        // If no static video but dynamic exists, create a video object
+        // cast to any to avoid strict type issues if resources.video is optional in a way that blocks this
+        (resources as any).video = {
+            title: "Experiment Lecture",
+            url: dynamicVideoUrl,
+            description: "Instructor assigned lecture."
+        };
+    }
+
+    // Use the potentially modified videoData
+    const finalVideoData = dynamicVideoUrl ? {
+        title: videoData?.title || "Experiment Lecture",
+        url: dynamicVideoUrl,
+        description: videoData?.description || "Instructor assigned lecture."
+    } : resources.video;
+
+
     const resourceTypes = [
         {
             type: 'video' as const,
-            data: resources.video,
+            data: finalVideoData,
             icon: PlayCircle,
             color: "text-red-500",
             bg: "bg-red-50",
@@ -113,23 +151,23 @@ export function ResourcesSection({ resources }: ResourcesSectionProps) {
                             {selectedType === 'quiz' && <HelpCircle className="text-purple-500" />}
                             {selectedType === 'reading' && <LinkIcon className="text-green-500" />}
 
-                            {selectedType === 'video' && resources.video?.title}
+                            {selectedType === 'video' && finalVideoData?.title}
                             {selectedType === 'notes' && resources.notes?.title}
                             {selectedType === 'quiz' && resources.quiz?.title}
                             {selectedType === 'reading' && resources.reading?.title}
                         </DialogTitle>
                         <DialogDescription>
-                            {selectedType === 'video' && resources.video?.description}
+                            {selectedType === 'video' && finalVideoData?.description}
                         </DialogDescription>
                     </DialogHeader>
 
                     <div className="mt-4">
-                        {selectedType === 'video' && resources.video && (
+                        {selectedType === 'video' && finalVideoData && (
                             <div className="aspect-video w-full rounded-lg overflow-hidden bg-black shadow-lg">
                                 <iframe
                                     className="w-full h-full"
-                                    src={resources.video.url}
-                                    title={resources.video.title}
+                                    src={finalVideoData.url}
+                                    title={finalVideoData.title}
                                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                     allowFullScreen
                                 ></iframe>
