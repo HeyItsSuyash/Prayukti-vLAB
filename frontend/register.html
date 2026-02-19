@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signup - Prayukti-vLAB</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: #f4f7f6;
+            margin: 0;
+        }
+
+        .card {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 450px;
+        }
+
+        h2 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1rem;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background: #2980b9;
+        }
+
+        .error {
+            color: #e74c3c;
+            font-size: 0.85rem;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .link {
+            text-align: center;
+            font-size: 0.9rem;
+            margin-top: 15px;
+        }
+
+        .link a {
+            color: #3498db;
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="card">
+        <h2>Signup</h2>
+        <div id="error" class="error"></div>
+        <input type="text" id="fullName" placeholder="Full Name" required>
+        <select id="role">
+            <option value="student">Student</option>
+            <option value="teacher">Teacher</option>
+            <option value="admin">Admin</option>
+        </select>
+        <input type="email" id="email" placeholder="Email (@mmmut.ac.in)" required>
+        <input type="password" id="password" placeholder="Password (min 6 chars)" required>
+        <button id="signupBtn">Create Account</button>
+        <div class="link">Already verified? <a href="login.html">Login</a></div>
+    </div>
+
+    <script>
+        const API_BASE = "http://localhost:5000/api/auth";
+        const errorDiv = document.getElementById('error');
+        const signupBtn = document.getElementById('signupBtn');
+
+        signupBtn.addEventListener('click', async () => {
+            const fullName = document.getElementById('fullName').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const role = document.getElementById('role').value;
+
+            errorDiv.innerText = "";
+            signupBtn.disabled = true;
+            signupBtn.innerText = "Processing...";
+
+            try {
+                const response = await fetch(`${API_BASE}/signup`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ fullName, email, password, role })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) throw new Error(data.message || "Signup failed");
+
+                localStorage.setItem('pendingEmail', email);
+                alert("OTP sent to your email!");
+                window.location.href = "verify.html";
+            } catch (err) {
+                errorDiv.innerText = err.message;
+                signupBtn.disabled = false;
+                signupBtn.innerText = "Create Account";
+            }
+        });
+    </script>
+</body>
+
+</html>

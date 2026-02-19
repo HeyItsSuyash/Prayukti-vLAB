@@ -12,7 +12,7 @@ import { Progress } from "@/components/ui/progress";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { generateCertificate } from "@/lib/certificate";
-import { getStudentName, setStudentName, getSubjectProgress, isSubjectCompleted, getSubjectCompletionRate } from "@/lib/progress-utils";
+import { getStudentName, getSubjectProgress, isSubjectCompleted, getSubjectCompletionRate } from "@/lib/progress-utils";
 import { Lock } from "lucide-react";
 
 export default function CNPage() {
@@ -22,7 +22,6 @@ export default function CNPage() {
     const [overallCompletion, setOverallCompletion] = useState(0);
     const [isFullyCompleted, setIsFullyCompleted] = useState(false);
 
-    // Load name and progress on mount
     useEffect(() => {
         const studentName = getStudentName();
         const subjectProgress = getSubjectProgress("cn");
@@ -34,15 +33,9 @@ export default function CNPage() {
         setIsFullyCompleted(isSubjectCompleted("cn", labIds));
     }, [labs]);
 
-    const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const newName = e.target.value;
-        setStudentNameStr(newName);
-        setStudentName(newName);
-    };
-
     const handleGenerateFinalCertificate = async () => {
         if (!studentNameStr.trim()) {
-            alert("Please enter your name in the field above to generate the certificate.");
+            alert("Student name is missing. Please log out and enter your name during login to generate the certificate.");
             return;
         }
         await generateCertificate(studentNameStr, "Computer Networks", true);
@@ -69,14 +62,10 @@ export default function CNPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
                         <div className="space-y-6">
                             <div className="space-y-2">
-                                <Label htmlFor="studentName" className="text-sm font-bold uppercase tracking-wider text-gray-600">Student Name (for Final Certificate)</Label>
-                                <Input
-                                    id="studentName"
-                                    placeholder="Enter your full name"
-                                    value={studentNameStr}
-                                    onChange={handleNameChange}
-                                    className="border-2 border-black/10 focus:border-black rounded-xl h-14 text-lg"
-                                />
+                                <p className="text-sm font-bold uppercase tracking-wider text-gray-400">Student Name</p>
+                                <p className="text-2xl font-black text-gray-900 border-l-4 border-black pl-4 py-1 bg-white rounded-r-lg">
+                                    {studentNameStr || "Not Set"}
+                                </p>
                             </div>
                             <div className="space-y-2">
                                 <div className="flex justify-between text-xs font-black uppercase tracking-widest text-gray-500">

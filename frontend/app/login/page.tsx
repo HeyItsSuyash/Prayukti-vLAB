@@ -3,9 +3,10 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { Loader2, GraduationCap, School, ShieldCheck } from "lucide-react";
+import Link from "next/link";
+import { Loader2, GraduationCap, School, ShieldCheck, User, Lock, Mail } from "lucide-react";
+import axios from "axios";
 
-// Use environment variable for API URL
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
 type UserRole = "student" | "teacher" | "admin";
@@ -16,201 +17,176 @@ export default function LoginPage() {
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
-    const [sent, setSent] = useState(false);
+    const [success, setSuccess] = useState(false);
     const router = useRouter();
 
-    // Reset form when switching roles
     useEffect(() => {
-        setEmail("");
-        setPassword("");
         setError("");
-        setSent(false);
-    }, [role]);
+        setSuccess(false);
+    }, [role, email, password]);
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         setError("");
         setLoading(true);
 
-        // Simple domain check simulation
-        const domain = "@mmmut.ac.in";
-        if (!email.endsWith(domain)) {
-            setError(`Access Restricted: Only ${domain} emails are allowed.`);
-            setLoading(false);
-            return;
-        }
-
         try {
-            // Simulate verification logic for prototype
-            // In a real app, this would verify the password or send an OTP
+            // Role specific endpoint handling
+            const endpoint = role === 'student' ? '/api/auth/login' : '/api/auth/login'; // Adjust if teacher/admin have different routes
 
-            // Redirect logic based on role
-            // We'll set a timeout to simulate network request then 'send' magic link or just redirect
+            const response = await axios.post(`${API_URL}${endpoint}`, {
+                email,
+                password
+            });
+
+            const { token, user } = response.data;
+
+            // Store token and user info
+            if (typeof window !== 'undefined') {
+                localStorage.setItem("token", token);
+                localStorage.setItem("user", JSON.stringify(user));
+            }
+
+            setSuccess(true);
             setTimeout(() => {
-                setSent(true);
-                setLoading(false);
-            }, 1000);
+                if (role === 'teacher') router.push("/dashboard/teacher");
+                else if (role === 'admin') router.push("/dashboard/admin");
+                else router.push("/dashboard");
+            }, 1500);
 
-        } catch (err: unknown) {
-            setError((err as Error).message || "An error occurred");
+        } catch (err: any) {
+            const message = err.response?.data?.message || "Login failed";
+            setError(message);
+
+            // Handle unverified user redirect
+            if (message === "Your account is not verified" && role === 'student') {
+                localStorage.setItem("verifyEmail", email);
+                router.push("/verify");
+            }
+        } finally {
             setLoading(false);
         }
     };
-
-    const handleContinue = () => {
-        if (typeof window !== 'undefined') {
-            localStorage.setItem("token", "mock-jwt-token");
-            localStorage.setItem("user", JSON.stringify({ email, role }));
-        }
-
-        if (role === 'teacher') {
-            router.push("/dashboard/teacher");
-        } else if (role === 'admin') {
-            // Assuming admin dashboard might be /dashboard/admin or similar, pointing to main dashboard for now or teacher if not ready
-            router.push("/dashboard/admin");
-        } else {
-            router.push("/dashboard");
-        }
-    }
 
     const getRoleStyles = (r: UserRole) => {
         if (role === r) {
-            return "bg-white text-primary shadow-sm ring-1 ring-black/5";
+            return "bg-white text-slate-900 shadow-sm ring-1 ring-black/5";
         }
-        return "text-muted-foreground hover:bg-white/50 hover:text-foreground";
+        return "text-white/60 hover:bg-white/10 hover:text-white";
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-            <div className="max-w-md w-full bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100">
-                <div className={`p-8 text-center relative overflow-hidden transition-colors duration-500 
+        <div className="min-h-screen flex items-center justify-center bg-[linear-gradient(to_right,#f0f0f0_1px,transparent_1px),linear-gradient(to_bottom,#f0f0f0_1px,transparent_1px)] bg-[size:4rem_4rem] p-4">
+            <div className="max-w-md w-full bg-white rounded-[2rem] shadow-2xl overflow-hidden border border-slate-100">
+                <div className={`p-10 text-center relative overflow-hidden transition-all duration-500 
                     ${role === 'student' ? 'bg-[#d32f2f]' : role === 'teacher' ? 'bg-orange-600' : 'bg-slate-800'}`}>
 
-                    {/* Background pattern */}
                     <div className="absolute inset-0 opacity-10 pointer-events-none">
-                        <div className="absolute top-0 left-0 w-20 h-20 border-4 border-white rounded-full -translate-x-10 -translate-y-10"></div>
-                        <div className="absolute bottom-0 right-0 w-32 h-32 border-4 border-white rounded-full translate-x-10 translate-y-10"></div>
+                        <div className="absolute top-0 left-0 w-24 h-24 border-8 border-white rounded-full -translate-x-12 -translate-y-12"></div>
+                        <div className="absolute bottom-0 right-0 w-40 h-40 border-8 border-white rounded-full translate-x-12 translate-y-12"></div>
                     </div>
 
-                    <h1 className="text-white text-3xl font-black tracking-tight relative z-10">Prayukti vLAB</h1>
-                    <p className="text-white/80 text-xs font-bold uppercase tracking-widest mt-1 relative z-10">
-                        {role === 'student' ? 'Student Access' : role === 'teacher' ? 'Faculty Portal' : 'Admin Console'}
+                    <h1 className="text-white text-4xl font-black tracking-tight relative z-10">Prayukti vLAB</h1>
+                    <p className="text-white/80 text-[10px] font-black uppercase tracking-[0.2em] mt-2 relative z-10">
+                        {role === 'student' ? 'Student Portal' : role === 'teacher' ? 'Faculty Portal' : 'Administrator Control'}
                     </p>
+
+                    {/* Role Switcher Inside Header */}
+                    <div className="mt-8 p-1 bg-black/20 backdrop-blur-md rounded-xl flex relative z-10">
+                        <button onClick={() => setRole('student')} className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-bold rounded-lg transition-all ${getRoleStyles('student')}`}>
+                            <GraduationCap size={14} /> Student
+                        </button>
+                        <button onClick={() => setRole('teacher')} className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-bold rounded-lg transition-all ${getRoleStyles('teacher')}`}>
+                            <School size={14} /> Teacher
+                        </button>
+                        <button onClick={() => setRole('admin')} className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-bold rounded-lg transition-all ${getRoleStyles('admin')}`}>
+                            <ShieldCheck size={14} /> Admin
+                        </button>
+                    </div>
                 </div>
 
-                {/* Role Switcher */}
-                <div className="p-2 m-4 bg-gray-100/50 rounded-xl flex p-1">
-                    <button onClick={() => setRole('student')} className={`flex-1 flex items-center justify-center gap-2 py-2 text-sm font-semibold rounded-lg transition-all ${getRoleStyles('student')}`}>
-                        <GraduationCap className="w-4 h-4" /> Student
-                    </button>
-                    <button onClick={() => setRole('teacher')} className={`flex-1 flex items-center justify-center gap-2 py-2 text-sm font-semibold rounded-lg transition-all ${getRoleStyles('teacher')}`}>
-                        <School className="w-4 h-4" /> Teacher
-                    </button>
-                    <button onClick={() => setRole('admin')} className={`flex-1 flex items-center justify-center gap-2 py-2 text-sm font-semibold rounded-lg transition-all ${getRoleStyles('admin')}`}>
-                        <ShieldCheck className="w-4 h-4" /> Admin
-                    </button>
-                </div>
-
-                <div className="px-8 pb-8 pt-2">
-                    {!sent ? (
-                        <form onSubmit={handleLogin} className="space-y-5">
+                <div className="p-10">
+                    {!success ? (
+                        <form onSubmit={handleLogin} className="space-y-6">
                             <div className="space-y-2">
-                                <label htmlFor="email" className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">
-                                    {role === 'admin' ? 'Admin ID / Email' : 'University Email'}
-                                </label>
-                                <input
-                                    id="email"
-                                    type="email"
-                                    required
-                                    placeholder={role === 'admin' ? "admin@mmmut.ac.in" : "yourname@mmmut.ac.in"}
-                                    className="w-full px-5 py-4 bg-gray-50 border-2 border-transparent focus:border-[#d32f2f] focus:bg-white rounded-2xl outline-none transition-all text-gray-700 font-medium"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                />
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">University Email</label>
+                                <div className="relative">
+                                    <input
+                                        type="email"
+                                        required
+                                        placeholder="name@mmmut.ac.in"
+                                        className="w-full px-5 py-4 bg-slate-50 border-2 border-transparent focus:border-orange-500 focus:bg-white rounded-2xl outline-none transition-all text-slate-700 font-semibold pl-12"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                    />
+                                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+                                </div>
                             </div>
 
                             <div className="space-y-2">
-                                <label htmlFor="password" className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">
-                                    Password
-                                </label>
-                                <input
-                                    id="password"
-                                    type="password"
-                                    required
-                                    placeholder="••••••••"
-                                    className="w-full px-5 py-4 bg-gray-50 border-2 border-transparent focus:border-[#d32f2f] focus:bg-white rounded-2xl outline-none transition-all text-gray-700 font-medium"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                />
+                                <div className="flex justify-between items-end pr-1">
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Password</label>
+                                    <button type="button" className="text-[10px] font-black text-orange-600 uppercase tracking-tighter hover:underline">Forgot password?</button>
+                                </div>
+                                <div className="relative">
+                                    <input
+                                        type="password"
+                                        required
+                                        placeholder="••••••••"
+                                        className="w-full px-5 py-4 bg-slate-50 border-2 border-transparent focus:border-orange-500 focus:bg-white rounded-2xl outline-none transition-all text-slate-700 font-semibold pl-12"
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                    />
+                                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+                                </div>
                             </div>
 
                             {error && (
-                                <div className="p-4 bg-red-50 border border-red-100 text-red-600 text-[11px] font-bold rounded-xl animate-in fade-in slide-in-from-top-1">
-                                    ⚠️ {error}
+                                <div className="p-4 bg-red-50 border border-red-100 text-red-600 text-[11px] font-black rounded-xl animate-shake">
+                                    🚨 {error.toUpperCase()}
                                 </div>
                             )}
 
                             <Button
                                 type="submit"
                                 disabled={loading}
-                                className={`w-full text-white font-black py-7 rounded-2xl shadow-lg transition-all active:scale-[0.98]
-                                    ${role === 'student' ? 'bg-[#f57f17] hover:bg-[#e65100] shadow-orange-200' :
+                                className={`w-full py-8 text-lg font-black tracking-widest rounded-2xl shadow-xl transition-all active:scale-[0.98]
+                                    ${role === 'student' ? 'bg-[#f57f17] hover:bg-[#e65100] shadow-orange-100' :
                                         role === 'teacher' ? 'bg-orange-600 hover:bg-orange-700 shadow-orange-200' :
                                             'bg-slate-700 hover:bg-slate-800 shadow-slate-200'}`}
                             >
-                                {loading ? <Loader2 className="animate-spin h-5 w-5 mx-auto" /> : "SECURE LOGIN"}
+                                {loading ? <Loader2 className="animate-spin" /> : "AUTHENTICATE"}
                             </Button>
 
-                            {/* Test Credentials Box */}
-                            <div className="mt-6 p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-2">
-                                <div className="flex items-center gap-2 mb-1">
-                                    <div className="w-1.5 h-1.5 bg-orange-500 rounded-full animate-pulse"></div>
-                                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-tighter">Auto-Fill Prototype Creds</p>
+                            {role === 'student' && (
+                                <div className="text-center pt-4">
+                                    <p className="text-xs font-bold text-slate-400">
+                                        DON'T HAVE AN ACCOUNT? <Link href="/register" className="text-orange-600 hover:underline">REGISTER HERE</Link>
+                                    </p>
                                 </div>
-                                <div className="space-y-1">
-                                    {role === 'student' && (
-                                        <div className="text-[10px] font-mono cursor-pointer hover:text-blue-600 truncate"
-                                            onClick={() => { setEmail("student@mmmut.ac.in"); setPassword("student123") }}>
-                                            👉 student@mmmut.ac.in / student123
-                                        </div>
-                                    )}
-                                    {role === 'teacher' && (
-                                        <div className="text-[10px] font-mono cursor-pointer hover:text-blue-600 truncate"
-                                            onClick={() => { setEmail("teacher@mmmut.ac.in"); setPassword("teacher123") }}>
-                                            👉 teacher@mmmut.ac.in / teacher123
-                                        </div>
-                                    )}
-                                    {role === 'admin' && (
-                                        <div className="text-[10px] font-mono cursor-pointer hover:text-blue-600 truncate"
-                                            onClick={() => { setEmail("admin@mmmut.ac.in"); setPassword("admin123") }}>
-                                            👉 admin@mmmut.ac.in / admin123
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
+                            )}
                         </form>
                     ) : (
-                        <div className="text-center space-y-4">
-                            <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto text-2xl">
-                                ✓
+                        <div className="text-center py-10 space-y-6">
+                            <div className="w-20 h-20 bg-green-50 text-green-600 rounded-full flex items-center justify-center mx-auto transition-transform scale-110">
+                                <ShieldCheck size={40} />
                             </div>
-                            <h3 className="text-lg font-bold text-gray-800">Welcome, {role.charAt(0).toUpperCase() + role.slice(1)}</h3>
-                            <p className="text-sm text-gray-600">
-                                Authentication successful. Redirecting you to the secure dashboard.
+                            <h3 className="text-2xl font-black text-slate-900 tracking-tight">Access Granted</h3>
+                            <p className="text-slate-500 font-medium">
+                                Secure session initialized. <br />
+                                Redirecting to your dashboard...
                             </p>
-                            <Button
-                                onClick={handleContinue}
-                                className={`w-full text-white ${role === 'admin' ? 'bg-slate-800 hover:bg-slate-900' : 'bg-green-600 hover:bg-green-700'}`}
-
-                            >
-                                Continue to Dashboard
-                            </Button>
+                            <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                                <div className="h-full bg-green-500 animate-progress"></div>
+                            </div>
                         </div>
                     )}
                 </div>
 
-                <div className="bg-gray-50 p-4 text-center text-xs text-gray-500">
-                    &copy; 2025 MMMUT Gorakhpur
+                <div className="bg-slate-50 p-6 text-center border-t border-slate-100">
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                        &copy; 2025 Madan Mohan Malaviya University of Technology
+                    </p>
                 </div>
             </div>
         </div>
