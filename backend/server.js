@@ -17,6 +17,32 @@ const startServer = async () => {
 
         await connectDB();
 
+        // Auto-seed test user for deployments
+        try {
+            const User = require('./models/User');
+            const bcrypt = require('bcryptjs');
+            const testEmail = "test.student@mmmut.ac.in";
+            let testUser = await User.findOne({ email: testEmail });
+            if (!testUser) {
+                console.log("Auto-seeding test student for deployment...");
+                const hashedPassword = await bcrypt.hash("password123", 10);
+                testUser = new User({
+                    fullName: "Test Student",
+                    email: testEmail,
+                    password: hashedPassword,
+                    role: "student",
+                    isVerified: true
+                });
+                await testUser.save();
+                console.log("Test student seeded.");
+            } else if (!testUser.isVerified) {
+                testUser.isVerified = true;
+                await testUser.save();
+            }
+        } catch (seedErr) {
+            console.error("Test user auto-seed failed:", seedErr);
+        }
+
         const app = express();
 
         // Middleware
