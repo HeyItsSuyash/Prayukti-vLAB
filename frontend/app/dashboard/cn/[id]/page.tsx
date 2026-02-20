@@ -9,9 +9,14 @@ import { Badge } from "@/components/ui/badge";
 import Footer from "@/components/layout/Footer";
 import { use } from "react";
 import { Chatbot } from "@/components/lab/Chatbot";
+import { TheorySection } from "@/components/lab/TheorySection";
+import { ResourcesSection } from "@/components/lab/ResourcesSection";
 
 export default function PracticalDetail({ params }: { params: Promise<{ id: string }> }) {
     const { id } = use(params);
+    const labId = !isNaN(Number(id)) ? `cn-exp-${id}` : id;
+
+    // Fallback logic if needed, but registry uses full IDs
     const labId = !isNaN(Number(id)) ? `cn-exp-${id}` : id;
 
     const lab = getLabById(labId);
@@ -52,7 +57,7 @@ export default function PracticalDetail({ params }: { params: Promise<{ id: stri
 
             <main className="container mx-auto px-4 py-12 grid grid-cols-1 lg:grid-cols-12 gap-12">
 
-                {/* Left Content (Theory) */}
+                {/* Left Content (Theory & Procedure) */}
                 <div className="lg:col-span-8 space-y-12">
                     <div>
                         <div className="flex items-center gap-3 mb-4">
@@ -73,21 +78,19 @@ export default function PracticalDetail({ params }: { params: Promise<{ id: stri
                     </div>
 
                     <div className="space-y-8">
-                        <section className="bg-white rounded-xl border-2 border-black/5 p-8 shadow-sm">
-                            <div className="flex items-center gap-3 mb-6 border-b-2 border-black/5 pb-4">
-                                <BookOpen className="w-6 h-6 text-blue-600" />
-                                <h2 className="text-2xl font-black uppercase tracking-tight">Theory</h2>
-                            </div>
-                            <div className="prose prose-lg max-w-none prose-headings:font-bold prose-headings:uppercase prose-p:text-gray-600 prose-strong:text-black" dangerouslySetInnerHTML={{ __html: content.theory }} />
-                        </section>
+                        <TheorySection content={content.theory} />
 
                         <section className="bg-white rounded-xl border-2 border-black/5 p-8 shadow-sm">
                             <div className="flex items-center gap-3 mb-6 border-b-2 border-black/5 pb-4">
                                 <FlaskConical className="w-6 h-6 text-blue-600" />
                                 <h2 className="text-2xl font-black uppercase tracking-tight">Procedure</h2>
                             </div>
-                            <div className="prose prose-lg max-w-none prose-headings:font-bold prose-headings:uppercase prose-p:text-gray-600 prose-strong:text-black" dangerouslySetInnerHTML={{ __html: content.procedure }} />
+                            <div className="prose prose-lg max-w-none prose-headings:font-bold prose-headings:uppercase prose-p:text-gray-600 prose-strong:text-black">
+                                {content.procedure}
+                            </div>
                         </section>
+
+                        <ResourcesSection resources={content.resources} labId={labId} />
                     </div>
                 </div>
 
@@ -109,27 +112,11 @@ export default function PracticalDetail({ params }: { params: Promise<{ id: stri
                         </div>
 
                         <div className="bg-white rounded-xl border-2 border-black/5 p-8">
-                            <h3 className="font-black text-lg uppercase tracking-tight mb-6">Resources</h3>
-                            <ul className="space-y-4">
-                                <li className="flex items-center gap-3 group cursor-pointer">
-                                    <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center group-hover:bg-blue-50 transition-colors">
-                                        <div className="w-2 h-2 rounded-full bg-gray-300 group-hover:bg-blue-500"></div>
-                                    </div>
-                                    <span className="font-bold text-sm text-gray-600 group-hover:text-black transition-colors uppercase tracking-wide">Reference Guide</span>
-                                </li>
-                                <li className="flex items-center gap-3 group cursor-pointer">
-                                    <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center group-hover:bg-blue-50 transition-colors">
-                                        <div className="w-2 h-2 rounded-full bg-gray-300 group-hover:bg-blue-500"></div>
-                                    </div>
-                                    <span className="font-bold text-sm text-gray-600 group-hover:text-black transition-colors uppercase tracking-wide">Animation Lecture</span>
-                                </li>
-                                <li className="flex items-center gap-3 group cursor-pointer">
-                                    <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center group-hover:bg-blue-50 transition-colors">
-                                        <div className="w-2 h-2 rounded-full bg-gray-300 group-hover:bg-blue-500"></div>
-                                    </div>
-                                    <span className="font-bold text-sm text-gray-600 group-hover:text-black transition-colors uppercase tracking-wide">Self Quiz</span>
-                                </li>
-                            </ul>
+                            <h3 className="font-black text-lg uppercase tracking-tight mb-4">Lab Status</h3>
+                            <div className="flex items-center gap-2 text-green-600 font-bold bg-green-50 p-3 rounded-lg border border-green-100">
+                                <FlaskConical size={20} />
+                                <span>Active Simulation</span>
+                            </div>
                         </div>
                     </div>
                 </div>
