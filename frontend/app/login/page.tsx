@@ -161,15 +161,35 @@ export default function LoginPage() {
                             <Button
                                 type="button"
                                 variant="outline"
-                                onClick={() => {
+                                onClick={async (e) => {
+                                    e.preventDefault();
                                     setEmail("test.student@mmmut.ac.in");
                                     setPassword("password123");
-                                    // Trigger login after state update
-                                    // Note: State updates are async, so we can't call handleLogin immediately with new state
-                                    // But we can just set the state and let the user click authenticate, or automate it.
-                                    // For simplicity, let's just set the state and focus the button or just let them click it.
-                                    // Or better, call a separate function that calls the API directly.
-                                    // Re-implementing handleTestLogin for immediate action:
+                                    setRole("student");
+
+                                    // Trigger immediate login since state updates are async
+                                    setError("");
+                                    setLoading(true);
+                                    try {
+                                        const response = await axios.post(`${API_URL}/api/auth/login`, {
+                                            email: "test.student@mmmut.ac.in",
+                                            password: "password123"
+                                        });
+                                        const { token, user } = response.data;
+                                        if (typeof window !== 'undefined') {
+                                            localStorage.setItem("token", token);
+                                            localStorage.setItem("user", JSON.stringify(user));
+                                        }
+                                        setSuccess(true);
+                                        setTimeout(() => {
+                                            router.push("/dashboard");
+                                        }, 1500);
+                                    } catch (err: any) {
+                                        const message = err.response?.data?.message || "Test Login failed";
+                                        setError(message);
+                                    } finally {
+                                        setLoading(false);
+                                    }
                                 }}
                                 className="w-full py-6 text-sm font-bold tracking-wider rounded-2xl border-2 border-slate-200 hover:bg-slate-50 text-slate-500 mt-4"
                             >
