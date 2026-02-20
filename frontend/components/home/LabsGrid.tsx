@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { ArrowRight, Globe, Cpu, Terminal, Database, Database, BookOpen, Layers } from "lucide-react";
+import { ArrowRight, Globe, Cpu, Terminal, Database, BookOpen, Layers } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 // ─── Lab data ─────────────────────────────────────────────────
