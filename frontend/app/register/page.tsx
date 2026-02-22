@@ -40,7 +40,7 @@ export default function RegisterPage() {
             });
 
             // Success - store email for verification flow
-            localStorage.setItem("verifyEmail", email);
+            localStorage.setItem("vlab_verifyEmail", email);
             router.push("/verify");
         } catch (err: any) {
             setError(err.response?.data?.message || "Registration failed. Please try again.");

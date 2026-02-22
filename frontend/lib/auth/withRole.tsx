@@ -2,9 +2,31 @@
 import React from "react";
 import { Role } from "./roles";
 
-// Mocking useAuth for now. Replace with actual auth hook later.
+// Reading real auth state from localStorage
 const useAuth = () => {
-    return { role: "STUDENT" as Role };
+    const [authState, setAuthState] = React.useState<{ role: Role | null; isAuthenticated: boolean }>({
+        role: null,
+        isAuthenticated: false
+    });
+
+    React.useEffect(() => {
+        const token = localStorage.getItem("vlab_token");
+        const userData = localStorage.getItem("vlab_user");
+
+        if (token && userData) {
+            try {
+                const user = JSON.parse(userData);
+                setAuthState({
+                    role: user.role.toUpperCase() as Role,
+                    isAuthenticated: true
+                });
+            } catch (e) {
+                console.error("Error parsing user data", e);
+            }
+        }
+    }, []);
+
+    return authState;
 };
 
 interface WithRoleProps {
@@ -16,7 +38,7 @@ interface WithRoleProps {
 export const RoleGuard: React.FC<WithRoleProps> = ({ allowedRoles, children, fallback = null }) => {
     const { role } = useAuth();
 
-    if (!allowedRoles.includes(role)) {
+    if (!role || !allowedRoles.includes(role)) {
         return <>{fallback}</>;
     }
 
@@ -30,7 +52,7 @@ export function withRole<P extends object>(
     return function WrappedComponent(props: P) {
         const { role } = useAuth();
 
-        if (!allowedRoles.includes(role)) {
+        if (!role || !allowedRoles.includes(role)) {
             return null; // or a customized access denied component
         }
 

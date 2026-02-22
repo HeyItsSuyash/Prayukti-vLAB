@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Loader2, GraduationCap, School, ShieldCheck, User, Lock, Mail } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 import axios from "axios";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
@@ -19,6 +20,8 @@ export default function LoginPage() {
     const [error, setError] = useState("");
     const [success, setSuccess] = useState(false);
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const redirectTo = searchParams.get("redirect");
 
     useEffect(() => {
         setError("");
@@ -32,7 +35,7 @@ export default function LoginPage() {
 
         try {
             // Role specific endpoint handling
-            const endpoint = role === 'student' ? '/api/auth/login' : '/api/auth/login'; // Adjust if teacher/admin have different routes
+            const endpoint = role === 'student' ? '/api/auth/login' : '/api/auth/login';
 
             const response = await axios.post(`${API_URL}${endpoint}`, {
                 email,
@@ -41,18 +44,23 @@ export default function LoginPage() {
 
             const { token, user } = response.data;
 
-            // Store token and user info
+            // Store token and user info with unique keys
             if (typeof window !== 'undefined') {
-                localStorage.setItem("token", token);
-                localStorage.setItem("user", JSON.stringify(user));
+                localStorage.setItem("vlab_token", token);
+                localStorage.setItem("vlab_user", JSON.stringify(user));
             }
 
             setSuccess(true);
+
             setTimeout(() => {
-                if (role === 'teacher') router.push("/dashboard/teacher");
-                else if (role === 'admin') router.push("/dashboard/admin");
-                else router.push("/dashboard");
-            }, 1500);
+                if (redirectTo) {
+                    router.replace(redirectTo);
+                } else {
+                    if (role === 'teacher') router.replace("/dashboard/teacher");
+                    else if (role === 'admin') router.replace("/dashboard/admin");
+                    else router.replace("/dashboard");
+                }
+            }, 1000);
 
         } catch (err: any) {
             const message = err.response?.data?.message || "Login failed";
@@ -177,13 +185,17 @@ export default function LoginPage() {
                                         });
                                         const { token, user } = response.data;
                                         if (typeof window !== 'undefined') {
-                                            localStorage.setItem("token", token);
-                                            localStorage.setItem("user", JSON.stringify(user));
+                                            localStorage.setItem("vlab_token", token);
+                                            localStorage.setItem("vlab_user", JSON.stringify(user));
                                         }
                                         setSuccess(true);
                                         setTimeout(() => {
-                                            router.push("/dashboard");
-                                        }, 1500);
+                                            if (redirectTo) {
+                                                router.replace(redirectTo);
+                                            } else {
+                                                router.replace("/dashboard");
+                                            }
+                                        }, 1000);
                                     } catch (err: any) {
                                         const message = err.response?.data?.message || "Test Login failed";
                                         setError(message);

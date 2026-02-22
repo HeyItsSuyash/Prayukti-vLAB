@@ -21,7 +21,7 @@ export default function VerifyPage() {
     const router = useRouter();
 
     useEffect(() => {
-        const storedEmail = localStorage.getItem("verifyEmail");
+        const storedEmail = localStorage.getItem("vlab_verifyEmail");
         if (!storedEmail) {
             router.push("/register");
         } else {
@@ -46,7 +46,7 @@ export default function VerifyPage() {
                 otp
             });
             setSuccess("Account verified successfully! Redirecting to login...");
-            localStorage.removeItem("verifyEmail");
+            localStorage.removeItem("vlab_verifyEmail");
             setTimeout(() => {
                 router.push("/login");
             }, 2000);
