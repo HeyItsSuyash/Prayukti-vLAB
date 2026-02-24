@@ -22,11 +22,11 @@ export function Hero() {
                             Next-Gen Virtual Labs
                         </div>
 
-                        <h1 className="text-5xl lg:text-7xl font-bold text-slate-900 dark:text-white leading-[1.1] tracking-tight">
+                        <h1 className="text-5xl lg:text-7xl font-bold text-slate-900 leading-[1.1] tracking-tight">
                             Experience Practical Learning Through <span className="text-primary">Virtual Labs</span>
                         </h1>
 
-                        <p className="text-lg text-slate-600 dark:text-slate-400 leading-relaxed max-w-2xl mx-auto lg:mx-0">
+                        <p className="text-lg text-slate-600 leading-relaxed max-w-2xl mx-auto lg:mx-0">
                             Bridge the gap between theory and practice with our state-of-the-art virtual laboratory platform. Perform complex experiments, visualize results, and master engineering concepts from anywhere.
                         </p>
 
@@ -37,7 +37,7 @@ export function Hero() {
                                 </Button>
                             </Link>
                             <Link href="/demo">
-                                <Button variant="outline" size="lg" className="h-14 px-8 text-base rounded-full border-2 hover:bg-slate-50 dark:bg-slate-800">
+                                <Button variant="outline" size="lg" className="h-14 px-8 text-base rounded-full border-2 hover:bg-slate-50">
                                     <PlayCircle className="mr-2 w-5 h-5" /> Watch Demo
                                 </Button>
                             </Link>
@@ -45,17 +45,17 @@ export function Hero() {
 
                         <div className="pt-8 flex items-center justify-center lg:justify-start gap-8 text-slate-500">
                             <div className="flex flex-col">
-                                <span className="text-3xl font-bold text-slate-900 dark:text-white">2.5k+</span>
+                                <span className="text-3xl font-bold text-slate-900">2.5k+</span>
                                 <span className="text-sm font-medium uppercase tracking-wide">Students</span>
                             </div>
                             <div className="w-px h-12 bg-slate-200"></div>
                             <div className="flex flex-col">
-                                <span className="text-3xl font-bold text-slate-900 dark:text-white">50+</span>
+                                <span className="text-3xl font-bold text-slate-900">50+</span>
                                 <span className="text-sm font-medium uppercase tracking-wide">Simulations</span>
                             </div>
                             <div className="w-px h-12 bg-slate-200"></div>
                             <div className="flex flex-col">
-                                <span className="text-3xl font-bold text-slate-900 dark:text-white">24/7</span>
+                                <span className="text-3xl font-bold text-slate-900">24/7</span>
                                 <span className="text-sm font-medium uppercase tracking-wide">Access</span>
                             </div>
                         </div>
@@ -68,19 +68,19 @@ export function Hero() {
                             <div className="absolute inset-0 bg-gradient-to-tr from-slate-50 to-white flex items-center justify-center">
                                 <div className="grid grid-cols-2 gap-4 p-8 w-full h-full opacity-50 rotate-3 scale-110">
                                     <div className="bg-blue-50 rounded-2xl w-full h-40 animate-pulse"></div>
-                                    <div className="bg-slate-50 dark:bg-slate-800 rounded-2xl w-full h-40 mt-12"></div>
-                                    <div className="bg-slate-50 dark:bg-slate-800 rounded-2xl w-full h-40 -mt-12"></div>
+                                    <div className="bg-slate-50 rounded-2xl w-full h-40 mt-12"></div>
+                                    <div className="bg-slate-50 rounded-2xl w-full h-40 -mt-12"></div>
                                     <div className="bg-blue-50 rounded-2xl w-full h-40"></div>
                                 </div>
                                 <div className="absolute inset-0 flex items-center justify-center">
-                                    <span className="bg-white dark:bg-slate-900/80 backdrop-blur border border-white/50 px-6 py-3 rounded-xl shadow-xl font-bold text-slate-800">
+                                    <span className="bg-white/80 backdrop-blur border border-white/50 px-6 py-3 rounded-xl shadow-xl font-bold text-slate-800">
                                         Interactive Simulation Preview
                                     </span>
                                 </div>
                             </div>
                         </div>
                         {/* Floating elements */}
-                        <div className="absolute -bottom-8 -left-8 bg-white dark:bg-slate-900 p-4 rounded-xl shadow-xl border border-slate-100 hidden md:block animate-bounce duration-[3000ms]">
+                        <div className="absolute -bottom-8 -left-8 bg-white p-4 rounded-xl shadow-xl border border-slate-100 hidden md:block animate-bounce duration-[3000ms]">
                             <div className="flex items-center gap-3">
                                 <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center text-green-600 font-bold">✓</div>
                                 <div className="flex flex-col">

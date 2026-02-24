@@ -28,11 +28,11 @@ const steps = [
 
 export function HowItWorks() {
     return (
-        <section className="py-24 bg-white dark:bg-slate-900">
+        <section className="py-24 bg-white">
             <div className="container mx-auto px-4 text-center">
                 <div className="mb-16">
                     <span className="text-sm font-bold text-indigo-600 uppercase tracking-widest">Simple Workflow</span>
-                    <h2 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mt-4">
+                    <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mt-4">
                         How It Works
                     </h2>
                 </div>
@@ -45,11 +45,11 @@ export function HowItWorks() {
                         <div key={index} className="relative flex flex-col items-center group">
                             <div className={`w-24 h-24 rounded-2xl ${step.color} shadow-lg flex items-center justify-center mb-8 rotate-3 transition-transform group-hover:rotate-6 group-hover:scale-110`}>
                                 {step.icon}
-                                <div className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-white dark:bg-slate-900 border-2 border-slate-100 flex items-center justify-center text-xs font-black text-slate-400">
+                                <div className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-white border-2 border-slate-100 flex items-center justify-center text-xs font-black text-slate-400">
                                     {step.id}
                                 </div>
                             </div>
-                            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3">{step.title}</h3>
+                            <h3 className="text-xl font-bold text-slate-900 mb-3">{step.title}</h3>
                             <p className="text-slate-500 max-w-xs mx-auto leading-relaxed text-sm">
                                 {step.description}
                             </p>
