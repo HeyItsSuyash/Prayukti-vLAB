@@ -167,29 +167,28 @@ export default function LoginPage() {
                                     setPassword("password123");
                                     setRole("student");
 
-                                    // Trigger immediate login since state updates are async
+                                    // Bypass backend and simulate a successful login
                                     setError("");
                                     setLoading(true);
-                                    try {
-                                        const response = await axios.post(`${API_URL}/api/auth/login`, {
+
+                                    // Simulate network delay
+                                    await new Promise(resolve => setTimeout(resolve, 800));
+
+                                    if (typeof window !== 'undefined') {
+                                        // Set a mock token and user data
+                                        localStorage.setItem("token", "mock_jwt_token_for_testing_12345");
+                                        localStorage.setItem("user", JSON.stringify({
+                                            id: "mock_user_id_001",
+                                            fullName: "Test Student",
                                             email: "test.student@mmmut.ac.in",
-                                            password: "password123"
-                                        });
-                                        const { token, user } = response.data;
-                                        if (typeof window !== 'undefined') {
-                                            localStorage.setItem("token", token);
-                                            localStorage.setItem("user", JSON.stringify(user));
-                                        }
-                                        setSuccess(true);
-                                        setTimeout(() => {
-                                            router.push("/dashboard");
-                                        }, 1500);
-                                    } catch (err: any) {
-                                        const message = err.response?.data?.message || "Test Login failed";
-                                        setError(message);
-                                    } finally {
-                                        setLoading(false);
+                                            role: "student"
+                                        }));
                                     }
+
+                                    setSuccess(true);
+                                    setTimeout(() => {
+                                        router.push("/dashboard");
+                                    }, 1000);
                                 }}
                                 className="w-full py-6 text-sm font-bold tracking-wider rounded-2xl border-2 border-slate-200 hover:bg-slate-50 text-slate-500 mt-4"
                             >

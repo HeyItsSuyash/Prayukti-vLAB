@@ -73,6 +73,12 @@ const COMPONENT_MAP: Record<string, React.ComponentType<any>> = {
     "dld-exp-2": CircuitCanvas,
     "dld-exp-3": CircuitCanvas,
     "dld-exp-4": CircuitCanvas,
+    "dld-exp-5": CircuitCanvas,
+    "dld-exp-6": CircuitCanvas,
+    "dld-exp-7": CircuitCanvas,
+    "dld-exp-8": CircuitCanvas,
+    "dld-exp-9": CircuitCanvas,
+    "dld-exp-10": CircuitCanvas,
 
     // OOPS
     "oops-exp-1": OOPSCompiler,
