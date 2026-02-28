@@ -10,6 +10,7 @@ import Theory from "./theory";
 import Procedure from "./procedure";
 import Simulation from "./simulation";
 import Observation from "./observation";
+import ChatPanel from "@/components/Chat/ChatPanel";
 
 type Tab = "aim" | "theory" | "procedure" | "simulation" | "observation";
 
@@ -77,6 +78,8 @@ export default function BasicOperationsPage() {
                     </div>
                 </main>
             </div>
+
+            <ChatPanel experimentId="dbms-exp-1" />
         </div>
     );
 }

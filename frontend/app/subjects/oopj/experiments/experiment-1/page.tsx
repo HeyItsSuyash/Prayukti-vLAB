@@ -5,6 +5,7 @@ import CodeEditor from "./editor";
 import Theory from "./theory";
 import Problem from "./problem";
 import { Button } from "@/components/ui/button";
+import ChatPanel from "@/components/Chat/ChatPanel";
 
 export default function Experiment1Page() {
     const [activeTab, setActiveTab] = useState<"theory" | "problem">("theory");
@@ -45,6 +46,8 @@ export default function Experiment1Page() {
                     <CodeEditor />
                 </div>
             </div>
+
+            <ChatPanel experimentId="oopj-exp-1" />
         </div>
     );
 }
