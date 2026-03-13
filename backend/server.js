@@ -11,10 +11,22 @@ Object.keys(process.env).forEach(key => {
     }
 });
 
+// Fix for local DNS issues with MongoDB Atlas SRV records
+try {
+    const dns = require('dns');
+    dns.setServers(['8.8.8.8', '8.8.4.4']);
+    console.log("DNS Override: Using Google DNS for SRV resolution.");
+} catch (dnsErr) {
+    console.warn("DNS Override failed:", dnsErr.message);
+}
+
 const express = require('express');
 const cors = require('cors');
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/auth');
+const subjectRoutes = require('./routes/subjectRoutes');
+const experimentRoutes = require('./routes/experimentRoutes');
+const codeRoutes = require('./routes/codeRoutes');
 
 // Connect to Database
 const startServer = async () => {
@@ -71,6 +83,9 @@ const startServer = async () => {
 
         // Routes
         app.use("/api/auth", authRoutes);
+        app.use("/api/subjects", subjectRoutes);
+        app.use("/api/experiments", experimentRoutes);
+        app.use("/api/code", codeRoutes);
         app.use("/api/users", userRoutes);
 
         // Health check

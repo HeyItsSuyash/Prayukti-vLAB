@@ -2041,4 +2041,97 @@ HLT</pre>
             `}} />
         )
     },
+
+    "daa-exp-1": {
+        aim: "To analyze the time complexity of the Insertion Sort algorithm by measuring execution time for different input sizes and visualizing the growth rate.",
+        theory: (
+            <div className="space-y-8">
+                <section>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">1. Introduction</h3>
+                    <p className="text-gray-700 leading-relaxed">
+                        <strong>Insertion Sort</strong> is a simple sorting algorithm that builds the final sorted array one item at a time. It is much less efficient on large lists than more advanced algorithms such as quicksort, heapsort, or merge sort.
+                    </p>
+                </section>
+                <section>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">2. How it works</h3>
+                    <p className="text-gray-700 leading-relaxed">
+                        Insertion sort works similarly to the way you sort playing cards in your hands. The array is virtually split into a sorted and an unsorted part. Values from the unsorted part are picked and placed at the correct position in the sorted part.
+                    </p>
+                    <ul className="list-disc pl-6 space-y-2 text-gray-700 mt-4">
+                        <li>Start from the second element (index 1) as the first element is already "sorted".</li>
+                        <li>Compare the current element with the previous elements.</li>
+                        <li>If the current element is smaller than the previous element, compare it to the elements before. Move the greater elements one position up to make space for the swapped element.</li>
+                    </ul>
+                </section>
+                <section>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">3. Time Complexity</h3>
+                    <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                        <ul className="space-y-2 text-sm text-gray-700">
+                            <li><strong>Best Case:</strong> O(n) - Occurs when the array is already sorted.</li>
+                            <li><strong>Average Case:</strong> O(n²) - Occurs when the elements are in random order.</li>
+                            <li><strong>Worst Case:</strong> O(n²) - Occurs when the array is sorted in reverse order.</li>
+                        </ul>
+                    </div>
+                </section>
+            </div>
+        ),
+        procedure: (
+            <div className="space-y-4">
+                <div className="flex items-start gap-4">
+                    <div className="bg-gray-100 p-2 rounded-full shrink-0 font-bold w-8 h-8 flex items-center justify-center">1</div>
+                    <div>
+                        <h4 className="font-bold text-gray-900">Understand the Algorithm</h4>
+                        <p className="text-sm text-gray-600">Review the theory and the C++/Java implementation of Insertion Sort.</p>
+                    </div>
+                </div>
+                <div className="flex items-start gap-4">
+                    <div className="bg-gray-100 p-2 rounded-full shrink-0 font-bold w-8 h-8 flex items-center justify-center">2</div>
+                    <div>
+                        <h4 className="font-bold text-gray-900">Launch simulator</h4>
+                        <p className="text-sm text-gray-600">Open the Workbench to access the specialized DAA Compiler.</p>
+                    </div>
+                </div>
+                <div className="flex items-start gap-4">
+                    <div className="bg-gray-100 p-2 rounded-full shrink-0 font-bold w-8 h-8 flex items-center justify-center">3</div>
+                    <div>
+                        <h4 className="font-bold text-gray-900">Run Complexity Analysis</h4>
+                        <p className="text-sm text-gray-600">Use the 'Complexity Analysis' feature to run the code against multiple input sizes (e.g., 100, 500, 1000, 5000 elements).</p>
+                    </div>
+                </div>
+                <div className="flex items-start gap-4">
+                    <div className="bg-gray-100 p-2 rounded-full shrink-0 font-bold w-8 h-8 flex items-center justify-center">4</div>
+                    <div>
+                        <h4 className="font-bold text-gray-900">Observe Graphs</h4>
+                        <p className="text-sm text-gray-600">Analyze the generated graph and table to verify the O(n²) growth rate.</p>
+                    </div>
+                </div>
+            </div>
+        ),
+        resources: {
+            video: {
+                title: "Insertion Sort in 2 Minutes",
+                url: "https://www.youtube.com/embed/ROalU379l3U",
+                description: "A quick visual explanation of how Insertion Sort works."
+            },
+            quiz: {
+                title: "Insertion Sort Quiz",
+                questions: [
+                    {
+                        id: 1,
+                        question: "What is the best-case time complexity of Insertion Sort?",
+                        options: ["O(n log n)", "O(n)", "O(n²)", "O(1)"],
+                        correctAnswer: 1,
+                        explanation: "When the array is already sorted, Insertion Sort only makes one comparison for each element, resulting in linear time complexity."
+                    },
+                    {
+                        id: 2,
+                        question: "Insertion sort is an 'in-place' sorting algorithm. (True/False)",
+                        options: ["True", "False"],
+                        correctAnswer: 0,
+                        explanation: "Yes, it only requires a constant amount O(1) of additional memory space."
+                    }
+                ]
+            }
+        }
+    },
 };
