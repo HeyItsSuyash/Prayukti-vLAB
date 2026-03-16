@@ -1,0 +1,4 @@
+﻿app/subjects/computer-networks/error-detection/page.tsx(5,58): error TS2307: Cannot find module '@/components/ui/tabs' or its corresponding type declarations.
+components/simulation/error-detection/Checksum.tsx(36,21): error TS2532: Object is possibly 'undefined'.
+components/simulation/error-detection/Checksum.tsx(51,19): error TS2532: Object is possibly 'undefined'.
+components/simulation/error-detection/ParityCheck.tsx(7,79): error TS2307: Cannot find module '@/components/ui/select' or its corresponding type declarations.
