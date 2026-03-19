@@ -168,37 +168,39 @@ export default function LoginPage() {
                                         role === 'teacher' ? "test.faculty@mmmut.ac.in" :
                                             "test.admin@mmmut.ac.in";
 
-                                    const testName = role === 'student' ? "Test Student" :
-                                        role === 'teacher' ? "Test Faculty" :
-                                            "Test Admin";
-
                                     setEmail(testEmail);
                                     setPassword("password123");
 
-                                    // Bypass backend and simulate a successful login
                                     setError("");
                                     setLoading(true);
 
-                                    // Simulate network delay
-                                    await new Promise(resolve => setTimeout(resolve, 800));
-
-                                    if (typeof window !== 'undefined') {
-                                        // Set a mock token and user data
-                                        localStorage.setItem("token", `mock_jwt_token_for_${role}_12345`);
-                                        localStorage.setItem("user", JSON.stringify({
-                                            id: `mock_${role}_id_001`,
-                                            fullName: testName,
+                                    try {
+                                        const response = await axios.post(`${API_URL}/api/auth/login`, {
                                             email: testEmail,
-                                            role: role
-                                        }));
-                                    }
+                                            password: "password123"
+                                        });
 
-                                    setSuccess(true);
-                                    setTimeout(() => {
-                                        if (role === 'teacher') router.push("/dashboard/teacher");
-                                        else if (role === 'admin') router.push("/dashboard/admin");
-                                        else router.push("/dashboard");
-                                    }, 1000);
+                                        const { token, user } = response.data;
+
+                                        // Store token and user info
+                                        if (typeof window !== 'undefined') {
+                                            localStorage.setItem("token", token);
+                                            localStorage.setItem("user", JSON.stringify(user));
+                                        }
+
+                                        setSuccess(true);
+                                        setTimeout(() => {
+                                            if (role === 'teacher') router.push("/dashboard/teacher");
+                                            else if (role === 'admin') router.push("/dashboard/admin");
+                                            else router.push("/dashboard");
+                                        }, 1000);
+
+                                    } catch (err: any) {
+                                        const message = err.response?.data?.message || "Test Login failed";
+                                        setError(message);
+                                    } finally {
+                                        setLoading(false);
+                                    }
                                 }}
                                 className="w-full py-6 text-sm font-bold tracking-wider rounded-2xl border-2 border-slate-200 hover:bg-slate-50 text-slate-500 mt-4"
                             >

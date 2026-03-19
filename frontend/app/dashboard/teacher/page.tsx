@@ -164,6 +164,10 @@ export default function TeacherDashboard() {
                                     <SelectItem value="Digital Logic Design">Digital Logic Design</SelectItem>
                                 </SelectContent>
                             </Select>
+                            <Button variant="outline" className="hidden border-indigo-200 text-indigo-700 hover:bg-indigo-50 hover:text-indigo-800 md:flex" onClick={() => router.push('/dashboard/teacher/exams')}>
+                                <BookOpen className="w-4 h-4 mr-2" />
+                                Manage Exams
+                            </Button>
                             <Button variant="ghost" size="icon" onClick={handleLogout} className="text-red-600 hover:text-red-700 hover:bg-red-50" title="Logout">
                                 <LogOut className="h-5 w-5" />
                             </Button>

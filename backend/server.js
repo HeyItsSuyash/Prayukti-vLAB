@@ -49,6 +49,26 @@ const startServer = async () => {
                 testUser.isVerified = true;
                 await testUser.save();
             }
+
+            // Seed test faculty
+            const facultyEmail = "test.faculty@mmmut.ac.in";
+            let testFaculty = await User.findOne({ email: facultyEmail });
+            if (!testFaculty) {
+                console.log("Auto-seeding test faculty for deployment...");
+                const hashedPassword = await bcrypt.hash("password123", 10);
+                testFaculty = new User({
+                    fullName: "Test Faculty",
+                    email: facultyEmail,
+                    password: hashedPassword,
+                    role: "teacher",
+                    isVerified: true
+                });
+                await testFaculty.save();
+                console.log("Test faculty seeded.");
+            } else if (!testFaculty.isVerified) {
+                testFaculty.isVerified = true;
+                await testFaculty.save();
+            }
         } catch (seedErr) {
             console.error("Test user auto-seed failed:", seedErr);
         }
@@ -57,6 +77,7 @@ const startServer = async () => {
 
         const authRoutes = require('./routes/auth');
         const userRoutes = require('./routes/userRoutes');
+        const examRoutes = require('./routes/examRoutes');
 
         // Middleware
         // Improved CORS to handle credentials with dynamic origin
@@ -72,6 +93,7 @@ const startServer = async () => {
         // Routes
         app.use("/api/auth", authRoutes);
         app.use("/api/users", userRoutes);
+        app.use("/api/exams", examRoutes);
 
         // Health check
         app.get("/", (req, res) => {

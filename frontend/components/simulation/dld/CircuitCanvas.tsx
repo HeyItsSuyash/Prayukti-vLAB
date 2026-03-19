@@ -75,9 +75,17 @@ const initialEdges: Edge[] = [];
 // But standard ReactFlow component provides context to children.
 // For Drag and Drop we need the instance which we track via onInit.
 
-export default function CircuitCanvas({ practicalId }: { practicalId?: string }) {
-    const [nodes, setNodes, onNodesChange] = useNodesState<AppNode>(initialNodes);
-    const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+export default function CircuitCanvas({
+    practicalId,
+    initialData,
+    readonly = false
+}: {
+    practicalId?: string,
+    initialData?: { nodes?: AppNode[], edges?: Edge[] },
+    readonly?: boolean
+}) {
+    const [nodes, setNodes, onNodesChange] = useNodesState<AppNode>(initialData?.nodes || initialNodes);
+    const [edges, setEdges, onEdgesChange] = useEdgesState(initialData?.edges || initialEdges);
 
     // Workspaces State
     const [showWorkspaces, setShowWorkspaces] = useState(false);
@@ -433,6 +441,26 @@ export default function CircuitCanvas({ practicalId }: { practicalId?: string })
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [nodes, edges, clipboard, setNodes, setEdges]); // Dep array important
 
+    // Listen for Exam Submission requests from the parent window
+    useEffect(() => {
+        const handleMessage = (event: MessageEvent) => {
+            if (event.data && event.data.type === 'REQUEST_EXAM_STATE') {
+                if (event.source) {
+                    (event.source as Window).postMessage({
+                        type: 'EXAM_STATE_RESPONSE',
+                        payload: {
+                            type: 'CIRCUIT',
+                            nodes: nodes,
+                            edges: edges
+                        }
+                    }, '*');
+                }
+            }
+        };
+        window.addEventListener('message', handleMessage);
+        return () => window.removeEventListener('message', handleMessage);
+    }, [nodes, edges]);
+
     return (
         <div className="h-full w-full bg-gray-100 flex flex-col relative overflow-hidden">
 
@@ -453,9 +481,11 @@ export default function CircuitCanvas({ practicalId }: { practicalId?: string })
                     <Table size={14} /> Truth Table
                 </button>
 
-                <button className="px-4 py-2 bg-black hover:bg-gray-800 text-white rounded-full text-xs font-bold shadow-lg flex items-center gap-2" onClick={saveCircuit}>
-                    <Save size={14} /> Save
-                </button>
+                {!readonly && (
+                    <button className="px-4 py-2 bg-black hover:bg-gray-800 text-white rounded-full text-xs font-bold shadow-lg flex items-center gap-2" onClick={saveCircuit}>
+                        <Save size={14} /> Save
+                    </button>
+                )}
             </div>
 
             <WorkspacesPanel
@@ -466,7 +496,7 @@ export default function CircuitCanvas({ practicalId }: { practicalId?: string })
             />
 
             {/* Sidebar Component Palette */}
-            <DldSidebar onAddNode={addNode} />
+            {!readonly && <DldSidebar onAddNode={addNode} />}
 
             <div className="flex-1 h-full">
                 <ReactFlow

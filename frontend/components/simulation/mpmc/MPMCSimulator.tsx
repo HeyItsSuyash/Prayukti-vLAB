@@ -332,11 +332,34 @@ const LAB_DATA: Record<string, any> = {
     }
 };
 
-export default function MPMCSimulator({ labId }: { labId: string }) {
+export default function MPMCSimulator({
+    labId,
+    initialData,
+    readonly = false
+}: {
+    labId: string;
+    initialData?: { asmCode?: string };
+    readonly?: boolean;
+}) {
     const lab = LAB_DATA[labId] || LAB_DATA["mpmc-exp-1"];
 
     const [cpu] = useState(new Intel8085());
-    const [asmCode, setAsmCode] = useState("");
+    const [asmCode, setAsmCode] = useState(initialData?.asmCode || "");
+
+    // Listen for exam state requests from parent iframe
+    useEffect(() => {
+        const handleMessage = (event: MessageEvent) => {
+            if (event.data && event.data.type === 'REQUEST_EXAM_STATE') {
+                window.postMessage({
+                    type: 'EXAM_STATE_RESPONSE',
+                    payload: { type: 'MPMC', asmCode }
+                }, '*');
+            }
+        };
+        window.addEventListener('message', handleMessage);
+        return () => window.removeEventListener('message', handleMessage);
+    }, [asmCode]);
+
     const [isRunning, setIsRunning] = useState(false);
     const [runSpeed, setRunSpeed] = useState(100); // ms delay
     const [binary, setBinary] = useState<number[]>([]);
@@ -347,7 +370,18 @@ export default function MPMCSimulator({ labId }: { labId: string }) {
     const [memory, setMemory] = useState<Uint8Array>(cpu.memory);
 
     const [step, setStep] = useState(0);
-    const [activeTab, setActiveTab] = useState<"info" | "simulation" | "table" | "viva" | "kit">("info");
+
+    const defaultTab = readonly ? "simulation" : "info";
+    const [activeTab, setActiveTab] = useState<"info" | "simulation" | "table" | "viva" | "kit">(defaultTab);
+    const [isExamMode, setIsExamMode] = useState(readonly);
+
+    // Safely check URL params on client-side to avoid SSR hydration mismatch
+    useEffect(() => {
+        if (typeof window !== 'undefined' && window.location.search.includes('mode=exam')) {
+            if (!readonly) setActiveTab("simulation");
+            setIsExamMode(true);
+        }
+    }, [readonly]);
     const [feedback, setFeedback] = useState<string>("Explore the 'Experiment Info' tab to understand the objectives.");
     const [history, setHistory] = useState<any[]>([]);
     const [lastChanged, setLastChanged] = useState<{ registers: string[], flags: string[], memory: number[] }>({
@@ -496,7 +530,12 @@ export default function MPMCSimulator({ labId }: { labId: string }) {
                             { id: "simulation", label: "Simulator", icon: Play },
                             { id: "table", label: "Observation Table", icon: FileText },
                             { id: "viva", label: "Viva Quiz", icon: HelpCircle }
-                        ].map(tab => (
+                        ].filter(tab => {
+                            if (isExamMode && (tab.id === "info" || tab.id === "table" || tab.id === "viva")) {
+                                return false;
+                            }
+                            return true;
+                        }).map(tab => (
                             <button
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id as any)}
@@ -609,14 +648,31 @@ export default function MPMCSimulator({ labId }: { labId: string }) {
                                     <CardTitle className="text-xs font-bold flex items-center gap-2">
                                         <Play className="h-3.5 w-3.5 text-[#2e7d32]" /> Assembly Editor
                                     </CardTitle>
-                                    <Button onClick={handleAssemble} size="sm" variant="ghost" className="h-7 text-[10px] text-[#2e7d32] border border-[#2e7d32]/20">
-                                        ASSEMBLE & LOAD
-                                    </Button>
+                                    <div className="flex items-center gap-2">
+                                        {/* Show Save button only in exam mode, but not readonly */}
+                                        {!readonly && isExamMode && (
+                                            <Button onClick={() => {
+                                                window.parent.postMessage({
+                                                    type: 'SAVE_EXAM_STATE',
+                                                    payload: { type: 'MPMC', asmCode }
+                                                }, '*');
+                                                setFeedback("Code saved successfully.");
+                                            }} size="sm" variant="outline" className="h-7 text-[10px] text-blue-600 border-blue-600/20 hover:bg-blue-50">
+                                                SAVE
+                                            </Button>
+                                        )}
+                                        {!readonly && (
+                                            <Button onClick={handleAssemble} size="sm" variant="ghost" className="h-7 text-[10px] text-[#2e7d32] border border-[#2e7d32]/20">
+                                                ASSEMBLE & LOAD
+                                            </Button>
+                                        )}
+                                    </div>
                                 </CardHeader>
                                 <CardContent className="p-0">
                                     <textarea
                                         value={asmCode}
                                         onChange={(e) => setAsmCode(e.target.value)}
+                                        readOnly={readonly}
                                         placeholder="; Type your 8085 code here\nMVI A, 45H\nMVI B, 38H\nADD B\nSTA 2002H\nHLT"
                                         className="w-full h-[300px] p-4 font-mono text-sm bg-gray-900 text-green-400 focus:outline-none resize-none"
                                     />

@@ -151,9 +151,22 @@ export default function Dashboard() {
                             <h3 className="text-xl font-bold uppercase tracking-tight mb-2 relative z-10">Teacher Insights</h3>
                             <p className="text-gray-400 font-medium mb-6 relative z-10">You have 12 pending lab submissions to review from your students.</p>
 
-                            <Link href="/teacher/analytics">
+                            <Link href="/dashboard/teacher/exams">
                                 <Button className="bg-white text-black hover:bg-gray-200 border-none uppercase font-bold tracking-wider relative z-10 w-full md:w-auto">
-                                    View Analytics
+                                    Manage Exams
+                                </Button>
+                            </Link>
+                        </div>
+                    </RoleGuard>
+
+                    <RoleGuard allowedRoles={["STUDENT"]}>
+                        <div className="border-2 border-indigo-600 rounded-xl p-8 bg-indigo-50 text-indigo-900 relative overflow-hidden group">
+                            <h3 className="text-xl font-bold uppercase tracking-tight mb-2 relative z-10">Practical Exams</h3>
+                            <p className="text-indigo-700 font-medium mb-6 relative z-10">Check for any active or upcoming timed practical examinations assigned by your teachers.</p>
+
+                            <Link href="/dashboard/exams">
+                                <Button className="bg-indigo-600 text-white hover:bg-indigo-700 border-none uppercase font-bold tracking-wider relative z-10 w-full md:w-auto shadow-md">
+                                    View Exams
                                 </Button>
                             </Link>
                         </div>

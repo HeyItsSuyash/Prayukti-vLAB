@@ -1,16 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Play, RotateCcw } from "lucide-react";
 
-export default function OOPSCompiler() {
-    const [code, setCode] = useState<string>(`public class Main {
+export default function OOPSCompiler({ initialData }: { initialData?: { code?: string, output?: string } }) {
+    const defaultCode = `public class Main {
     public static void main(String[] args) {
         System.out.println("Hello, World!");
     }
-}`);
-    const [output, setOutput] = useState<string>("");
+}`;
+    const [code, setCode] = useState<string>(initialData?.code || defaultCode);
+    const [output, setOutput] = useState<string>(initialData?.output || "");
     const [isRunning, setIsRunning] = useState(false);
 
     const runCode = async () => {
@@ -37,6 +38,27 @@ export default function OOPSCompiler() {
             setIsRunning(false);
         }
     };
+
+    // Listen for Exam Submission requests from the parent window
+    useEffect(() => {
+        const handleMessage = (event: MessageEvent) => {
+            if (event.data && event.data.type === 'REQUEST_EXAM_STATE') {
+                if (event.source) {
+                    (event.source as Window).postMessage({
+                        type: 'EXAM_STATE_RESPONSE',
+                        payload: {
+                            type: 'CODE',
+                            language: 'java',
+                            code: code,
+                            output: output
+                        }
+                    }, '*');
+                }
+            }
+        };
+        window.addEventListener('message', handleMessage);
+        return () => window.removeEventListener('message', handleMessage);
+    }, [code, output]);
 
     return (
         <div className="flex flex-col h-full bg-gray-900 text-white font-mono">

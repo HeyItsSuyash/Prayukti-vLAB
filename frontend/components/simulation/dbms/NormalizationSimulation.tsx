@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import { useState, useEffect } from "react";
 import { ArrowLeft, ArrowRight, Info, Layers, LayoutList, RefreshCw, Table, Network, Share2, Database } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import Link from 'next/link';
@@ -16,14 +16,23 @@ import { WithMode } from "@/lib/labs/modes";
 
 interface NormalizationSimulationProps extends WithMode {
     mode?: "LEARNING" | "EXPERIMENTAL" | "EXAM";
+    initialData?: any;
+    readonly?: boolean;
 }
 
-export default function NormalizationSimulation({ mode = "LEARNING" }: NormalizationSimulationProps) {
-    const isExam = mode === "EXAM";
+export default function NormalizationSimulation({ mode = "LEARNING", initialData, readonly = false }: NormalizationSimulationProps) {
+    const [isExam, setIsExam] = useState(mode === "EXAM");
 
-    const [step, setStep] = useState<number>(0);
-    const [logs, setLogs] = useState<string[]>(["Simulation Initialized. Table is in Unnormalized Form (UNF)."]);
+    useEffect(() => {
+        if (typeof window !== 'undefined' && window.location.search.includes('mode=exam')) {
+            setIsExam(true);
+        }
+    }, []);
+
+    const [step, setStep] = useState<number>(initialData?.step || 0);
+    const [logs, setLogs] = useState<string[]>(initialData?.logs || ["Simulation Initialized. Table is in Unnormalized Form (UNF)."]);
     const [showTheory, setShowTheory] = useState<boolean>(true);
+    const [feedback, setFeedback] = useState("");
 
     const addLog = (msg: string) => setLogs(prev => [msg, ...prev]);
 
@@ -88,11 +97,13 @@ export default function NormalizationSimulation({ mode = "LEARNING" }: Normaliza
                 </div>
             </div>
 
-            <div className="flex justify-end">
-                <Button onClick={() => { setStep(1); addLog("Applied 1NF: Flattened repeating groups."); }} className="bg-[#f57f17] hover:bg-orange-700">
-                    Next: Normalize to 1NF <ArrowRight size={16} className="ml-2" />
-                </Button>
-            </div>
+            {!readonly && (
+                <div className="flex justify-end">
+                    <Button onClick={() => { setStep(1); addLog("Applied 1NF: Flattened repeating groups."); }} className="bg-[#f57f17] hover:bg-orange-700">
+                        Next: Normalize to 1NF <ArrowRight size={16} className="ml-2" />
+                    </Button>
+                </div>
+            )}
         </div>
     );
 
@@ -164,12 +175,14 @@ export default function NormalizationSimulation({ mode = "LEARNING" }: Normaliza
                     </ul>
                 </div>
 
-                <div className="flex justify-between">
-                    <Button variant="outline" onClick={() => setStep(0)}><ArrowLeft size={16} className="mr-2" /> Back</Button>
-                    <Button onClick={() => { setStep(2); addLog("Applied 2NF: Extracted Employee & Project Tables."); }} className="bg-[#f57f17] hover:bg-orange-700">
-                        Decompose to 2NF <ArrowRight size={16} className="ml-2" />
-                    </Button>
-                </div>
+                {!readonly && (
+                    <div className="flex justify-between">
+                        <Button variant="outline" onClick={() => setStep(0)}><ArrowLeft size={16} className="mr-2" /> Back</Button>
+                        <Button onClick={() => { setStep(2); addLog("Applied 2NF: Extracted Employee & Project Tables."); }} className="bg-[#f57f17] hover:bg-orange-700">
+                            Decompose to 2NF <ArrowRight size={16} className="ml-2" />
+                        </Button>
+                    </div>
+                )}
             </div>
         );
     };
@@ -233,12 +246,14 @@ export default function NormalizationSimulation({ mode = "LEARNING" }: Normaliza
                 </ul>
             </div>
 
-            <div className="flex justify-between">
-                <Button variant="outline" onClick={() => setStep(1)}><ArrowLeft size={16} className="mr-2" /> Back</Button>
-                <Button onClick={() => { setStep(3); addLog("Applied 3NF: Extracted Role Location."); }} className="bg-[#f57f17] hover:bg-orange-700">
-                    Decompose to 3NF <ArrowRight size={16} className="ml-2" />
-                </Button>
-            </div>
+            {!readonly && (
+                <div className="flex justify-between">
+                    <Button variant="outline" onClick={() => setStep(1)}><ArrowLeft size={16} className="mr-2" /> Back</Button>
+                    <Button onClick={() => { setStep(3); addLog("Applied 3NF: Extracted Role Location."); }} className="bg-[#f57f17] hover:bg-orange-700">
+                        Decompose to 3NF <ArrowRight size={16} className="ml-2" />
+                    </Button>
+                </div>
+            )}
         </div>
     );
 
@@ -291,12 +306,14 @@ export default function NormalizationSimulation({ mode = "LEARNING" }: Normaliza
                 </ul>
             </div>
 
-            <div className="flex justify-between">
-                <Button variant="outline" onClick={() => setStep(2)}><ArrowLeft size={16} className="mr-2" /> Back</Button>
-                <Button onClick={() => { setStep(4); addLog("Applied 4NF: Separated Phones from Assignments."); }} className="bg-[#f57f17] hover:bg-orange-700">
-                    Decompose to 4NF <ArrowRight size={16} className="ml-2" />
-                </Button>
-            </div>
+            {!readonly && (
+                <div className="flex justify-between">
+                    <Button variant="outline" onClick={() => setStep(2)}><ArrowLeft size={16} className="mr-2" /> Back</Button>
+                    <Button onClick={() => { setStep(4); addLog("Applied 4NF: Separated Phones from Assignments."); }} className="bg-[#f57f17] hover:bg-orange-700">
+                        Decompose to 4NF <ArrowRight size={16} className="ml-2" />
+                    </Button>
+                </div>
+            )}
         </div>
     );
 
@@ -355,12 +372,14 @@ export default function NormalizationSimulation({ mode = "LEARNING" }: Normaliza
                 </p>
             </div>
 
-            <div className="flex justify-between">
-                <Button variant="outline" onClick={() => setStep(3)}><ArrowLeft size={16} className="mr-2" /> Back</Button>
-                <Button onClick={() => { setStep(5); addLog("Applying 5NF: Decomposing Ternary Relationship."); }} className="bg-[#f57f17] hover:bg-orange-700">
-                    Decompose to 5NF <ArrowRight size={16} className="ml-2" />
-                </Button>
-            </div>
+            {!readonly && (
+                <div className="flex justify-between">
+                    <Button variant="outline" onClick={() => setStep(3)}><ArrowLeft size={16} className="mr-2" /> Back</Button>
+                    <Button onClick={() => { setStep(5); addLog("Applying 5NF: Decomposing Ternary Relationship."); }} className="bg-[#f57f17] hover:bg-orange-700">
+                        Decompose to 5NF <ArrowRight size={16} className="ml-2" />
+                    </Button>
+                </div>
+            )}
         </div>
     );
 
@@ -421,14 +440,18 @@ export default function NormalizationSimulation({ mode = "LEARNING" }: Normaliza
             <div className="bg-gray-800 text-white p-6 rounded-lg text-center">
                 <h2 className="text-2xl font-bold mb-2">Normalization Steps Complete!</h2>
                 <p className="text-gray-400 mb-6">Same table context maintained from 1NF to 5NF.</p>
-                <Button onClick={() => { setStep(0); setLogs(["Reset Experiment."]); }} variant="outline" className="text-black border-white hover:bg-gray-100">
-                    <RefreshCw size={16} className="mr-2" /> Restart Experiment
-                </Button>
+                {!readonly && (
+                    <Button onClick={() => { setStep(0); setLogs(["Reset Experiment."]); }} variant="outline" className="text-black border-white hover:bg-gray-100">
+                        <RefreshCw size={16} className="mr-2" /> Restart Experiment
+                    </Button>
+                )}
             </div>
 
-            <div className="flex justify-start">
-                <Button variant="outline" onClick={() => setStep(4)}><ArrowLeft size={16} className="mr-2" /> Back</Button>
-            </div>
+            {!readonly && (
+                <div className="flex justify-start">
+                    <Button variant="outline" onClick={() => setStep(4)}><ArrowLeft size={16} className="mr-2" /> Back</Button>
+                </div>
+            )}
         </div>
     );
 
@@ -440,6 +463,16 @@ export default function NormalizationSimulation({ mode = "LEARNING" }: Normaliza
                     <h1 className="font-bold text-gray-800">Experiment 4: Normalization Analysis</h1>
                 </div>
                 <div className="flex items-center gap-2">
+                    {feedback && <span className="text-xs text-green-600 font-medium mr-2">{feedback}</span>}
+                    {isExam && !readonly && (
+                        <Button onClick={() => {
+                            window.parent.postMessage({ type: 'SAVE_EXAM_STATE', payload: { type: 'DBMS_NORMALIZATION', step, logs } }, '*');
+                            setFeedback("Progress saved successfully!");
+                            setTimeout(() => setFeedback(""), 3000);
+                        }} size="sm" variant="outline" className="h-8 text-xs text-blue-600 border-blue-600/20 hover:bg-blue-50">
+                            SAVE PROGRESS
+                        </Button>
+                    )}
                     <Button variant="ghost" size="sm" onClick={() => setShowTheory(!showTheory)} className={showTheory ? "bg-blue-50 text-blue-600" : ""}>
                         <Info size={16} className="mr-2" /> Concepts
                     </Button>
