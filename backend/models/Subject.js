@@ -1,27 +1,6 @@
 const mongoose = require('mongoose');
 
 const SubjectSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        required: true
-    },
-    code: {
-        type: String,
-        required: true,
-        unique: true
-    },
-    branch: {
-        type: String,
-        required: true
-    },
-    semester: {
-        type: Number,
-        required: true
-    },
-    hasLab: {
-        type: Boolean,
-        default: true
-    },
     title: {
         type: String,
         required: true
@@ -45,6 +24,14 @@ const SubjectSchema = new mongoose.Schema({
     experimentsCount: {
         type: Number,
         default: 0
+    },
+    branch: {
+        type: String,
+        default: "Common"
+    },
+    semester: {
+        type: Number,
+        default: 1
     },
     createdAt: {
         type: Date,

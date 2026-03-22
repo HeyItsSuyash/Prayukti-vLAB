@@ -7,7 +7,7 @@ import Link from "next/link";
 import { Loader2, GraduationCap, School, ShieldCheck, User, Lock, Mail } from "lucide-react";
 import axios from "axios";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
 type UserRole = "student" | "teacher" | "admin";
 

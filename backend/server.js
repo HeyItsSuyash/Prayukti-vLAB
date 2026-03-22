@@ -116,8 +116,6 @@ const startServer = async () => {
         app.use("/api/logs", logRoutes);
         app.use("/api/settings", settingRoutes);
         app.use("/api/code", codeRoutes);
-        app.use("/api/users", userRoutes);
-        app.use('/api/attendance', require('./routes/attendance'));
         app.use("/api/attendance", attendanceRoutes);
 
         // Health check

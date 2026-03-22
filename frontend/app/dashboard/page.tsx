@@ -2,63 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { RoleGuard } from "@/lib/auth/withRole";
-import { Card, CardContent } from "@/components/ui/card";
-import { Navbar } from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
-import RiskBadge from "@/components/attendance/RiskBadge";
-import axios from "axios";
-import {
-    Globe,
-    Cpu,
-    Terminal,
-    Database,
-    Layers,
-    FlaskConical,
-    Loader2,
-    AlertCircle,
-    ArrowRight,
-    LogOut
-} from "lucide-react";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
-
-interface Subject {
-    _id: string;
-    title: string;
-    description: string;
-    icon: string;
-    experimentsCount: number;
-    slug?: string;
-}
-
-// Icon mapping based on subject icon string or title keywords
-const getSubjectIcon = (iconName: string, title: string) => {
-    const name = (iconName || title).toLowerCase();
-    if (name.includes("network") || name.includes("cn")) return <Globe className="w-8 h-8" />;
-    if (name.includes("digital") || name.includes("logic") || name.includes("dld")) return <Cpu className="w-8 h-8" />;
-    if (name.includes("oop") || name.includes("object") || name.includes("program")) return <Terminal className="w-8 h-8" />;
-    if (name.includes("dbms") || name.includes("data") || name.includes("sql")) return <Database className="w-8 h-8" />;
-    if (name.includes("dsa") || name.includes("algorithm")) return <Layers className="w-8 h-8" />;
-    return <FlaskConical className="w-8 h-8" />;
-};
-
-// Color mapping for cards
-const getSubjectColor = (index: number) => {
-    const colors = [
-        "border-blue-500/20 hover:border-blue-500 bg-blue-50/30 dark:bg-blue-900/10 text-blue-600",
-        "border-amber-500/20 hover:border-amber-500 bg-amber-50/30 dark:bg-amber-900/10 text-amber-600",
-        "border-emerald-500/20 hover:border-emerald-500 bg-emerald-50/30 dark:bg-emerald-900/10 text-emerald-600",
-        "border-indigo-500/20 hover:border-indigo-500 bg-indigo-50/30 dark:bg-indigo-900/10 text-indigo-600",
-        "border-purple-500/20 hover:border-purple-500 bg-purple-50/30 dark:bg-purple-900/10 text-purple-600",
-        "border-rose-500/20 hover:border-rose-500 bg-rose-50/30 dark:bg-rose-900/10 text-rose-600",
-    ];
-    return colors[index % colors.length];
-};
-
-export default function Dashboard() {
-    const [subjects, setSubjects] = useState<Subject[]>([]);
 import { Role } from "@/lib/auth/roles";
 import { StudentDashboard } from "@/components/dashboard/StudentDashboard";
 import TeacherDashboard from "./teacher/page";
