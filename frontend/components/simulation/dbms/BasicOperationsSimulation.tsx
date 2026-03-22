@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { ArrowLeft, Database, Table as TableIcon, Trash2, Terminal, Play, Plus, Edit } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -30,16 +30,25 @@ import { WithMode } from "@/lib/labs/modes";
 
 interface BasicOperationsSimulationProps extends WithMode {
     mode?: "LEARNING" | "EXPERIMENTAL" | "EXAM";
+    initialData?: any;
+    readonly?: boolean;
 }
 
-export default function BasicOperationsSimulation({ mode = "LEARNING" }: BasicOperationsSimulationProps) {
-    const isExam = mode === "EXAM";
+export default function BasicOperationsSimulation({ mode = "LEARNING", initialData, readonly = false }: BasicOperationsSimulationProps) {
+    const [isExam, setIsExam] = useState(mode === "EXAM");
+
+    useEffect(() => {
+        if (typeof window !== 'undefined' && window.location.search.includes('mode=exam')) {
+            setIsExam(true);
+        }
+    }, []);
 
     // State
     const [selectedDBType, setSelectedDBType] = useState<DBType>("MySQL");
-    const [database, setDatabase] = useState<DatabaseStructure | null>(null);
-    const [queryLogs, setQueryLogs] = useState<QueryLog[]>([]);
+    const [database, setDatabase] = useState<DatabaseStructure | null>(initialData?.database || null);
+    const [queryLogs, setQueryLogs] = useState<QueryLog[]>(initialData?.queryLogs || []);
     const [sqlQuery, setSqlQuery] = useState("");
+    const [feedback, setFeedback] = useState("");
 
     // Modals/Input State
     const [showCreateDBModal, setShowCreateDBModal] = useState(false);
@@ -215,8 +224,20 @@ export default function BasicOperationsSimulation({ mode = "LEARNING" }: BasicOp
                     <h1 className="font-bold text-gray-800">Basic Operations Simulator</h1>
                     <span className="bg-[#f57f17]/10 text-[#f57f17] text-xs px-2 py-1 rounded font-medium border border-[#f57f17]/20">{selectedDBType} Mode</span>
                 </div>
-                <div className="flex gap-2">
-                    <Button variant="outline" size="sm" onClick={handleReset} className="text-red-500 hover:text-red-600 hover:bg-red-50"> <Trash2 size={14} className="mr-1" /> Reset </Button>
+                <div className="flex gap-2 items-center">
+                    {feedback && <span className="text-xs text-green-600 font-medium mr-2">{feedback}</span>}
+                    {isExam && !readonly && (
+                        <Button onClick={() => {
+                            window.parent.postMessage({ type: 'SAVE_EXAM_STATE', payload: { type: 'DBMS_BASIC', database, queryLogs } }, '*');
+                            setFeedback("Progress saved successfully!");
+                            setTimeout(() => setFeedback(""), 3000);
+                        }} size="sm" variant="outline" className="h-8 text-xs text-blue-600 border-blue-600/20 hover:bg-blue-50">
+                            SAVE PROGRESS
+                        </Button>
+                    )}
+                    {!readonly && (
+                        <Button variant="outline" size="sm" onClick={handleReset} className="text-red-500 hover:text-red-600 hover:bg-red-50"> <Trash2 size={14} className="mr-1" /> Reset </Button>
+                    )}
                 </div>
             </header>
 
@@ -231,13 +252,16 @@ export default function BasicOperationsSimulation({ mode = "LEARNING" }: BasicOp
                                     value={selectedDBType}
                                     onChange={(e) => setSelectedDBType(e.target.value as DBType)}
                                     className="p-2 bg-white border rounded-md shadow-sm text-sm outline-none focus:ring-2 focus:ring-[#f57f17]"
+                                    disabled={readonly}
                                 >
                                     <option value="MySQL">MySQL</option>
                                     <option value="Oracle">Oracle</option>
                                     <option value="PostgreSQL">PostgreSQL</option>
                                     <option value="MS-Access">MS Access</option>
                                 </select>
-                                <Button onClick={() => setShowCreateDBModal(true)} className="bg-[#d32f2f] hover:bg-[#b71c1c]"> Initialize Database </Button>
+                                {!readonly && (
+                                    <Button onClick={() => setShowCreateDBModal(true)} className="bg-[#d32f2f] hover:bg-[#b71c1c]"> Initialize Database </Button>
+                                )}
                             </div>
                         </div>
                     ) : (
@@ -245,7 +269,9 @@ export default function BasicOperationsSimulation({ mode = "LEARNING" }: BasicOp
                             <div className="bg-white rounded-xl border-t-4 border-blue-500 shadow-lg overflow-hidden">
                                 <div className="p-4 bg-blue-50 border-b border-blue-100 flex justify-between items-center">
                                     <div className="flex items-center gap-2"> <Database className="text-blue-600" size={20} /> <span className="font-bold text-lg text-blue-900">{database.name}</span> </div>
-                                    <Button size="sm" onClick={() => setShowCreateTableModal(true)} className="bg-white text-blue-600 border border-blue-200 hover:bg-blue-50"> <Plus size={14} className="mr-1" /> Create Table </Button>
+                                    {!readonly && (
+                                        <Button size="sm" onClick={() => setShowCreateTableModal(true)} className="bg-white text-blue-600 border border-blue-200 hover:bg-blue-50"> <Plus size={14} className="mr-1" /> Create Table </Button>
+                                    )}
                                 </div>
                                 <div className="p-6 bg-gray-50/50 min-h-[200px]">
                                     {database.tables.length === 0 ? <div className="text-center text-gray-400 py-8 italic">No tables created yet.</div> : (
@@ -261,17 +287,19 @@ export default function BasicOperationsSimulation({ mode = "LEARNING" }: BasicOp
                                                             <thead className="bg-gray-50 text-gray-500">
                                                                 <tr>
                                                                     {table.columns.map(c => <th key={c.name} className="px-3 py-2 text-left border-r last:border-r-0 font-medium">{c.name} <span className="text-[10px] text-gray-400">({c.type})</span></th>)}
-                                                                    <th className="px-3 py-2 text-right">Actions</th>
+                                                                    {!readonly && <th className="px-3 py-2 text-right">Actions</th>}
                                                                 </tr>
                                                             </thead>
                                                             <tbody className="divide-y">
                                                                 {table.records.map((rec, rIdx) => (
                                                                     <tr key={rIdx} className="hover:bg-blue-50/50 group">
                                                                         {table.columns.map(c => <td key={c.name} className="px-3 py-2 border-r last:border-r-0 text-gray-700">{rec[c.name] || "NULL"}</td>)}
-                                                                        <td className="px-3 py-2 text-right flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                                            <button onClick={() => handleEditRecordStart(tIdx, rIdx, rec)} className="p-1 hover:bg-gray-200 rounded text-blue-600"><Edit size={12} /></button>
-                                                                            <button onClick={() => handleDeleteRecord(tIdx, rIdx)} className="p-1 hover:bg-red-100 rounded text-red-600"><Trash2 size={12} /></button>
-                                                                        </td>
+                                                                        {!readonly && (
+                                                                            <td className="px-3 py-2 text-right flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                                                <button onClick={() => handleEditRecordStart(tIdx, rIdx, rec)} className="p-1 hover:bg-gray-200 rounded text-blue-600"><Edit size={12} /></button>
+                                                                                <button onClick={() => handleDeleteRecord(tIdx, rIdx)} className="p-1 hover:bg-red-100 rounded text-red-600"><Trash2 size={12} /></button>
+                                                                            </td>
+                                                                        )}
                                                                     </tr>
                                                                 ))}
                                                                 {table.records.length === 0 && <tr><td colSpan={table.columns.length + 1} className="px-3 py-4 text-center text-gray-400 italic">Empty Table</td></tr>}
@@ -294,11 +322,13 @@ export default function BasicOperationsSimulation({ mode = "LEARNING" }: BasicOp
                             <div className="flex items-center gap-2"> <Terminal size={14} className="text-green-400" /> <span className="text-xs font-mono font-bold text-gray-300">SQL Console</span> </div>
                         </div>
                         <div className="flex-1 bg-[#1e1e1e] p-3">
-                            <textarea value={sqlQuery} onChange={(e) => setSqlQuery(e.target.value)} placeholder="Type Create/Insert commands here..." className="w-full h-full bg-transparent text-green-400 font-mono text-xs outline-none resize-none placeholder-gray-600" />
+                            <textarea value={sqlQuery} onChange={(e) => setSqlQuery(e.target.value)} disabled={readonly} placeholder="Type Create/Insert commands here..." className="w-full h-full bg-transparent text-green-400 font-mono text-xs outline-none resize-none placeholder-gray-600" />
                         </div>
-                        <div className="bg-[#2d2d2d] p-2 flex justify-end">
-                            <Button size="sm" onClick={executeSQL} className="bg-green-700 hover:bg-green-800 text-white text-xs h-7"> <Play size={12} className="mr-1" /> Execute </Button>
-                        </div>
+                        {!readonly && (
+                            <div className="bg-[#2d2d2d] p-2 flex justify-end">
+                                <Button size="sm" onClick={executeSQL} className="bg-green-700 hover:bg-green-800 text-white text-xs h-7"> <Play size={12} className="mr-1" /> Execute </Button>
+                            </div>
+                        )}
                     </div>
                     <div className="h-1/3 flex flex-col border-t-2 border-gray-800 text-gray-300 font-mono text-xs">
                         <div className="p-2 bg-[#252526] border-b border-black flex items-center gap-2"> <span className="font-mono font-bold text-[10px] text-gray-400 uppercase">Activity Log</span> </div>

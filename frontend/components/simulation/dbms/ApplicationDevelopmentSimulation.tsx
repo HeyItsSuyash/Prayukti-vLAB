@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { ArrowLeft, Box, ShoppingCart, CreditCard, Plus, ArrowRight, CheckCircle2, AlertCircle, Terminal, Play, FileText, Trash2, Edit } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -30,17 +30,26 @@ import { WithMode } from "@/lib/labs/modes";
 
 interface ApplicationDevelopmentSimulationProps extends WithMode {
     mode?: "LEARNING" | "EXPERIMENTAL" | "EXAM";
+    initialData?: any;
+    readonly?: boolean;
 }
 
-export default function ApplicationDevelopmentSimulation({ mode = "LEARNING" }: ApplicationDevelopmentSimulationProps) {
-    const isExam = mode === "EXAM";
+export default function ApplicationDevelopmentSimulation({ mode = "LEARNING", initialData, readonly = false }: ApplicationDevelopmentSimulationProps) {
+    const [isExam, setIsExam] = useState(mode === "EXAM");
 
-    const [appMode, setAppMode] = useState<AppMode>("Store");
-    const [actionLog, setActionLog] = useState<string[]>([]);
+    useEffect(() => {
+        if (typeof window !== 'undefined' && window.location.search.includes('mode=exam')) {
+            setIsExam(true);
+        }
+    }, []);
+
+    const [appMode, setAppMode] = useState<AppMode>(initialData?.appMode || "Store");
+    const [actionLog, setActionLog] = useState<string[]>(initialData?.actionLog || []);
     const [sqlQuery, setSqlQuery] = useState("");
+    const [feedback, setFeedback] = useState("");
 
     // Simulated Data Store (In-memory)
-    const [data, setData] = useState<any>({
+    const [data, setData] = useState<any>(initialData?.data || {
         Store: {
             Products: [{ id: 1, name: "Laptop", price: 50000, stock_qty: 10 }],
             Customers: [{ id: 1, name: "Student A", email: "std@univ.edu" }],
@@ -362,7 +371,17 @@ export default function ApplicationDevelopmentSimulation({ mode = "LEARNING" }: 
                     <Link href="/dashboard/dbms/2" className="p-2 hover:bg-gray-100 rounded-full"> <ArrowLeft size={18} className="text-gray-600" /> </Link>
                     <h1 className="font-bold text-gray-800">Application Development Simulator</h1>
                 </div>
-                <div className="flex gap-2 bg-gray-100 p-1 rounded-lg">
+                <div className="flex gap-2 bg-gray-100 p-1 rounded-lg items-center">
+                    {feedback && <span className="text-xs text-green-600 font-medium px-2">{feedback}</span>}
+                    {isExam && (
+                        <Button onClick={() => {
+                            window.parent.postMessage({ type: 'SAVE_EXAM_STATE', payload: { type: 'DBMS_APP_DEV', appMode, data, actionLog, sqlQuery } }, '*');
+                            setFeedback("Progress saved successfully!");
+                            setTimeout(() => setFeedback(""), 3000);
+                        }} size="sm" variant="outline" className="h-8 text-xs text-blue-600 border-blue-600/20 hover:bg-blue-50 bg-white mr-1">
+                            SAVE PROGRESS
+                        </Button>
+                    )}
                     {["Store", "Vendor", "Finance"].map((m) => (
                         <button key={m} onClick={() => { setAppMode(m as AppMode); setActionLog([]); resetForm(); }}
                             className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${appMode === m ? "bg-white shadow text-[#d32f2f]" : "text-gray-500 hover:text-gray-700"}`}>
@@ -386,21 +405,21 @@ export default function ApplicationDevelopmentSimulation({ mode = "LEARNING" }: 
                             <p className="text-xs text-gray-500 mt-1">Select an action or use icons in tables to Edit/Delete.</p>
                         </div>
                         <div className="flex gap-3">
-                            {appMode === "Store" && (
+                            {!readonly && appMode === "Store" && (
                                 <>
                                     <Button onClick={() => setActiveAction("addProduct")} className="bg-[#d32f2f] hover:bg-[#b71c1c] text-white"> <Plus size={16} className="mr-1" /> Add Product </Button>
                                     <Button onClick={() => setActiveAction("addCustomer")} className="bg-[#f57f17] hover:bg-[#e65100] text-white"> <Plus size={16} className="mr-1" /> Add Customer </Button>
                                     <Button onClick={() => setActiveAction("purchase")} variant="outline" className="border-orange-500 text-orange-600 hover:bg-orange-50"> <ShoppingCart size={16} className="mr-1" /> Add Sale </Button>
                                 </>
                             )}
-                            {appMode === "Vendor" && (
+                            {!readonly && appMode === "Vendor" && (
                                 <>
                                     <Button onClick={() => setActiveAction("addVendor")} className="bg-[#d32f2f] hover:bg-[#b71c1c] text-white"> <Plus size={16} className="mr-1" /> New Vendor </Button>
                                     <Button onClick={() => setActiveAction("createPO")} variant="outline" className="border-blue-500 text-blue-600 hover:bg-blue-50"> <ArrowRight size={16} className="mr-1" /> Create PO </Button>
                                     <Button onClick={() => setActiveAction("addDelivery")} className="bg-purple-600 hover:bg-purple-700 text-white"> <Plus size={16} className="mr-1" /> Add Delivery </Button>
                                 </>
                             )}
-                            {appMode === "Finance" && (
+                            {!readonly && appMode === "Finance" && (
                                 <>
                                     <Button onClick={() => setActiveAction("addAccount")} className="bg-blue-600 hover:bg-blue-700 text-white"> <Plus size={16} className="mr-1" /> Add Account </Button>
                                     <Button onClick={() => setActiveAction("transaction")} className="bg-green-600 hover:bg-green-700 text-white"> <Plus size={16} className="mr-1" /> Record Transaction </Button>
@@ -547,11 +566,13 @@ export default function ApplicationDevelopmentSimulation({ mode = "LEARNING" }: 
                             <div className="flex items-center gap-2"> <Terminal size={14} className="text-green-400" /> <span className="text-xs font-mono font-bold text-gray-300">SQL Console</span> </div>
                         </div>
                         <div className="flex-1 bg-[#1e1e1e] p-3">
-                            <textarea value={sqlQuery} onChange={(e) => setSqlQuery(e.target.value)} placeholder="> query..." className="w-full h-full bg-transparent text-green-400 font-mono text-xs outline-none resize-none placeholder-gray-600" />
+                            <textarea disabled={readonly} value={sqlQuery} onChange={(e) => setSqlQuery(e.target.value)} placeholder="> query..." className="w-full h-full bg-transparent text-green-400 font-mono text-xs outline-none resize-none placeholder-gray-600" />
                         </div>
-                        <div className="bg-[#2d2d2d] p-2 flex justify-end">
-                            <Button size="sm" onClick={executeSQL} className="bg-green-700 hover:bg-green-800 text-white text-xs h-7"> <Play size={12} className="mr-1" /> Execute </Button>
-                        </div>
+                        {!readonly && (
+                            <div className="bg-[#2d2d2d] p-2 flex justify-end">
+                                <Button size="sm" onClick={executeSQL} className="bg-green-700 hover:bg-green-800 text-white text-xs h-7"> <Play size={12} className="mr-1" /> Execute </Button>
+                            </div>
+                        )}
                     </div>
 
                     {/* Bottom: Activity Log */}

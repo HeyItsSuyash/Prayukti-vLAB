@@ -1,0 +1,1 @@
+require('dns').resolveSrv('_mongodb._tcp.cluster0.ts8jqfx.mongodb.net', (err, addresses) = console.log(err 

@@ -42,15 +42,23 @@ import { WithMode } from "@/lib/labs/modes";
 
 interface SQLQueriesSimulationProps extends WithMode {
     mode?: "LEARNING" | "EXPERIMENTAL" | "EXAM";
+    initialData?: any;
+    readonly?: boolean;
 }
 
-export default function SQLQueriesSimulation({ mode = "LEARNING" }: SQLQueriesSimulationProps) {
-    const isExam = mode === "EXAM";
+export default function SQLQueriesSimulation({ mode = "LEARNING", initialData, readonly = false }: SQLQueriesSimulationProps) {
+    const [isExam, setIsExam] = useState(mode === "EXAM");
 
-    const [activeModule, setActiveModule] = useState<ModuleId>(1);
-    const [students, setStudents] = useState<Student[]>(initialStudents);
-    const [courses] = useState<Course[]>(initialCourses);
-    const [enrollments] = useState<Enrollment[]>(initialEnrollments);
+    useEffect(() => {
+        if (typeof window !== 'undefined' && window.location.search.includes('mode=exam')) {
+            setIsExam(true);
+        }
+    }, []);
+
+    const [activeModule, setActiveModule] = useState<ModuleId>(initialData?.activeModule || 1);
+    const [students, setStudents] = useState<Student[]>(initialData?.students || initialStudents);
+    const [courses] = useState<Course[]>(initialData?.courses || initialCourses);
+    const [enrollments] = useState<Enrollment[]>(initialData?.enrollments || initialEnrollments);
 
     // -- Module State --
 
@@ -77,12 +85,12 @@ export default function SQLQueriesSimulation({ mode = "LEARNING" }: SQLQueriesSi
     const [plsqlOutput, setPlsqlOutput] = useState("");
 
     // Mod 7: Transactions
-    const [mod7TxStatus, setMod7TxStatus] = useState<"IDLE" | "ACTIVE">("IDLE");
-    const [mod7Logs, setMod7Logs] = useState<string[]>([]);
+    const [mod7TxStatus, setMod7TxStatus] = useState<"IDLE" | "ACTIVE">(initialData?.mod7TxStatus || "IDLE");
+    const [mod7Logs, setMod7Logs] = useState<string[]>(initialData?.mod7Logs || []);
 
     // Mod 8: Advanced (Views/Triggers)
-    const [createdViews, setCreatedViews] = useState<ViewObject[]>([]);
-    const [createdTriggers, setCreatedTriggers] = useState<TriggerObject[]>([]);
+    const [createdViews, setCreatedViews] = useState<ViewObject[]>(initialData?.createdViews || []);
+    const [createdTriggers, setCreatedTriggers] = useState<TriggerObject[]>(initialData?.createdTriggers || []);
     const [viewNameInput, setViewNameInput] = useState("TopStudents");
     const [viewCutoffInput, setViewCutoffInput] = useState("80");
 
@@ -94,7 +102,8 @@ export default function SQLQueriesSimulation({ mode = "LEARNING" }: SQLQueriesSi
 
     // Console
     const [sqlQuery, setSqlQuery] = useState("");
-    const [logs, setLogs] = useState<string[]>([]);
+    const [logs, setLogs] = useState<string[]>(initialData?.logs || []);
+    const [feedback, setFeedback] = useState("");
 
     const addLog = (msg: string) => setLogs(p => [`[${new Date().toLocaleTimeString()}] ${msg}`, ...p]);
 
@@ -619,10 +628,10 @@ export default function SQLQueriesSimulation({ mode = "LEARNING" }: SQLQueriesSi
                         <div className="bg-white p-4 rounded-lg shadow-sm border">
                             <h3 className="font-bold mb-3 flex items-center gap-2"><Table size={18} className="text-gray-600" /> Data Entry</h3>
                             <div className="max-w-md bg-gray-50 p-6 rounded border space-y-3">
-                                <div><label className="text-xs font-bold text-gray-500">Roll No</label><input type="number" value={formRollNo} onChange={(e) => setFormRollNo(e.target.value)} className="w-full border rounded p-2 text-sm" placeholder="106" /></div>
-                                <div><label className="text-xs font-bold text-gray-500">Name</label><input type="text" value={formName} onChange={(e) => setFormName(e.target.value)} className="w-full border rounded p-2 text-sm" placeholder="Name" /></div>
-                                <div><label className="text-xs font-bold text-gray-500">Marks</label><input type="number" value={formMarks} onChange={(e) => setFormMarks(e.target.value)} className="w-full border rounded p-2 text-sm" placeholder="85" /></div>
-                                <div className="pt-2"><Button size="sm" className="w-full bg-[#f57f17] hover:bg-orange-700" onClick={submitForm}>Submit</Button></div>
+                                <div><label className="text-xs font-bold text-gray-500">Roll No</label><input disabled={readonly} type="number" value={formRollNo} onChange={(e) => setFormRollNo(e.target.value)} className="w-full border rounded p-2 text-sm" placeholder="106" /></div>
+                                <div><label className="text-xs font-bold text-gray-500">Name</label><input disabled={readonly} type="text" value={formName} onChange={(e) => setFormName(e.target.value)} className="w-full border rounded p-2 text-sm" placeholder="Name" /></div>
+                                <div><label className="text-xs font-bold text-gray-500">Marks</label><input disabled={readonly} type="number" value={formMarks} onChange={(e) => setFormMarks(e.target.value)} className="w-full border rounded p-2 text-sm" placeholder="85" /></div>
+                                {!readonly && <div className="pt-2"><Button size="sm" className="w-full bg-[#f57f17] hover:bg-orange-700" onClick={submitForm}>Submit</Button></div>}
                             </div>
                         </div>
                     </div>
@@ -637,6 +646,18 @@ export default function SQLQueriesSimulation({ mode = "LEARNING" }: SQLQueriesSi
                 <div className="flex items-center gap-3">
                     <Link href="/dashboard/dbms/3" className="p-2 hover:bg-gray-100 rounded-full"> <ArrowLeft size={18} className="text-gray-600" /> </Link>
                     <h1 className="font-bold text-gray-800">Experiment 3: SQL Operations</h1>
+                </div>
+                <div className="flex items-center gap-2">
+                    {feedback && <span className="text-xs text-green-600 font-medium mr-2">{feedback}</span>}
+                    {isExam && !readonly && (
+                        <Button onClick={() => {
+                            window.parent.postMessage({ type: 'SAVE_EXAM_STATE', payload: { type: 'DBMS_SQL', activeModule, students, courses, enrollments, sqlQuery, logs, createdViews, createdTriggers } }, '*');
+                            setFeedback("Progress saved successfully!");
+                            setTimeout(() => setFeedback(""), 3000);
+                        }} size="sm" variant="outline" className="h-8 text-xs text-blue-600 border-blue-600/20 hover:bg-blue-50">
+                            SAVE PROGRESS
+                        </Button>
+                    )}
                 </div>
             </header>
 
@@ -674,14 +695,17 @@ export default function SQLQueriesSimulation({ mode = "LEARNING" }: SQLQueriesSi
                             <textarea
                                 value={sqlQuery}
                                 onChange={(e) => setSqlQuery(e.target.value)}
+                                disabled={readonly}
                                 placeholder="-- Type your SQL query here --"
                                 className="w-full h-full bg-transparent text-green-400 font-mono text-xs outline-none resize-none placeholder-gray-600"
                                 spellCheck={false}
                             />
                         </div>
-                        <div className="bg-[#2d2d2d] p-2 flex justify-end">
-                            <Button size="sm" onClick={executeConsoleQuery} className="bg-green-700 hover:bg-green-800 text-white text-xs h-7"> <Play size={12} className="mr-1" /> Execute </Button>
-                        </div>
+                        {!readonly && (
+                            <div className="bg-[#2d2d2d] p-2 flex justify-end">
+                                <Button size="sm" onClick={executeConsoleQuery} className="bg-green-700 hover:bg-green-800 text-white text-xs h-7"> <Play size={12} className="mr-1" /> Execute </Button>
+                            </div>
+                        )}
                     </div>
 
                     <div className="h-1/2 flex flex-col border-t-2 border-gray-800 text-gray-300 font-mono text-xs">

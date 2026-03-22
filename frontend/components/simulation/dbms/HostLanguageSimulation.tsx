@@ -202,23 +202,32 @@ import { WithMode } from "@/lib/labs/modes";
 
 interface HostLanguageSimulationProps extends WithMode {
     mode?: "LEARNING" | "EXPERIMENTAL" | "EXAM";
+    initialData?: any;
+    readonly?: boolean;
 }
 
-export default function HostLanguageSimulation({ mode = "LEARNING" }: HostLanguageSimulationProps) {
+export default function HostLanguageSimulation({ mode = "LEARNING", initialData, readonly = false }: HostLanguageSimulationProps) {
     // We can use 'mode' to disable hints or timer in EXAM mode
-    const isExam = mode === "EXAM";
+    const [isExam, setIsExam] = useState(mode === "EXAM");
 
-    const [lang, setLang] = useState<Lang>('java');
-    const [op, setOp] = useState<Op>('select');
-    const [step, setStep] = useState<number>(0);
+    useEffect(() => {
+        if (typeof window !== 'undefined' && window.location.search.includes('mode=exam')) {
+            setIsExam(true);
+        }
+    }, []);
+
+    const [lang, setLang] = useState<Lang>(initialData?.lang || 'java');
+    const [op, setOp] = useState<Op>(initialData?.op || 'select');
+    const [step, setStep] = useState<number>(initialData?.step || 0);
     // 0: Idle, 1: Load, 2: Connect, 3: Execute, 4: Process, 5: Close
 
     // DB State
-    const [students, setStudents] = useState<Student[]>(initialStudents);
-    const [code, setCode] = useState<string>(getCodeSnippet('java', 'select'));
+    const [students, setStudents] = useState<Student[]>(initialData?.students || initialStudents);
+    const [code, setCode] = useState<string>(initialData?.code || getCodeSnippet('java', 'select'));
 
-    const [consoleOutput, setConsoleOutput] = useState<string[]>([]);
+    const [consoleOutput, setConsoleOutput] = useState<string[]>(initialData?.consoleOutput || []);
     const [isConnected, setIsConnected] = useState<boolean>(false);
+    const [feedback, setFeedback] = useState("");
 
     // Update code when lang/op changes
     useEffect(() => {
@@ -359,6 +368,16 @@ export default function HostLanguageSimulation({ mode = "LEARNING" }: HostLangua
                     <h1 className="font-bold text-gray-800">Exp 5: Host Language Interface</h1>
                 </div>
                 <div className="flex items-center gap-4">
+                    {feedback && <span className="text-xs text-green-600 font-medium">{feedback}</span>}
+                    {isExam && !readonly && (
+                        <Button onClick={() => {
+                            window.parent.postMessage({ type: 'SAVE_EXAM_STATE', payload: { type: 'DBMS_HOST_LANG', lang, op, step, students, code, consoleOutput } }, '*');
+                            setFeedback("Progress saved successfully!");
+                            setTimeout(() => setFeedback(""), 3000);
+                        }} size="sm" variant="outline" className="h-8 text-xs text-blue-600 border-blue-600/20 hover:bg-blue-50">
+                            SAVE PROGRESS
+                        </Button>
+                    )}
                     <div className="flex items-center gap-2 bg-gray-100 rounded px-3 py-1.5 border border-gray-200">
                         <span className="text-xs text-gray-500 font-medium">LANGUAGE</span>
                         <select
@@ -397,22 +416,26 @@ export default function HostLanguageSimulation({ mode = "LEARNING" }: HostLangua
                             <span className="text-xs text-gray-600 bg-white border px-2 py-0.5 rounded">Editable</span>
                         </div>
                         <div className="flex gap-2">
-                            <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={reset}
-                                className="text-gray-600 hover:text-gray-900 border-gray-300"
-                            >
-                                <RefreshCw size={14} className="mr-1" /> Reset
-                            </Button>
-                            <Button
-                                size="sm"
-                                disabled={step >= 5}
-                                onClick={nextStep}
-                                className="bg-green-600 hover:bg-green-700 text-white shadow-sm font-bold"
-                            >
-                                <Play size={14} className="mr-1 fill-current" /> {step === 0 ? "Run Program" : "Next Step"}
-                            </Button>
+                            {!readonly && (
+                                <>
+                                    <Button
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={reset}
+                                        className="text-gray-600 hover:text-gray-900 border-gray-300"
+                                    >
+                                        <RefreshCw size={14} className="mr-1" /> Reset
+                                    </Button>
+                                    <Button
+                                        size="sm"
+                                        disabled={step >= 5}
+                                        onClick={nextStep}
+                                        className="bg-green-600 hover:bg-green-700 text-white shadow-sm font-bold"
+                                    >
+                                        <Play size={14} className="mr-1 fill-current" /> {step === 0 ? "Run Program" : "Next Step"}
+                                    </Button>
+                                </>
+                            )}
                         </div>
                     </div>
 
@@ -421,7 +444,8 @@ export default function HostLanguageSimulation({ mode = "LEARNING" }: HostLangua
                         <textarea
                             value={code}
                             onChange={(e) => setCode(e.target.value)}
-                            className="flex-1 w-full bg-[#1e1e1e] text-gray-200 font-mono text-sm p-4 resize-none outline-none leading-relaxed selection:bg-blue-500/30"
+                            disabled={readonly}
+                            className={`flex-1 w-full bg-[#1e1e1e] text-gray-200 font-mono text-sm p-4 resize-none outline-none leading-relaxed selection:bg-blue-500/30 ${readonly ? "opacity-75 cursor-not-allowed" : ""}`}
                             spellCheck="false"
                         />
                         {/* Highlight Overlay Execution Indicator */}

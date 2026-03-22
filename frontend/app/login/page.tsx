@@ -256,6 +256,54 @@ export default function LoginPage() {
                                 {loading ? <Loader2 className="animate-spin" /> : "AUTHENTICATE"}
                             </Button>
 
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={async (e) => {
+                                    e.preventDefault();
+
+                                    const testEmail = role === 'student' ? "test.student@mmmut.ac.in" :
+                                        role === 'teacher' ? "test.faculty@mmmut.ac.in" :
+                                            "test.admin@mmmut.ac.in";
+
+                                    setEmail(testEmail);
+                                    setPassword("password123");
+
+                                    setError("");
+                                    setLoading(true);
+
+                                    try {
+                                        const response = await axios.post(`${API_URL}/api/auth/login`, {
+                                            email: testEmail,
+                                            password: "password123"
+                                        });
+
+                                        const { token, user } = response.data;
+
+                                        // Store token and user info
+                                        if (typeof window !== 'undefined') {
+                                            localStorage.setItem("token", token);
+                                            localStorage.setItem("user", JSON.stringify(user));
+                                        }
+
+                                        setSuccess(true);
+                                        setTimeout(() => {
+                                            if (role === 'teacher') router.push("/dashboard/teacher");
+                                            else if (role === 'admin') router.push("/dashboard/admin");
+                                            else router.push("/dashboard");
+                                        }, 1000);
+
+                                    } catch (err: any) {
+                                        const message = err.response?.data?.message || "Test Login failed";
+                                        setError(message);
+                                    } finally {
+                                        setLoading(false);
+                                    }
+                                }}
+                                className="w-full py-6 text-sm font-bold tracking-wider rounded-2xl border-2 border-slate-200 hover:bg-slate-50 text-slate-500 mt-4"
+                            >
+                                TEST SIGN IN ({role.toUpperCase()})
+                            </Button>
                             {role === 'student' && (
                                 <button
                                     suppressHydrationWarning
