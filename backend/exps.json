@@ -1,0 +1,143 @@
+[
+  {
+    "_id": "699d60adbb6e789ceb8248b1",
+    "title": "Reverse an Array",
+    "subjectId": "699d60adbb6e789ceb8248a6",
+    "theory": "Reversing an array involves swapping elements from both ends moving towards the center.",
+    "algorithm": "1. Start\n2. Use two pointers: start=0, end=n-1\n3. Swap arr[start] and arr[end]\n4. Increment start, decrement end\n5. Repeat until start >= end",
+    "codeTemplate": "#include <iostream>\n#include <vector>\n#include <algorithm>\n\nint main() {\n    std::vector<int> arr = {1, 2, 3, 4, 5};\n    std::reverse(arr.begin(), arr.end());\n    for(int x : arr) std::cout << x << \" \";\n    return 0;\n}",
+    "language": "cpp",
+    "testcases": [],
+    "createdAt": "2026-02-24T08:26:21.705Z",
+    "__v": 0
+  },
+  {
+    "_id": "699d60adbb6e789ceb8248b2",
+    "title": "Binary Search Implementation",
+    "subjectId": "699d60adbb6e789ceb8248a6",
+    "theory": "Binary search targets a sorted array and repeatedly divides the search interval in half.",
+    "algorithm": "1. Set low=0, high=n-1\n2. Find mid = (low+high)/2\n3. If target == mid, return\n4. If target < mid, high=mid-1\n5. Else low=mid+1",
+    "codeTemplate": "#include <iostream>\n#include <vector>\n\nint binarySearch(std::vector<int>& arr, int target) {\n    int low = 0, high = arr.size() - 1;\n    while(low <= high) {\n        int mid = low + (high-low)/2;\n        if(arr[mid] == target) return mid;\n        if(arr[mid] < target) low = mid + 1;\n        else high = mid - 1;\n    }\n    return -1;\n}\n\nint main() {\n    std::vector<int> arr = {1, 2, 3, 4, 5};\n    std::cout << \"Index of 4: \" << binarySearch(arr, 4);\n    return 0;\n}",
+    "language": "cpp",
+    "testcases": [],
+    "createdAt": "2026-02-24T08:26:21.706Z",
+    "__v": 0
+  },
+  {
+    "_id": "699d60adbb6e789ceb8248b3",
+    "title": "Sum of Natural Numbers",
+    "subjectId": "699d60adbb6e789ceb8248ac",
+    "theory": "Calculate the sum of first N natural numbers using a loop.",
+    "algorithm": "1. Start\n2. Input N\n3. Initialize sum = 0\n4. For i from 1 to N, sum = sum + i\n5. Print sum",
+    "codeTemplate": "#include <stdio.h>\n\nint main() {\n    int n = 10, sum = 0;\n    for(int i=1; i<=n; i++) sum += i;\n    printf(\"Sum of first %d natural numbers is %d\", n, sum);\n    return 0;\n}",
+    "language": "c",
+    "testcases": [],
+    "createdAt": "2026-02-24T08:26:21.706Z",
+    "__v": 0
+  },
+  {
+    "_id": "699d60adbb6e789ceb8248b4",
+    "title": "OSI vs TCP/IP Reference Models",
+    "subjectId": "699d60adbb6e789ceb8248a7",
+    "theory": "OSI has 7 layers, TCP/IP has 4. Study the encapsulation process and protocol suites.",
+    "algorithm": "1. Select Model\n2. View Layer Details\n3. Analyze Header Encapsulation",
+    "language": "Universal",
+    "testcases": [],
+    "createdAt": "2026-02-24T08:26:21.706Z",
+    "__v": 0
+  },
+  {
+    "_id": "699d60adbb6e789ceb8248b5",
+    "title": "CSMA/CD Protocol Simulation",
+    "subjectId": "699d60adbb6e789ceb8248a7",
+    "theory": "Carrier Sense Multiple Access with Collision Detection is a network protocol for carrier transmission.",
+    "algorithm": "1. Check if channel is idle\n2. If idle, transmit data\n3. If collision, wait random backoff\n4. Retransmit",
+    "language": "Universal",
+    "testcases": [],
+    "createdAt": "2026-02-24T08:26:21.706Z",
+    "__v": 0
+  },
+  {
+    "_id": "699d60adbb6e789ceb8248b6",
+    "title": "Introduction to DBMS (DDL/DML)",
+    "subjectId": "699d60adbb6e789ceb8248a9",
+    "theory": "Learn SQL commands: CREATE, INSERT, SELECT, UPDATE, DELETE.",
+    "algorithm": "1. CREATE TABLE students...\n2. INSERT INTO students...\n3. SELECT * FROM students",
+    "language": "SQL",
+    "testcases": [],
+    "createdAt": "2026-02-24T08:26:21.706Z",
+    "__v": 0
+  },
+  {
+    "_id": "699d60adbb6e789ceb8248b7",
+    "title": "Relational Algebra Operations",
+    "subjectId": "699d60adbb6e789ceb8248a9",
+    "theory": "Select, Project, Union, and Join operations in relational databases.",
+    "algorithm": "1. Select (σ)\n2. Project (π)\n3. Cartesian Product (×)\n4. Join (⨝)",
+    "language": "SQL",
+    "testcases": [],
+    "createdAt": "2026-02-24T08:26:21.706Z",
+    "__v": 0
+  },
+  {
+    "_id": "699d60adbb6e789ceb8248b8",
+    "title": "Study and Verification of Logic Gates",
+    "subjectId": "699d60adbb6e789ceb8248a8",
+    "theory": "Verify AND, OR, NOT, NAND, NOR, XOR gates using truth tables.",
+    "algorithm": "1. Set Inputs A and B\n2. Measure Output Y\n3. Compare with Theoretical Truth Table",
+    "language": "Universal",
+    "testcases": [],
+    "createdAt": "2026-02-24T08:26:21.707Z",
+    "__v": 0
+  },
+  {
+    "_id": "699d60adbb6e789ceb8248b9",
+    "title": "Class and Object Basics",
+    "subjectId": "699d60adbb6e789ceb8248aa",
+    "theory": "Understand encapsulation and how objects are instantiated from classes in Java.",
+    "algorithm": "1. Define Class Person\n2. Define attribute 'name'\n3. Create Object p = new Person()\n4. Set p.name = 'Vaibhav'",
+    "codeTemplate": "class Person {\n    String name;\n    void display() {\n        System.out.println(\"Name: \" + name);\n    }\n}\n\npublic class Main {\n    public static void main(String[] args) {\n        Person p = new Person();\n        p.name = \"Student\";\n        p.display();\n    }\n}",
+    "language": "java",
+    "testcases": [],
+    "createdAt": "2026-02-24T08:26:21.707Z",
+    "__v": 0
+  },
+  {
+    "_id": "699d60adbb6e789ceb8248ba",
+    "title": "8-bit Addition & Subtraction",
+    "subjectId": "699d60adbb6e789ceb8248ab",
+    "theory": "Write 8085 assembly code to add two 8-bit numbers stored in memory.",
+    "algorithm": "1. LXI H, 2000H\n2. MOV A, M\n3. INX H\n4. ADD M\n5. STA 2050H\n6. HLT",
+    "language": "Assembly",
+    "testcases": [],
+    "createdAt": "2026-02-24T08:26:21.707Z",
+    "__v": 0
+  },
+  {
+    "_id": "699e243c3cac120514766de3",
+    "subject": "Design and Analysis of Algorithms",
+    "subjectId": "699e2255c614bcd78db18963",
+    "experimentNumber": 1,
+    "title": "Insertion Sort Time Complexity Analysis",
+    "slug": "insertion-sort-analysis",
+    "aim": "To analyze time complexity of insertion sort algorithm.",
+    "theory": "Insertion sort builds sorted array one element at a time by inserting elements into correct position. It works similarly to the way you sort playing cards in your hands. The array is virtually split into a sorted and an unsorted part. Values from the unsorted part are picked and placed at the correct position in the sorted part.",
+    "algorithm": [
+      "Start from index 1",
+      "Pick current element as key",
+      "Compare key with previous elements",
+      "Shift larger elements to the right",
+      "Insert key in correct position"
+    ],
+    "language": "cpp",
+    "defaultCode": "#include <bits/stdc++.h>\nusing namespace std;\n\nlong long comparisons = 0;\nlong long shifts = 0;\n\n// Helper functions for dataset generation\nvector<int> generateBestCase(int n) { \n    vector<int> arr(n); \n    for(int i=0; i<n; i++) arr[i] = i+1; \n    return arr; \n}\n\nvector<int> generateWorstCase(int n) { \n    vector<int> arr(n); \n    for(int i=0; i<n; i++) arr[i] = n-i; \n    return arr; \n}\n\nvector<int> generateAverageCase(int n) { \n    vector<int> arr(n); \n    for(int i=0; i<n; i++) arr[i] = rand() % 10000; \n    return arr; \n}\n\n// Insertion Sort with metrics & visualization\nvoid insertionSort(vector<int>& arr) {\n    int n = arr.size();\n    // Initial state recorded here by backend\n    for(int i=1; i<n; i++) {\n        int key = arr[i];\n        int j = i-1;\n        while(++comparisons && j>=0 && arr[j]>key) {\n            arr[j+1] = arr[j];\n            shifts++;\n            j--;\n        }\n        arr[j+1] = key;\n        // Snapshot of each iteration recorded here by backend\n    }\n}\n\nint main() {\n    int n;\n    string case_type = \"average\"; // Injected by backend\n    \n    if (!(cin >> n)) return 0;\n    \n    vector<int> arr;\n    if(case_type == \"best\") arr = generateBestCase(n);\n    else if(case_type == \"worst\") arr = generateWorstCase(n);\n    else arr = generateAverageCase(n);\n    \n    comparisons = 0; shifts = 0;\n    \n    insertionSort(arr);\n    \n    // Output metrics for backend parsing\n    cout << \"__metrics__ \" << comparisons << \" \" << shifts << endl;\n    \n    return 0;\n}",
+    "expectedTimeComplexity": {
+      "best": "O(n)",
+      "average": "O(n^2)",
+      "worst": "O(n^2)"
+    },
+    "spaceComplexity": "O(1)",
+    "createdAt": "2026-02-24T22:20:44.308Z",
+    "__v": 0
+  }
+]

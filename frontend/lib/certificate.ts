@@ -18,8 +18,9 @@ const generateCertificateId = (name: string, title: string): string => {
  * @param studentName - The name of the student who completed the work.
  * @param title - The name of the experiment or subject completed.
  * @param isSubject - Whether this is a full subject completion certificate.
+ * @param rollNo - The roll number of the student (optional).
  */
-export const generateCertificate = async (studentName: string, title: string, isSubject: boolean = false) => {
+export const generateCertificate = async (studentName: string, title: string, isSubject: boolean = false, rollNo?: string) => {
     // 1. Generate Unique ID
     const certificateId = generateCertificateId(studentName, title);
     const verificationUrl = `${window.location.origin}/verify/${certificateId}?name=${encodeURIComponent(studentName)}&subject=${encodeURIComponent(title)}&date=${encodeURIComponent(new Date().toISOString())}`;
@@ -88,6 +89,13 @@ export const generateCertificate = async (studentName: string, title: string, is
     doc.setFontSize(32);
     doc.setTextColor(0, 114, 187);
     doc.text(studentName, pageWidth / 2, 85, { align: "center" });
+
+    if (rollNo) {
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(14);
+        doc.setTextColor(100, 100, 100);
+        doc.text(`Roll Number: ${rollNo}`, pageWidth / 2, 93, { align: "center" });
+    }
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(14);

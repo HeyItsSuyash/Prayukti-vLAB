@@ -46,12 +46,12 @@ export default function Home() {
               <div className="flex flex-wrap gap-4 pt-4">
                 <Link href="/login">
                   <Button size="lg" className="h-14 px-10 text-lg rounded-full btn-gradient btn-interaction">
-                    Start Experimenting
+                    Login
                   </Button>
                 </Link>
-                <Link href="/dashboard/dld">
+                <Link href="/student-auth">
                   <Button variant="outline" size="lg" className="h-14 px-10 text-lg rounded-full border-2 border-slate-200 dark:border-slate-800 hover:border-blue-600 dark:hover:border-blue-400 hover:bg-transparent transition-all dark:text-white btn-interaction">
-                    View Modules
+                    Register
                   </Button>
                 </Link>
               </div>

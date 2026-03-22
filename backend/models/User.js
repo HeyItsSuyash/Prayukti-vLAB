@@ -5,6 +5,10 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    rollNo: {
+        type: String,
+        required: false // Optional for teachers/admins, but should be provided by students
+    },
     email: {
         type: String,
         required: true,

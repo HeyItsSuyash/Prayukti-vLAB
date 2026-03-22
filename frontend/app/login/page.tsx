@@ -7,7 +7,7 @@ import Link from "next/link";
 import { Loader2, GraduationCap, School, ShieldCheck, User, Lock, Mail } from "lucide-react";
 import axios from "axios";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
 
 type UserRole = "student" | "teacher" | "admin";
 
@@ -43,8 +43,10 @@ export default function LoginPage() {
 
             // Store token and user info
             if (typeof window !== 'undefined') {
-                localStorage.setItem("token", token);
-                localStorage.setItem("user", JSON.stringify(user));
+                localStorage.setItem("vlab_token", token);
+                localStorage.setItem("vlab_user", JSON.stringify(user));
+                localStorage.setItem("studentName", user.fullName);
+                localStorage.setItem("studentRoll", user.rollNo || "");
             }
 
             setSuccess(true);
@@ -63,6 +65,101 @@ export default function LoginPage() {
                 localStorage.setItem("verifyEmail", email);
                 router.push("/verify");
             }
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleTestLogin = async () => {
+        try {
+            setError("");
+            setLoading(true);
+            const response = await fetch(
+                `${API_URL}/api/auth/login`,
+                {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: 'test.student@mmmut.ac.in',
+                        password: 'test123'
+                    })
+                }
+            );
+            const data = await response.json();
+            if (data.token) {
+                localStorage.setItem('vlab_token', data.token);
+                localStorage.setItem('vlab_user', JSON.stringify(data.user));
+                localStorage.setItem('studentName', data.user?.fullName || '');
+                localStorage.setItem('studentRoll', data.user?.rollNo || '');
+                setSuccess(true);
+                setTimeout(() => router.push('/dashboard'), 1000);
+            } else {
+                setError(data.message || 'Test login failed — check backend credentials');
+            }
+        } catch (err: any) {
+            setError('Test login error: ' + err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleTeacherLogin = async () => {
+        try {
+            setError("");
+            setLoading(true);
+            const response = await fetch(
+                `${API_URL}/api/auth/login`,
+                {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: 'teacher@mmmut.ac.in',
+                        password: 'teacher123'
+                    })
+                }
+            );
+            const data = await response.json();
+            if (data.token) {
+                localStorage.setItem('vlab_token', data.token);
+                localStorage.setItem('vlab_user', JSON.stringify(data.user));
+                setSuccess(true);
+                setTimeout(() => router.push('/dashboard/teacher'), 1000);
+            } else {
+                setError(data.message || 'Teacher login failed — check backend credentials');
+            }
+        } catch (err: any) {
+            setError('Teacher login error: ' + err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleAdminLogin = async () => {
+        try {
+            setError("");
+            setLoading(true);
+            const response = await fetch(
+                `${API_URL}/api/auth/login`,
+                {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: 'admin@mmmut.ac.in',
+                        password: 'admin123' // Placeholder credentials
+                    })
+                }
+            );
+            const data = await response.json();
+            if (data.token) {
+                localStorage.setItem('vlab_token', data.token);
+                localStorage.setItem('vlab_user', JSON.stringify(data.user));
+                setSuccess(true);
+                setTimeout(() => router.push('/dashboard/admin'), 1000);
+            } else {
+                setError(data.message || 'Admin login failed — check backend credentials');
+            }
+        } catch (err: any) {
+            setError('Admin login error: ' + err.message);
         } finally {
             setLoading(false);
         }
@@ -158,52 +255,38 @@ export default function LoginPage() {
                                 {loading ? <Loader2 className="animate-spin" /> : "AUTHENTICATE"}
                             </Button>
 
-                            <Button
-                                type="button"
-                                variant="outline"
-                                onClick={async (e) => {
-                                    e.preventDefault();
+                            {role === 'student' && (
+                                <button
+                                    type="button"
+                                    onClick={handleTestLogin}
+                                    disabled={loading}
+                                    className="w-full py-3 text-xs font-bold tracking-wider rounded-2xl border-2 border-slate-200 hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-all mt-1"
+                                >
+                                    ⚡ QUICK STUDENT LOGIN (dev only)
+                                </button>
+                            )}
 
-                                    const testEmail = role === 'student' ? "test.student@mmmut.ac.in" :
-                                        role === 'teacher' ? "test.faculty@mmmut.ac.in" :
-                                            "test.admin@mmmut.ac.in";
+                            {role === 'teacher' && (
+                                <button
+                                    type="button"
+                                    onClick={handleTeacherLogin}
+                                    disabled={loading}
+                                    className="w-full py-3 text-xs font-bold tracking-wider rounded-2xl border-2 border-slate-200 hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-all mt-2"
+                                >
+                                    🎓 QUICK TEACHER LOGIN (dev only)
+                                </button>
+                            )}
 
-                                    const testName = role === 'student' ? "Test Student" :
-                                        role === 'teacher' ? "Test Faculty" :
-                                            "Test Admin";
-
-                                    setEmail(testEmail);
-                                    setPassword("password123");
-
-                                    // Bypass backend and simulate a successful login
-                                    setError("");
-                                    setLoading(true);
-
-                                    // Simulate network delay
-                                    await new Promise(resolve => setTimeout(resolve, 800));
-
-                                    if (typeof window !== 'undefined') {
-                                        // Set a mock token and user data
-                                        localStorage.setItem("token", `mock_jwt_token_for_${role}_12345`);
-                                        localStorage.setItem("user", JSON.stringify({
-                                            id: `mock_${role}_id_001`,
-                                            fullName: testName,
-                                            email: testEmail,
-                                            role: role
-                                        }));
-                                    }
-
-                                    setSuccess(true);
-                                    setTimeout(() => {
-                                        if (role === 'teacher') router.push("/dashboard/teacher");
-                                        else if (role === 'admin') router.push("/dashboard/admin");
-                                        else router.push("/dashboard");
-                                    }, 1000);
-                                }}
-                                className="w-full py-6 text-sm font-bold tracking-wider rounded-2xl border-2 border-slate-200 hover:bg-slate-50 text-slate-500 mt-4"
-                            >
-                                TEST SIGN IN ({role.toUpperCase()})
-                            </Button>
+                            {role === 'admin' && (
+                                <button
+                                    type="button"
+                                    onClick={handleAdminLogin}
+                                    disabled={loading}
+                                    className="w-full py-3 text-xs font-bold tracking-wider rounded-2xl border-2 border-slate-200 hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-all mt-2"
+                                >
+                                    🛡️ QUICK ADMIN LOGIN (dev only)
+                                </button>
+                            )}
 
                             {role === 'student' && (
                                 <div className="text-center pt-4">

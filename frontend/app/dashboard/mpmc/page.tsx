@@ -8,7 +8,7 @@ import { Progress } from "@/components/ui/progress";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { generateCertificate } from "@/lib/certificate";
-import { getStudentName, getSubjectProgress, isSubjectCompleted, getSubjectCompletionRate } from "@/lib/progress-utils";
+import { getStudentName, getStudentRollNo, getSubjectProgress, isSubjectCompleted, getSubjectCompletionRate } from "@/lib/progress-utils";
 import { Lock } from "lucide-react";
 
 const practicals = [
@@ -24,16 +24,19 @@ const practicals = [
 
 export default function MPMCPage() {
     const [studentNameStr, setStudentNameStr] = useState("");
+    const [studentRollStr, setStudentRollStr] = useState("");
     const [progress, setProgress] = useState<{ [key: string]: number }>({});
     const [overallCompletion, setOverallCompletion] = useState(0);
     const [isFullyCompleted, setIsFullyCompleted] = useState(false);
 
     useEffect(() => {
         const studentName = getStudentName();
+        const studentRoll = getStudentRollNo();
         const subjectProgress = getSubjectProgress("mpmc");
         const labIds = practicals.map(p => p.id);
 
         setStudentNameStr(studentName);
+        setStudentRollStr(studentRoll);
         setProgress(subjectProgress);
         setOverallCompletion(getSubjectCompletionRate("mpmc", labIds));
         setIsFullyCompleted(isSubjectCompleted("mpmc", labIds));
@@ -44,7 +47,24 @@ export default function MPMCPage() {
             alert("Student name is missing. Please log out and enter your name during login to generate the certificate.");
             return;
         }
-        await generateCertificate(studentNameStr, "Microprocessor and Microcontroller", true);
+        await generateCertificate(studentNameStr, "Microprocessor and Microcontroller", true, studentRollStr);
+    };
+
+    const logLabAttendance = async (labId: string) => {
+        try {
+            const token = localStorage.getItem('vlab_token') || localStorage.getItem('token');
+            const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
+            await fetch(`${baseUrl}/api/attendance/log-lab`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ subject: "MPMC", labId })
+            });
+        } catch (error) {
+            console.error("Error logging lab attendance:", error);
+        }
     };
 
     return (
@@ -53,7 +73,10 @@ export default function MPMCPage() {
                 <div className="container mx-auto px-4 py-4 flex items-center gap-4">
                     <Link href="/dashboard" className="text-gray-500 hover:text-black hover:bg-gray-100 p-1 rounded-full transition-colors">Dashboard</Link>
                     <ChevronRight className="h-4 w-4 text-gray-400" />
-                    <h1 className="text-xl font-bold text-[#2e7d32]">Microprocessor and Microcontroller</h1>
+                    <div className="flex-1">
+                        <h1 className="text-lg font-bold text-[#2e7d32] leading-tight">{studentNameStr || "Student Name"}</h1>
+                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">{studentRollStr || "Roll Number Not Set"}</p>
+                    </div>
                 </div>
             </header>
 
@@ -145,10 +168,14 @@ export default function MPMCPage() {
 
                                     <div className="flex items-center gap-3 shrink-0">
                                         <Link href={`/dashboard/mpmc/${p.id}`} className="w-full md:w-auto">
-                                            <Button variant="outline" className={`w-full md:w-auto gap-2 border-2 ${isCompleted
-                                                ? 'border-green-600 text-green-700 hover:bg-green-50'
-                                                : 'border-black text-black hover:bg-black hover:text-white'
-                                                } uppercase font-bold text-xs tracking-wider transition-all h-10 px-4`}>
+                                            <Button 
+                                                onClick={() => logLabAttendance(`mpmc-exp-${p.id}`)}
+                                                variant="outline" 
+                                                className={`w-full md:w-auto gap-2 border-2 ${isCompleted
+                                                    ? 'border-green-600 text-green-700 hover:bg-green-50'
+                                                    : 'border-black text-black hover:bg-black hover:text-white'
+                                                    } uppercase font-bold text-xs tracking-wider transition-all h-10 px-4`}
+                                            >
                                                 {isCompleted ? "Review Lab" : "Start Lab"} <PlayCircle className="h-4 w-4" />
                                             </Button>
                                         </Link>

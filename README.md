@@ -1,4 +1,4 @@
-# Prayukti vLAB - MMMUT Digital Logic & Design (DLD)
+# Prayukti vLAB - India's Number One VLab fostering practical knowledge
 
 **Prayukti vLAB** is a scalable virtual laboratory prototype built for Madan Mohan Malaviya University of Technology (MMMUT). This repository contains the Monorepo for the DLD (Digital Logic Design) subject simulation.
 

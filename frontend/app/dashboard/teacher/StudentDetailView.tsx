@@ -70,7 +70,7 @@ export function StudentDetailView({ student }: StudentDetailViewProps) {
                             <h2 style="color: #d32f2f;">Prayukti vLab</h2>
                             ${template.body}
                             <br/>
-                            <a href="http://localhost:3000" style="background-color: #d32f2f; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Login to Dashboard</a>
+                            <a href="${process.env.NEXT_PUBLIC_FRONTEND_URL || 'http://localhost:3000'}" style="background-color: #d32f2f; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Login to Dashboard</a>
                             <br/><br/>
                             <p>Regards,<br/>Virtual Lab Team</p>
                         </div>

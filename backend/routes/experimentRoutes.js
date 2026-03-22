@@ -6,5 +6,11 @@ router.post('/', experimentController.createExperiment);
 router.get('/', experimentController.getExperiments);
 router.put('/:id', experimentController.updateExperiment);
 router.delete('/:id', experimentController.deleteExperiment);
+router.post('/seed', experimentController.seedExperiments);
+router.post('/', experimentController.createExperiment);
+router.post('/create', experimentController.createExperiment);
+router.get('/subject/:subjectId', experimentController.getExperimentsBySubject);
+router.get('/', experimentController.getExperiments);
+router.get('/:experimentId', experimentController.getExperimentById);
 
 module.exports = router;

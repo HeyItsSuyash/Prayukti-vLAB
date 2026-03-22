@@ -4,6 +4,7 @@
 
 export const PROGRESS_STORAGE_KEY = "vlab_progress";
 export const STUDENT_NAME_KEY = "studentName";
+export const STUDENT_ROLL_KEY = "studentRoll";
 
 /**
  * Gets the completion percentage for a specific lab.
@@ -64,6 +65,22 @@ export const getStudentName = (): string => {
 export const setStudentName = (name: string) => {
     if (typeof window === "undefined") return;
     localStorage.setItem(STUDENT_NAME_KEY, name);
+};
+
+/**
+ * Gets the student's roll number from storage.
+ */
+export const getStudentRollNo = (): string => {
+    if (typeof window === "undefined") return "";
+    return localStorage.getItem(STUDENT_ROLL_KEY) || "";
+};
+
+/**
+ * Sets the student's roll number in storage.
+ */
+export const setStudentRollNo = (rollNo: string) => {
+    if (typeof window === "undefined") return;
+    localStorage.setItem(STUDENT_ROLL_KEY, rollNo);
 };
 /**
  * Checks if all labs for a subject are 100% completed.

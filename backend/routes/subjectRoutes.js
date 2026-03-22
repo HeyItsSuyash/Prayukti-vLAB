@@ -8,4 +8,8 @@ router.post('/', subjectController.createSubject);
 router.put('/:id', subjectController.updateSubject);
 router.delete('/:id', subjectController.deleteSubject);
 
+router.post('/create', subjectController.createSubject);
+router.get('/', subjectController.getAllSubjects);
+router.post('/seed', subjectController.seedSubjects);
+
 module.exports = router;

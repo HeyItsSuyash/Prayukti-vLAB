@@ -28,7 +28,8 @@ export function AddStudentDialog({ open, onOpenChange, onAddStudent }: AddStuden
 
         // Call API
         try {
-            const res = await fetch("http://localhost:5000/api/users", {
+            const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
+            const res = await fetch(`${baseUrl}/api/users`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
