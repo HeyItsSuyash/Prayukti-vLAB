@@ -15,7 +15,6 @@ const isAllowedDomain = (email) => {
 // @access  Public
 const signupUser = async (req, res) => {
     try {
-        const { fullName, email, password, rollNo } = req.body;
         const { fullName, email, password, rollNo, role, enrollmentNo, branch, year, semester } = req.body;
         console.log(`[AUTH] Registration attempt: ${email}`);
 
@@ -47,9 +46,6 @@ const signupUser = async (req, res) => {
         } else {
             console.log(`[AUTH] Creating new user: ${email}`);
             user = new User({
-                fullName: fullName,
-                rollNo: rollNo,
-                email: email,
                 fullName,
                 email,
                 password: hashedPassword,
@@ -68,7 +64,6 @@ const signupUser = async (req, res) => {
 
         console.log(`[AUTH] User record saved. Sending email to ${email}...`);
 
-        // Send OTP via Email
         try {
             await sendEmail({
                 to: email,
@@ -77,7 +72,6 @@ const signupUser = async (req, res) => {
             });
         } catch (mailError) {
             console.error("Signup email error:", mailError);
-            // We still return 201 because the user is created
         }
 
         res.status(201).json({ message: 'Registration successful. Please verify your OTP.' });
@@ -119,7 +113,6 @@ const verifyOtp = async (req, res) => {
     }
 };
 
-exports.signinUser = async (req, res, next) => {
 // @desc    Login user
 // @route   POST /api/auth/login
 // @access  Public
@@ -145,7 +138,7 @@ const signinUser = async (req, res, next) => {
             if (email && email.toLowerCase().endsWith("@mmmut.ac.in")) {
                 console.log(`[AUTH] MOCK LOGIN SUCCESS for domain: ${email}`);
                 res.locals.userId = "mock_user_id_" + Date.now();
-                res.locals.userRole = email.toLowerCase().includes("admin") ? "admin" : "student";
+                res.locals.userRole = email.toLowerCase().includes("admin") ? "admin" : (email.toLowerCase().includes("teacher") ? "teacher" : "student");
                 res.locals.userEmail = email;
                 res.locals.userFullName = "Mock User (" + res.locals.userRole + ")";
                 res.locals.userRollNo = "MOCK12345";
@@ -188,7 +181,6 @@ const signinUser = async (req, res, next) => {
 /**
  * Send final signin response after middleware sequence
  */
-exports.sendSigninResponse = (req, res) => {
 const sendSigninResponse = (req, res) => {
     try {
         const { userId, userEmail, userRole, userFullName, userRollNo, attendance_log_id } = res.locals;

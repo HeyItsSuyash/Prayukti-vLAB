@@ -8,22 +8,14 @@ const Experiment = require('../models/Experiment');
 exports.createSubject = async (req, res) => {
     try {
         const { title, description, icon, experimentsCount, slug, subject_id } = req.body;
-
-        const newSubject = new Subject({
-            title,
-            description,
-            icon,
-            experimentsCount,
-            slug,
-            subject_id
-        const { title, description, icon, experimentsCount, slug } = req.body;
         
         const subject = new Subject({
-            title: title || req.body.name, // Support both naming conventions if needed
+            title: title || req.body.name,
             description,
             icon,
             experimentsCount: experimentsCount || 0,
-            slug
+            slug,
+            subject_id
         });
         
         await subject.save();
@@ -53,13 +45,7 @@ exports.createSubject = async (req, res) => {
 // @access  Public
 exports.getSubjects = async (req, res) => {
     try {
-        const { branch, semester } = req.query;
         const query = {};
-        // if (branch) query.branch = branch;
-        // if (semester) query.semester = parseInt(semester);
-        
-        // Use aggregation to count experiments for each subject if needed, 
-        // but for now, simple find is safer given the state of the codebase.
         const subjects = await Subject.find(query).sort({ createdAt: -1 });
         res.json(subjects);
     } catch (error) {
@@ -106,7 +92,7 @@ exports.seedSubjects = async (req, res) => {
                 description: "Master arrays, linked lists, trees, and core algorithms with interactive execution.",
                 icon: "dsa",
                 experimentsCount: 0,
-                subject_id: "BCS-301"
+                subject_id: "BCS-301",
                 slug: "dsa"
             },
             {
@@ -154,7 +140,8 @@ exports.seedSubjects = async (req, res) => {
                 description: "Master the foundations of C programming, memory management, and data types.",
                 icon: "c",
                 experimentsCount: 0,
-                subject_id: "BCS-107"
+                subject_id: "BCS-107",
+                slug: "c-programming"
             },
             {
                 title: "Design and Analysis of Algorithms",
@@ -163,7 +150,6 @@ exports.seedSubjects = async (req, res) => {
                 experimentsCount: 0,
                 slug: "daa",
                 subject_id: "BCS-408"
-                slug: "c-programming"
             }
         ];
 

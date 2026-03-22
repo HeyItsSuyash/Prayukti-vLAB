@@ -68,8 +68,6 @@ function AdminContent() {
     const fetchData = async () => {
         setLoading(true);
         try {
-            const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
-            const res = await fetch(`${baseUrl}/api/users`);
             const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
             const token = localStorage.getItem('vlab_token');
             const res = await fetch(`${baseUrl}/api/users`, {
@@ -112,54 +110,11 @@ function AdminContent() {
         fetchData();
     }, []);
 
-    // We no longer sync automatically to localStorage unless we specifically want a cache
-    // Let's remove the second useEffect that syncs on data change.
-
-    const handleAddStudent = (newStudent: StudentMetric) => {
-        // Assume API call succeeded in AddStudentDialog
-        setData(prev => [newStudent, ...prev]);
-        window.dispatchEvent(new Event('vlab_students_updated'));
-        alert("Student added successfully to the system.");
-    };
-
-    const handleAddTeacher = (newTeacher: Teacher) => {
-        // Assume API call succeeded in AddTeacherDialog
-        setTeachers(prev => [newTeacher, ...prev]);
-        alert(`Teacher ${newTeacher.name} added successfully.`);
-    };
-
-    const handleDeleteStudent = async (id: string, name: string) => {
-        if (confirm(`Are you sure you want to delete ${name}? This action cannot be undone.`)) {
-            try {
-                const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
-                const res = await fetch(`${baseUrl}/api/users/${id}`, {
-                    method: 'DELETE'
     const handleLogout = async () => {
         try {
             const token = localStorage.getItem('vlab_token');
             if (token) {
                 await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/attendance/logout`, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-            }
-        } catch (err) {
-            console.error("Logout log failed:", err);
-        }
-    };
-
-    const handleViewStudent = (student: StudentMetric) => {
-        setSelectedStudent(student);
-    };
-
-    const handleLogout = async () => {
-        try {
-            const token = localStorage.getItem('vlab_token');
-            if (token) {
-                await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/attendance/logout`, {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${token}`,

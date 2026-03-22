@@ -100,7 +100,6 @@ exports.onLogout = async (req, res) => {
             logout_time: now, 
             session_duration: duration,
             status: status
-            session_duration: duration 
           } 
         }
       );
