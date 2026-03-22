@@ -15,10 +15,10 @@ interface StudentDetailViewProps {
 }
 
 export function StudentDetailView({ student }: StudentDetailViewProps) {
-    const daysInactive = differenceInDays(new Date(), parseISO(student.lastActive));
+    const daysInactive = student.lastActive ? differenceInDays(new Date(), parseISO(student.lastActive)) : 0;
     const isInactive = daysInactive > 7;
 
-    const quizTrendData = student.quizTrend.map((score, i) => ({
+    const quizTrendData = (student.quizTrend || []).map((score, i) => ({
         name: `Quiz ${i + 1}`,
         score: score
     }));
@@ -38,21 +38,21 @@ export function StudentDetailView({ student }: StudentDetailViewProps) {
         const emailTemplates = {
             inactive: {
                 subject: '⚠ Virtual Lab Inactivity Alert',
-                body: `<p>Dear <strong>${student.name}</strong>,</p>
+                body: `<p>Dear <strong>${student.name || student.fullName}</strong>,</p>
                        <p>You have been inactive in the Virtual Lab platform for over <strong>${daysInactive} days</strong>.</p>
                        <p>Please log in and complete your pending practical work.</p>`
             },
             performance: {
                 subject: '📉 Virtual Lab Performance Alert',
-                body: `<p>Dear <strong>${student.name}</strong>,</p>
-                       <p>Your current average score is <strong>${student.quizScoreAvg}%</strong>, which is below the recommended threshold.</p>
+                body: `<p>Dear <strong>${student.name || student.fullName}</strong>,</p>
+                       <p>Your current average score is <strong>${student.quizScoreAvg || 0}%</strong>, which is below the recommended threshold.</p>
                        <p>Please review the course materials and retake the quizzes.</p>`
             },
             manual: {
                 subject: '🔔 Virtual Lab Reminder',
-                body: `<p>Dear <strong>${student.name}</strong>,</p>
+                body: `<p>Dear <strong>${student.name || student.fullName}</strong>,</p>
                        <p>This is a reminder to continue your progress in the Virtual Lab.</p>
-                       <p>Current Progress: <strong>${Math.round((student.practicalsCompleted / student.practicalsAssigned) * 100)}%</strong></p>`
+                       <p>Current Progress: <strong>${Math.round(((student.practicalsCompleted || 0) / (student.practicalsAssigned || 1)) * 100)}%</strong></p>`
             }
         };
 
@@ -115,10 +115,10 @@ export function StudentDetailView({ student }: StudentDetailViewProps) {
             <div className="flex flex-col md:flex-row justify-between items-start gap-4">
                 <div>
                     <div className="flex items-center gap-2">
-                        <h2 className="text-2xl font-bold">{student.name}</h2>
-                        <Badge variant="outline">{student.rollNo}</Badge>
+                        <h2 className="text-2xl font-bold">{student.name || student.fullName || 'Unknown'}</h2>
+                        <Badge variant="outline">{student.rollNo || 'N/A'}</Badge>
                     </div>
-                    <p className="text-muted-foreground">{student.email}</p>
+                    <p className="text-muted-foreground">{student.email || 'No email provided'}</p>
                 </div>
                 <div className="flex gap-2">
                     <Button variant="outline" onClick={handleExport}>
@@ -175,7 +175,7 @@ export function StudentDetailView({ student }: StudentDetailViewProps) {
             )}
 
             {/* Smart Recommendations */}
-            {student.weakAreas.length > 0 && (
+            {(student.weakAreas || []).length > 0 && (
                 <div className="bg-indigo-50 border border-indigo-200 p-4 rounded-md">
                     <div className="flex items-center gap-2 mb-2">
                         <BrainCircuit className="text-indigo-600 h-5 w-5" />
@@ -183,7 +183,7 @@ export function StudentDetailView({ student }: StudentDetailViewProps) {
                     </div>
                     <p className="text-sm text-indigo-700 mb-2">Based on quiz performance, this student struggles with:</p>
                     <div className="flex flex-wrap gap-2">
-                        {student.weakAreas.map(area => (
+                        {(student.weakAreas || []).map(area => (
                             <Badge key={area} className="bg-indigo-100 text-indigo-800 hover:bg-indigo-200 border-indigo-200">
                                 {area}
                             </Badge>
@@ -200,11 +200,11 @@ export function StudentDetailView({ student }: StudentDetailViewProps) {
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold mb-2">
-                            {student.practicalsCompleted} / {student.practicalsAssigned}
+                            {student.practicalsCompleted || 0} / {student.practicalsAssigned || 0}
                         </div>
-                        <Progress value={(student.practicalsCompleted / student.practicalsAssigned) * 100} className="h-2" />
+                        <Progress value={((student.practicalsCompleted || 0) / (student.practicalsAssigned || 1)) * 100} className="h-2" />
                         <p className="text-xs text-muted-foreground mt-2">
-                            {Math.round((student.practicalsCompleted / student.practicalsAssigned) * 100)}% Completed
+                            {Math.round(((student.practicalsCompleted || 0) / (student.practicalsAssigned || 1)) * 100)}% Completed
                         </p>
                     </CardContent>
                 </Card>
@@ -215,10 +215,10 @@ export function StudentDetailView({ student }: StudentDetailViewProps) {
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold mb-2">
-                            {student.avgAttempts.toFixed(1)}
+                            {(student.avgAttempts || 0).toFixed(1)}
                         </div>
                         <p className="text-xs text-muted-foreground">
-                            {student.avgAttempts > 3 ? "High number of retries indicates potential struggle." : "Consistent performance."}
+                            {(student.avgAttempts || 0) > 3 ? "High number of retries indicates potential struggle." : "Consistent performance."}
                         </p>
                     </CardContent>
                 </Card>

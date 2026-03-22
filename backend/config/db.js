@@ -13,7 +13,7 @@ const connectDB = async () => {
         console.error("CRITICAL: MongoDB Connection Failed!");
         console.error("Error Details:", err.message);
         console.log("Tip: Check your internet connection or if your IP is whitelisted in Atlas.");
-        process.exit(1);
+        // process.exit(1);
     }
 };
 

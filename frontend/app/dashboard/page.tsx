@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { RoleGuard } from "@/lib/auth/withRole";
@@ -60,32 +59,21 @@ const getSubjectColor = (index: number) => {
 
 export default function Dashboard() {
     const [subjects, setSubjects] = useState<Subject[]>([]);
+import { Role } from "@/lib/auth/roles";
+import { StudentDashboard } from "@/components/dashboard/StudentDashboard";
+import TeacherDashboard from "./teacher/page";
+import AdminDashboard from "./admin/page";
+
+export default function DashboardPage() {
+    const [role, setRole] = useState<Role | null>(null);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState("");
     const router = useRouter();
 
     useEffect(() => {
-        const fetchSubjects = async () => {
-            try {
-                setLoading(true);
-                const response = await axios.get(`${API_URL}/api/subjects`);
-                setSubjects(response.data);
-            } catch (err) {
-                console.error("Fetch subjects error:", err);
-                setError("Failed to load laboratory modules. Please ensure the backend is running.");
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchSubjects();
-    }, []);
-
-    const navigateToLab = (sub: Subject) => {
-        if (sub.slug) {
-            router.push(`/dashboard/${sub.slug}`);
-        } else {
-            router.push(`/lab/${sub._id}`);
+        const storedUser = localStorage.getItem('vlab_user');
+        if (!storedUser) {
+            router.push('/login');
+            return;
         }
     };
 
@@ -250,4 +238,40 @@ export default function Dashboard() {
             <Footer />
         </div>
     );
+
+        try {
+            const user = JSON.parse(storedUser);
+            // Support both "ADMIN" and "admin" by upper-casing
+            const userRole = user.role?.toUpperCase() || "STUDENT";
+            setRole(userRole as Role);
+        } catch (e) {
+            console.error("Failed to parse user", e);
+            router.push('/login');
+        } finally {
+            setLoading(false);
+        }
+    }, [router]);
+
+    if (loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-white">
+                <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+            </div>
+        );
+    }
+
+    // Role-based rendering
+    const normalizedRole = role?.toUpperCase();
+    
+    switch (normalizedRole) {
+        case "ADMIN":
+            return <AdminDashboard />;
+        case "TEACHER":
+            return <TeacherDashboard />;
+        case "STUDENT":
+            return <StudentDashboard />;
+        default:
+            console.warn("Unknown or null role, defaulting to Student View:", role);
+            return <StudentDashboard />;
+    }
 }

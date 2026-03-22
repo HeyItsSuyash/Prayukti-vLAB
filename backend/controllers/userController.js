@@ -1,77 +1,79 @@
 const User = require('../models/User');
-const bcrypt = require('bcryptjs');
+const { sendEmail, sendWelcomeEmail } = require('../services/emailService');
 
 // @desc    Get all users
 // @route   GET /api/users
-// @access  Public (should be Admin protected in a real app)
-exports.getUsers = async (req, res) => {
+// @access  Private/Admin
+const getUsers = async (req, res) => {
     try {
-        const { role } = req.query;
-        let query = {};
-
-        if (role) {
-            query.role = role;
+        const filter = {};
+        if (req.query.role) {
+            filter.role = req.query.role;
         }
-
-        const users = await User.find(query).select('-password').sort({ createdAt: -1 });
+        const users = await User.find(filter).select('-password');
         res.status(200).json(users);
-    } catch (err) {
-        console.error("Error in getUsers:", err);
-        res.status(500).json({ message: "Server Error fetching users" });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
     }
 };
 
-// @desc    Create a new user (Student or Teacher)
+// @desc    Create a new user (Admin)
 // @route   POST /api/users
-// @access  Public (should be Admin protected in a real app)
-exports.createUser = async (req, res) => {
+// @access  Private/Admin
+const createUser = async (req, res) => {
+    const { 
+        fullName, email, password, role, 
+        enrollmentNo, rollNo, branch, year, semester, assignedSubjects 
+    } = req.body;
+
     try {
-        const { fullName, email, password, role, ...additionalFields } = req.body;
+        const userExists = await User.findOne({ email });
 
-        // Check required fields
-        if (!fullName || !email || !password || !role) {
-            return res.status(400).json({ message: "Please provide all required fields (fullName, email, password, role)" });
+        if (userExists) {
+            return res.status(400).json({ message: 'User already exists' });
         }
 
-        // Check if user already exists
-        let user = await User.findOne({ email });
-        if (user) {
-            return res.status(400).json({ message: "User with this email already exists" });
-        }
+        const bcrypt = require('bcryptjs');
+        const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Hash password
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
-
-        // Create user
-        // Users created by admin are automatically verified
-        user = new User({
+        const user = await User.create({
             fullName,
             email,
             password: hashedPassword,
-            role,
+            role: role || 'student',
             isVerified: true,
-            // Depending on the model, we could store additional fields here if we modify the User schema
-            // Currently User schema doesn't have fields for practicalsCompleted, rollNo, etc.
-            // We might need to add them, but for now we follow the existing schema.
+            enrollmentNo,
+            rollNo,
+            branch,
+            year,
+            semester,
+            assignedSubjects
         });
 
-        await user.save();
+        // Send welcome email with credentials
+        try {
+            await sendWelcomeEmail(user, password);
+        } catch (mailError) {
+            console.error("Failed to send welcome email:", mailError);
+        }
 
-        // Return user without password
-        const userWithoutPassword = await User.findById(user._id).select('-password');
-
-        res.status(201).json(userWithoutPassword);
-    } catch (err) {
-        console.error("Error in createUser:", err);
-        res.status(500).json({ message: "Server Error creating user", error: err.message });
+        res.status(201).json({
+            id: user._id,
+            fullName: user.fullName,
+            email: user.email,
+            role: user.role
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
     }
 };
 
-// @desc    Delete a user
+// @desc    Delete user
 // @route   DELETE /api/users/:id
-// @access  Public (should be Admin protected in a real app)
-exports.deleteUser = async (req, res) => {
+// @access  Private/Admin
+const deleteUser = async (req, res) => {
     try {
         const user = await User.findById(req.params.id);
 
@@ -79,44 +81,83 @@ exports.deleteUser = async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        // Use deleteOne instead of remove
-        await User.deleteOne({ _id: req.params.id });
-        res.status(200).json({ id: req.params.id, message: 'User removed' });
-    } catch (err) {
-        console.error("Error in deleteUser:", err);
-        res.status(500).json({ message: "Server Error deleting user" });
+        await User.findByIdAndDelete(req.params.id);
+        res.status(200).json({ message: 'User removed' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
     }
 };
 
-// @desc    Update a user
+// @desc    Update user
 // @route   PUT /api/users/:id
-// @access  Public (should be Admin protected in a real app)
-exports.updateUser = async (req, res) => {
+// @access  Private/Admin
+const updateUser = async (req, res) => {
     try {
-        const { fullName, email, role, password } = req.body;
-
-        let user = await User.findById(req.params.id);
+        const user = await User.findById(req.params.id);
 
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        // Update fields
-        if (fullName) user.fullName = fullName;
-        if (email) user.email = email;
-        if (role) user.role = role;
+        user.fullName = req.body.fullName || user.fullName;
+        user.email = req.body.email || user.email;
+        user.role = req.body.role || user.role;
+        user.enrollmentNo = req.body.enrollmentNo || user.enrollmentNo;
+        user.rollNo = req.body.rollNo || user.rollNo;
+        user.branch = req.body.branch || user.branch;
+        user.year = req.body.year || user.year;
+        user.semester = req.body.semester || user.semester;
+        user.assignedSubjects = req.body.assignedSubjects || user.assignedSubjects;
 
-        if (password) {
-            const salt = await bcrypt.genSalt(10);
-            user.password = await bcrypt.hash(password, salt);
+        if (req.body.password) {
+            const bcrypt = require('bcryptjs');
+            user.password = await bcrypt.hash(req.body.password, 10);
         }
 
-        await user.save();
+        const updatedUser = await user.save();
 
-        const updatedUser = await User.findById(req.params.id).select('-password');
-        res.status(200).json(updatedUser);
-    } catch (err) {
-        console.error("Error in updateUser:", err);
-        res.status(500).json({ message: "Server Error updating user" });
+        res.status(200).json({
+            _id: updatedUser._id,
+            fullName: updatedUser.fullName,
+            email: updatedUser.email,
+            role: updatedUser.role
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
     }
+};
+
+// @desc    Send individual email to user
+// @route   POST /api/users/send-email
+// @access  Private/Admin
+const sendMailToUser = async (req, res) => {
+    const { userId, subject, content } = req.body;
+
+    try {
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        await sendEmail({
+            to: user.email,
+            subject: subject,
+            html: `<div style="font-family: sans-serif; padding: 20px;">${content}</div>`
+        });
+
+        res.status(200).json({ message: 'Email sent successfully' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error sending email' });
+    }
+};
+
+module.exports = {
+    getUsers,
+    createUser,
+    deleteUser,
+    updateUser,
+    sendMailToUser
 };

@@ -20,6 +20,12 @@ exports.onLogin = async (req, res, next) => {
         const ip_address = req.ip || req.headers['x-forwarded-for'];
         const today = new Date().toISOString().split('T')[0];
 
+        if (process.env.MOCK_AUTH === 'true') {
+            console.log('[ATTENDANCE] MOCK_AUTH enabled. Skipping log save for:', student_email);
+            res.locals.attendance_log_id = "mock_log_" + Date.now();
+            return next();
+        }
+
         const log = new AttendanceLog({
             student_id,
             student_email,
@@ -94,12 +100,19 @@ exports.onLogout = async (req, res) => {
             logout_time: now, 
             session_duration: duration,
             status: status
+            session_duration: duration 
           } 
         }
       );
       
       console.log(`[ATTENDANCE] Logout recorded for ${log._id}, duration: ${duration}m`);
       
+      // Perform suspicious activity check in background
+      checkSuspiciousActivity(log).catch(err => console.error("Suspicious check failed:", err.message));
+
+      // Trigger automated alerts based on this session
+      alertService.checkAndCreateAlerts(student_id, duration).catch(err => console.error("Alert check failed:", err.message));
+
       return res.json({ 
         message: 'Logged out successfully',
         session_duration: duration
