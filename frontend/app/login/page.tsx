@@ -7,7 +7,7 @@ import Link from "next/link";
 import { Loader2, GraduationCap, School, ShieldCheck, User, Lock, Mail } from "lucide-react";
 import axios from "axios";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
 
 type UserRole = "student" | "teacher" | "admin";
 
@@ -43,8 +43,10 @@ export default function LoginPage() {
 
             // Store token and user info
             if (typeof window !== 'undefined') {
-                localStorage.setItem("token", token);
-                localStorage.setItem("user", JSON.stringify(user));
+                localStorage.setItem("vlab_token", token);
+                localStorage.setItem("vlab_user", JSON.stringify(user));
+                localStorage.setItem("studentName", user.fullName);
+                localStorage.setItem("studentRoll", user.rollNo || "");
             }
 
             setSuccess(true);
@@ -68,6 +70,101 @@ export default function LoginPage() {
         }
     };
 
+    const handleTestLogin = async () => {
+        try {
+            setError("");
+            setLoading(true);
+            const response = await fetch(
+                `${API_URL}/api/auth/login`,
+                {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: 'test.student@mmmut.ac.in',
+                        password: 'test123'
+                    })
+                }
+            );
+            const data = await response.json();
+            if (data.token) {
+                localStorage.setItem('vlab_token', data.token);
+                localStorage.setItem('vlab_user', JSON.stringify(data.user));
+                localStorage.setItem('studentName', data.user?.fullName || '');
+                localStorage.setItem('studentRoll', data.user?.rollNo || '');
+                setSuccess(true);
+                setTimeout(() => router.push('/dashboard'), 1000);
+            } else {
+                setError(data.message || 'Test login failed — check backend credentials');
+            }
+        } catch (err: any) {
+            setError('Test login error: ' + err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleTeacherLogin = async () => {
+        try {
+            setError("");
+            setLoading(true);
+            const response = await fetch(
+                `${API_URL}/api/auth/login`,
+                {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: 'teacher@mmmut.ac.in',
+                        password: 'teacher123'
+                    })
+                }
+            );
+            const data = await response.json();
+            if (data.token) {
+                localStorage.setItem('vlab_token', data.token);
+                localStorage.setItem('vlab_user', JSON.stringify(data.user));
+                setSuccess(true);
+                setTimeout(() => router.push('/dashboard/teacher'), 1000);
+            } else {
+                setError(data.message || 'Teacher login failed — check backend credentials');
+            }
+        } catch (err: any) {
+            setError('Teacher login error: ' + err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleAdminLogin = async () => {
+        try {
+            setError("");
+            setLoading(true);
+            const response = await fetch(
+                `${API_URL}/api/auth/login`,
+                {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: 'admin@mmmut.ac.in',
+                        password: 'admin123' // Placeholder credentials
+                    })
+                }
+            );
+            const data = await response.json();
+            if (data.token) {
+                localStorage.setItem('vlab_token', data.token);
+                localStorage.setItem('vlab_user', JSON.stringify(data.user));
+                setSuccess(true);
+                setTimeout(() => router.push('/dashboard/admin'), 1000);
+            } else {
+                setError(data.message || 'Admin login failed — check backend credentials');
+            }
+        } catch (err: any) {
+            setError('Admin login error: ' + err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const getRoleStyles = (r: UserRole) => {
         if (role === r) {
             return "bg-white text-slate-900 shadow-sm ring-1 ring-black/5";
@@ -76,7 +173,7 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-[linear-gradient(to_right,#f0f0f0_1px,transparent_1px),linear-gradient(to_bottom,#f0f0f0_1px,transparent_1px)] bg-[size:4rem_4rem] p-4">
+        <div suppressHydrationWarning className="min-h-screen flex items-center justify-center bg-[linear-gradient(to_right,#f0f0f0_1px,transparent_1px),linear-gradient(to_bottom,#f0f0f0_1px,transparent_1px)] bg-[size:4rem_4rem] p-4">
             <div className="max-w-md w-full bg-white rounded-[2rem] shadow-2xl overflow-hidden border border-slate-100">
                 <div className={`p-10 text-center relative overflow-hidden transition-all duration-500 
                     ${role === 'student' ? 'bg-[#d32f2f]' : role === 'teacher' ? 'bg-orange-600' : 'bg-slate-800'}`}>
@@ -148,6 +245,7 @@ export default function LoginPage() {
                             )}
 
                             <Button
+                                suppressHydrationWarning
                                 type="submit"
                                 disabled={loading}
                                 className={`w-full py-8 text-lg font-black tracking-widest rounded-2xl shadow-xl transition-all active:scale-[0.98]
@@ -206,6 +304,39 @@ export default function LoginPage() {
                             >
                                 TEST SIGN IN ({role.toUpperCase()})
                             </Button>
+                            {role === 'student' && (
+                                <button
+                                    suppressHydrationWarning
+                                    type="button"
+                                    onClick={handleTestLogin}
+                                    disabled={loading}
+                                    className="w-full py-3 text-xs font-bold tracking-wider rounded-2xl border-2 border-slate-200 hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-all mt-1"
+                                >
+                                    ⚡ QUICK STUDENT LOGIN (dev only)
+                                </button>
+                            )}
+
+                            {role === 'teacher' && (
+                                <button
+                                    type="button"
+                                    onClick={handleTeacherLogin}
+                                    disabled={loading}
+                                    className="w-full py-3 text-xs font-bold tracking-wider rounded-2xl border-2 border-slate-200 hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-all mt-2"
+                                >
+                                    🎓 QUICK TEACHER LOGIN (dev only)
+                                </button>
+                            )}
+
+                            {role === 'admin' && (
+                                <button
+                                    type="button"
+                                    onClick={handleAdminLogin}
+                                    disabled={loading}
+                                    className="w-full py-3 text-xs font-bold tracking-wider rounded-2xl border-2 border-slate-200 hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-all mt-2"
+                                >
+                                    🛡️ QUICK ADMIN LOGIN (dev only)
+                                </button>
+                            )}
 
                             {role === 'student' && (
                                 <div className="text-center pt-4">

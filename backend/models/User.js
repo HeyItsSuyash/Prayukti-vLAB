@@ -5,6 +5,10 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    rollNo: {
+        type: String,
+        required: false // Optional for teachers/admins, but should be provided by students
+    },
     email: {
         type: String,
         required: true,
@@ -29,6 +33,25 @@ const UserSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    enrollmentNo: {
+        type: String
+    },
+    rollNo: {
+        type: String
+    },
+    branch: {
+        type: String
+    },
+    year: {
+        type: Number
+    },
+    semester: {
+        type: Number
+    },
+    assignedSubjects: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Subject'
+    }],
     createdAt: {
         type: Date,
         default: Date.now

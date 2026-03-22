@@ -12,6 +12,8 @@ import { StudentDetailView } from './StudentDetailView';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import AttendanceTab from '@/components/attendance/AttendanceTab';
 
 // --- Sub-components ---
 
@@ -46,7 +48,13 @@ export default function TeacherDashboard() {
 
     const loadData = async () => {
         try {
-            const res = await fetch("http://localhost:5000/api/users");
+            const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+            const token = localStorage.getItem('vlab_token');
+            const res = await fetch(`${baseUrl}/api/users`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
             if (!res.ok) throw new Error("Failed to fetch users");
             const allUsers = await res.json();
 
@@ -127,7 +135,20 @@ export default function TeacherDashboard() {
         setSelectedStudent(student);
     };
 
-    const handleLogout = () => {
+    const handleLogout = async () => {
+        try {
+            // Log attendance logout before clearing state
+            const token = localStorage.getItem('vlab_token');
+            await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/attendance/logout`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+        } catch (err) {
+            console.error("Attendance logout failed:", err);
+        }
         localStorage.removeItem('vlab_user');
         localStorage.removeItem('vlab_token');
         router.push('/login');
@@ -208,74 +229,90 @@ export default function TeacherDashboard() {
                             />
                         </div>
 
-                        {/* Charts Section */}
-                        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-                            <Card className="col-span-4">
-                                <CardHeader>
-                                    <CardTitle>Performance Distribution</CardTitle>
-                                    <CardDescription>Student classification based on completion & scores</CardDescription>
-                                </CardHeader>
-                                <CardContent className="pl-2">
-                                    <div className="h-[300px] w-full">
-                                        <ResponsiveContainer width="100%" height="100%">
-                                            <BarChart data={statusDistribution}>
-                                                <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                                                <XAxis dataKey="name" tickLine={false} axisLine={false} />
-                                                <YAxis tickLine={false} axisLine={false} />
-                                                <Tooltip cursor={{ fill: 'transparent' }} contentStyle={{ borderRadius: '8px' }} />
-                                                <Bar dataKey="value" fill="#3b82f6" radius={[4, 4, 0, 0]} barSize={50}>
-                                                    {statusDistribution.map((entry, index) => (
-                                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                                    ))}
-                                                </Bar>
-                                            </BarChart>
-                                        </ResponsiveContainer>
-                                    </div>
-                                </CardContent>
-                            </Card>
+                        <Tabs defaultValue="overview" className="space-y-6">
+                            <TabsList className="bg-white border rounded-xl p-1">
+                                <TabsTrigger value="overview" className="rounded-lg font-bold uppercase tracking-widest text-[10px]">Overview</TabsTrigger>
+                                <TabsTrigger value="students" className="rounded-lg font-bold uppercase tracking-widest text-[10px]">Students</TabsTrigger>
+                                <TabsTrigger value="attendance" className="rounded-lg font-bold uppercase tracking-widest text-[10px]">Attendance</TabsTrigger>
+                            </TabsList>
 
-                            <Card className="col-span-3">
-                                <CardHeader>
-                                    <CardTitle>Class Composition</CardTitle>
-                                    <CardDescription>Ratio of student performance levels</CardDescription>
-                                </CardHeader>
-                                <CardContent>
-                                    <div className="h-[300px] w-full">
-                                        <ResponsiveContainer width="100%" height="100%">
-                                            <PieChart>
-                                                <Pie
-                                                    data={statusDistribution}
-                                                    cx="50%"
-                                                    cy="50%"
-                                                    innerRadius={60}
-                                                    outerRadius={80}
-                                                    paddingAngle={5}
-                                                    dataKey="value"
-                                                >
-                                                    {statusDistribution.map((entry, index) => (
-                                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                                    ))}
-                                                </Pie>
-                                                <Tooltip />
-                                                <Legend />
-                                            </PieChart>
-                                        </ResponsiveContainer>
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        </div>
+                            <TabsContent value="overview" className="space-y-6 mt-0">
+                                {/* Charts Section */}
+                                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+                                    <Card className="col-span-4">
+                                        <CardHeader>
+                                            <CardTitle>Performance Distribution</CardTitle>
+                                            <CardDescription>Student classification based on completion & scores</CardDescription>
+                                        </CardHeader>
+                                        <CardContent className="pl-2">
+                                            <div className="h-[300px] w-full">
+                                                <ResponsiveContainer width="100%" height="100%">
+                                                    <BarChart data={statusDistribution}>
+                                                        <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                                                        <XAxis dataKey="name" tickLine={false} axisLine={false} />
+                                                        <YAxis tickLine={false} axisLine={false} />
+                                                        <Tooltip cursor={{ fill: 'transparent' }} contentStyle={{ borderRadius: '8px' }} />
+                                                        <Bar dataKey="value" fill="#3b82f6" radius={[4, 4, 0, 0]} barSize={50}>
+                                                            {statusDistribution.map((entry, index) => (
+                                                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                                            ))}
+                                                        </Bar>
+                                                    </BarChart>
+                                                </ResponsiveContainer>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
 
-                        <Card>
-                            <CardHeader className="flex flex-row items-center justify-between">
-                                <div>
-                                    <CardTitle>Student Progress Report</CardTitle>
-                                    <CardDescription>Detailed list of all students in {selectedSubject}</CardDescription>
+                                    <Card className="col-span-3">
+                                        <CardHeader>
+                                            <CardTitle>Class Composition</CardTitle>
+                                            <CardDescription>Ratio of student performance levels</CardDescription>
+                                        </CardHeader>
+                                        <CardContent>
+                                            <div className="h-[300px] w-full">
+                                                <ResponsiveContainer width="100%" height="100%">
+                                                    <PieChart>
+                                                        <Pie
+                                                            data={statusDistribution}
+                                                            cx="50%"
+                                                            cy="50%"
+                                                            innerRadius={60}
+                                                            outerRadius={80}
+                                                            paddingAngle={5}
+                                                            dataKey="value"
+                                                        >
+                                                            {statusDistribution.map((entry, index) => (
+                                                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                                            ))}
+                                                        </Pie>
+                                                        <Tooltip />
+                                                        <Legend />
+                                                    </PieChart>
+                                                </ResponsiveContainer>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
                                 </div>
-                            </CardHeader>
-                            <CardContent>
-                                <StudentTable data={filteredData} onViewStudent={handleViewStudent} />
-                            </CardContent>
-                        </Card>
+                            </TabsContent>
+
+                            <TabsContent value="students" className="mt-0">
+                                <Card>
+                                    <CardHeader className="flex flex-row items-center justify-between">
+                                        <div>
+                                            <CardTitle>Student Progress Report</CardTitle>
+                                            <CardDescription>Detailed list of all students in {selectedSubject}</CardDescription>
+                                        </div>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <StudentTable data={filteredData} onViewStudent={handleViewStudent} />
+                                    </CardContent>
+                                </Card>
+                            </TabsContent>
+
+                            <TabsContent value="attendance" className="mt-0">
+                                <AttendanceTab />
+                            </TabsContent>
+                        </Tabs>
 
                         {/* Detail Dialog */}
                         <Dialog open={!!selectedStudent} onOpenChange={(open: boolean) => !open && setSelectedStudent(null)}>

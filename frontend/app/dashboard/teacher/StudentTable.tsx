@@ -77,27 +77,27 @@ export function StudentTable({ data, onViewStudent }: StudentTableProps) {
                     <TableBody>
                         {sortedData.length > 0 ? (
                             sortedData.map((student) => (
-                                <TableRow key={student.id}>
-                                    <TableCell className="font-mono">{student.rollNo}</TableCell>
-                                    <TableCell className="font-medium">{student.name}</TableCell>
+                                <TableRow key={student.id || student._id}>
+                                    <TableCell className="font-mono">{student.rollNo || 'N/A'}</TableCell>
+                                    <TableCell className="font-medium">{student.name || student.fullName || 'Unknown'}</TableCell>
                                     <TableCell className="text-center">
                                         <div className="flex items-center justify-center gap-2">
-                                            <span className={student.practicalsCompleted / student.practicalsAssigned < 0.4 ? "text-red-600 font-bold" : ""}>
-                                                {Math.round((student.practicalsCompleted / student.practicalsAssigned) * 100)}%
+                                            <span className={(student.practicalsCompleted || 0) / (student.practicalsAssigned || 1) < 0.4 ? "text-red-600 font-bold" : ""}>
+                                                {Math.round(((student.practicalsCompleted || 0) / (student.practicalsAssigned || 1)) * 100)}%
                                             </span>
                                             <div className="w-16 h-2 bg-gray-100 rounded-full overflow-hidden">
                                                 <div
                                                     className={`h-full ${student.status === 'Weak' ? 'bg-red-500' : 'bg-blue-500'}`}
-                                                    style={{ width: `${(student.practicalsCompleted / student.practicalsAssigned) * 100}%` }}
+                                                    style={{ width: `${((student.practicalsCompleted || 0) / (student.practicalsAssigned || 1)) * 100}%` }}
                                                 />
                                             </div>
                                         </div>
                                     </TableCell>
-                                    <TableCell className="text-center font-bold text-gray-700">{student.quizScoreAvg}%</TableCell>
-                                    <TableCell className="text-center text-muted-foreground">{student.avgAttempts.toFixed(1)}</TableCell>
+                                    <TableCell className="text-center font-bold text-gray-700">{(student.quizScoreAvg || 0)}%</TableCell>
+                                    <TableCell className="text-center text-muted-foreground">{(student.avgAttempts || 0).toFixed(1)}</TableCell>
                                     <TableCell className="text-center">
-                                        <Badge variant="secondary" className={STATUS_PY[student.status]}>
-                                            {student.status}
+                                        <Badge variant="secondary" className={STATUS_PY[student.status || 'Average']}>
+                                            {student.status || 'Average'}
                                         </Badge>
                                     </TableCell>
                                     <TableCell className="text-right">

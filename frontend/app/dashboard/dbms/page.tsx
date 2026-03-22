@@ -12,22 +12,25 @@ import { Progress } from "@/components/ui/progress";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { generateCertificate } from "@/lib/certificate";
-import { getStudentName, getSubjectProgress, isSubjectCompleted, getSubjectCompletionRate } from "@/lib/progress-utils";
+import { getStudentName, getStudentRollNo, getSubjectProgress, isSubjectCompleted, getSubjectCompletionRate } from "@/lib/progress-utils";
 import { Lock } from "lucide-react";
 
 export default function DBMSPage() {
     const labs = useMemo(() => getLabsBySubject("DBMS"), []);
     const [studentNameStr, setStudentNameStr] = useState("");
+    const [studentRollStr, setStudentRollStr] = useState("");
     const [progress, setProgress] = useState<{ [key: string]: number }>({});
     const [overallCompletion, setOverallCompletion] = useState(0);
     const [isFullyCompleted, setIsFullyCompleted] = useState(false);
 
     useEffect(() => {
         const studentName = getStudentName();
+        const studentRoll = getStudentRollNo();
         const subjectProgress = getSubjectProgress("dbms");
         const labIds = labs.map(p => p.id);
 
         setStudentNameStr(studentName);
+        setStudentRollStr(studentRoll);
         setProgress(subjectProgress);
         setOverallCompletion(getSubjectCompletionRate("dbms", labIds));
         setIsFullyCompleted(isSubjectCompleted("dbms", labIds));
@@ -38,7 +41,24 @@ export default function DBMSPage() {
             alert("Student name is missing. Please log out and enter your name during login to generate the certificate.");
             return;
         }
-        await generateCertificate(studentNameStr, "Database Management System", true);
+        await generateCertificate(studentNameStr, "Database Management System", true, studentRollStr);
+    };
+
+    const logLabAttendance = async (labId: string) => {
+        try {
+            const token = localStorage.getItem('vlab_token') || localStorage.getItem('token');
+            const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
+            await fetch(`${baseUrl}/api/attendance/log-lab`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ subject: "DBMS", labId })
+            });
+        } catch (error) {
+            console.error("Error logging lab attendance:", error);
+        }
     };
 
     return (
@@ -53,7 +73,10 @@ export default function DBMSPage() {
                     <div className="h-4 w-[2px] bg-black/10"></div>
                     <span className="text-sm font-bold uppercase tracking-wider text-gray-400">Department</span>
                     <ChevronRight className="h-4 w-4 text-gray-300" />
-                    <h1 className="text-lg font-bold uppercase tracking-tight">Database Management</h1>
+                    <div className="flex-1">
+                        <h1 className="text-lg font-bold uppercase tracking-tight leading-tight">{studentNameStr || "Student Name"}</h1>
+                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">{studentRollStr || "Roll Number Not Set"}</p>
+                    </div>
                 </div>
             </header>
 
@@ -168,10 +191,13 @@ export default function DBMSPage() {
 
                                 <div className="flex items-center gap-3 shrink-0">
                                     <Link href={`/dashboard/dbms/${p.id}`} className="w-full md:w-auto">
-                                        <Button className={`w-full md:w-auto h-12 px-8 rounded-lg border-2 ${isCompleted
-                                            ? 'border-green-600 text-green-700 hover:bg-green-600 hover:text-white'
-                                            : 'border-black bg-transparent text-black hover:bg-black hover:text-white'
-                                            } uppercase font-bold tracking-wider transition-all whitespace-nowrap`}>
+                                        <Button 
+                                            onClick={() => logLabAttendance(p.id)}
+                                            className={`w-full md:w-auto h-12 px-8 rounded-lg border-2 ${isCompleted
+                                                ? 'border-green-600 text-green-700 hover:bg-green-600 hover:text-white'
+                                                : 'border-black bg-transparent text-black hover:bg-black hover:text-white'
+                                                } uppercase font-bold tracking-wider transition-all whitespace-nowrap`}
+                                        >
                                             {isCompleted ? "Review Lab" : "Start Lab"} <PlayCircle className="ml-2 h-4 w-4" />
                                         </Button>
                                     </Link>

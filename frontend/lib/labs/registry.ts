@@ -2,7 +2,7 @@ import React from "react";
 import dynamic from "next/dynamic";
 
 // Define strict types for the registry
-export type LabSubject = "DBMS" | "CN" | "OOPS" | "DLD" | "MPMC";
+export type LabSubject = "DBMS" | "CN" | "OOPS" | "DLD" | "MPMC" | "C" | "DSA" | "DAA";
 export type LabType = "learning" | "experimental";
 export type LabDifficulty = "Easy" | "Medium" | "Hard";
 
@@ -25,6 +25,54 @@ export interface LabManifest {
 
 // Unified Registry Data
 const Labs: LabManifest[] = [
+    // --- C Programming Labs ---
+    {
+        id: "c-exp-1",
+        subject: "C",
+        type: "experimental",
+        metadata: {
+            title: "Sum of Natural Numbers",
+            description: "Calculate the sum of first N natural numbers using a loop.",
+            difficulty: "Easy",
+            thumbnailUrl: "💻"
+        }
+    },
+    {
+        id: "c-exp-2",
+        subject: "C",
+        type: "experimental",
+        metadata: {
+            title: "Factorial of a Number",
+            description: "Recursive implementation of factorial calculation.",
+            difficulty: "Easy",
+            thumbnailUrl: "💻"
+        }
+    },
+
+    // --- DSA Labs ---
+    {
+        id: "dsa-exp-1",
+        subject: "DSA",
+        type: "experimental",
+        metadata: {
+            title: "Binary Search Implementation",
+            description: "Efficient searching in a sorted array using binary search.",
+            difficulty: "Medium",
+            thumbnailUrl: "📊"
+        }
+    },
+    {
+        id: "dsa-exp-2",
+        subject: "DSA",
+        type: "experimental",
+        metadata: {
+            title: "Reverse an Array",
+            description: "Algorithm to reverse elements of an array in-place.",
+            difficulty: "Easy",
+            thumbnailUrl: "📊"
+        }
+    },
+
     // --- DBMS Labs ---
     {
         id: "dbms-exp-1",
@@ -395,6 +443,20 @@ const Labs: LabManifest[] = [
             description: "Character encoding and data conversion.",
             difficulty: "Medium",
             thumbnailUrl: "📟"
+        }
+    },
+
+    // --- DAA Labs ---
+    {
+        id: "daa-exp-1",
+        subject: "DAA",
+        type: "experimental",
+        metadata: {
+            title: "Insertion Sort Time Complexity",
+            description: "Analyze the time complexity of Insertion Sort with different input sizes.",
+            difficulty: "Medium",
+            estimatedTime: "45 min",
+            thumbnailUrl: "📊"
         }
     }
 ];

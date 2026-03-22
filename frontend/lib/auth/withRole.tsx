@@ -2,9 +2,20 @@
 import React from "react";
 import { Role } from "./roles";
 
-// Mocking useAuth for now. Replace with actual auth hook later.
 const useAuth = () => {
-    return { role: "STUDENT" as Role };
+    if (typeof window === "undefined") return { role: "STUDENT" as Role, user: null };
+    
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+        try {
+            const user = JSON.parse(storedUser);
+            const role = user.role?.toUpperCase() as Role || "STUDENT";
+            return { role, user };
+        } catch (e) {
+            console.error("Failed to parse user from localStorage", e);
+        }
+    }
+    return { role: "STUDENT" as Role, user: null };
 };
 
 interface WithRoleProps {

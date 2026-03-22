@@ -1,8 +1,8 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { Menu, X, Command, ChevronRight, Moon, Sun } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { Menu, X, Command, ChevronRight, Moon, Sun, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -10,7 +10,9 @@ export function Navbar() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
     const [isDarkMode, setIsDarkMode] = useState(false);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
     const pathname = usePathname();
+    const router = useRouter();
 
     useEffect(() => {
         const handleScroll = () => {
@@ -22,12 +24,38 @@ export function Navbar() {
             setIsDarkMode(true);
         }
 
+        // Check if user is logged in
+        setIsLoggedIn(!!localStorage.getItem('vlab_token'));
+
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
 
     const toggleDarkMode = () => {
         setIsDarkMode(!isDarkMode);
         document.documentElement.classList.toggle('dark');
+    };
+
+    const handleLogout = async () => {
+        try {
+            const token = localStorage.getItem('vlab_token');
+            await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL}/api/attendance/logout`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
+            console.log('[LOGOUT] attendance recorded');
+        } catch (err) {
+            console.error('[LOGOUT] attendance API failed:', err);
+        } finally {
+            localStorage.removeItem('vlab_token');
+            localStorage.removeItem('vlab_user');
+            router.push('/login');
+        }
     };
 
     const navLinks = [
@@ -96,16 +124,28 @@ export function Navbar() {
                         {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
                     </button>
 
-                    <Link href="/login" className="text-sm font-bold uppercase tracking-widest text-slate-700 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors py-2 group relative">
-                        Log In
-                        <span className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left" />
-                    </Link>
-
-                    <Link href="/register">
-                        <Button className="h-10 px-6 rounded-full font-bold uppercase tracking-widest text-[11px] btn-gradient btn-interaction">
-                            Get Started
+                    {isLoggedIn && pathname !== "/" ? (
+                        <Button
+                            variant="ghost"
+                            onClick={handleLogout}
+                            className="flex items-center gap-2 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 font-bold uppercase tracking-widest text-[11px] h-10 px-5 rounded-full"
+                        >
+                            <LogOut size={15} />
+                            Logout
                         </Button>
-                    </Link>
+                    ) : (
+                        <>
+                            <Link href="/login" className="text-sm font-bold uppercase tracking-widest text-slate-700 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors py-2 group relative">
+                                Log In
+                                <span className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left" />
+                            </Link>
+                            <Link href="/student-auth">
+                                <Button className="h-10 px-6 rounded-full font-bold uppercase tracking-widest text-[11px] btn-gradient btn-interaction">
+                                    Register
+                                </Button>
+                            </Link>
+                        </>
+                    )}
                 </div>
 
                 {/* Mobile Menu Toggle */}
@@ -143,18 +183,29 @@ export function Navbar() {
                             </Link>
                         ))}
                         <div className="h-px bg-slate-100 dark:bg-slate-800 my-6" />
-                        <div className="grid grid-cols-2 gap-4">
-                            <Link href="/login" onClick={() => setIsMobileMenuOpen(false)}>
-                                <Button variant="outline" className="w-full h-14 rounded-2xl font-bold uppercase tracking-widest dark:border-slate-700">
-                                    Log In
-                                </Button>
-                            </Link>
-                            <Link href="/register" onClick={() => setIsMobileMenuOpen(false)}>
-                                <Button className="w-full h-14 rounded-2xl font-bold uppercase tracking-widest btn-gradient btn-interaction">
-                                    Register
-                                </Button>
-                            </Link>
-                        </div>
+                        {isLoggedIn && pathname !== "/" ? (
+                            <Button
+                                variant="outline"
+                                onClick={() => { setIsMobileMenuOpen(false); handleLogout(); }}
+                                className="w-full h-14 rounded-2xl font-bold uppercase tracking-widest text-red-600 border-red-200 hover:bg-red-50 flex items-center justify-center gap-2"
+                            >
+                                <LogOut size={18} />
+                                Logout
+                            </Button>
+                        ) : (
+                            <div className="grid grid-cols-2 gap-4">
+                                <Link href="/login" onClick={() => setIsMobileMenuOpen(false)}>
+                                    <Button variant="outline" className="w-full h-14 rounded-2xl font-bold uppercase tracking-widest dark:border-slate-700">
+                                        Log In
+                                    </Button>
+                                </Link>
+                                <Link href="/student-auth" onClick={() => setIsMobileMenuOpen(false)}>
+                                    <Button className="w-full h-14 rounded-2xl font-bold uppercase tracking-widest btn-gradient btn-interaction">
+                                        Register
+                                    </Button>
+                                </Link>
+                            </div>
+                        )}
                     </nav>
                 </div>
             )}

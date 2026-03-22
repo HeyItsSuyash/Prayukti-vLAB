@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
@@ -9,17 +9,35 @@ import { Label } from "@/components/ui/label";
 import { Loader2, Mail, User, Lock, ArrowRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { 
+    Select, 
+    SelectContent, 
+    SelectItem, 
+    SelectTrigger, 
+    SelectValue 
+} from "@/components/ui/select";
 import axios from "axios";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
 
 export default function RegisterPage() {
     const [fullName, setFullName] = useState("");
+    const [rollNo, setRollNo] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [enrollmentNo, setEnrollmentNo] = useState("");
+    const [rollNo, setRollNo] = useState("");
+    const [branch, setBranch] = useState("");
+    const [year, setYear] = useState(1);
+    const [semester, setSemester] = useState(1);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
+    const [isMounted, setIsMounted] = useState(false);
     const router = useRouter();
+
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
 
     const handleRegister = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -35,8 +53,15 @@ export default function RegisterPage() {
         try {
             await axios.post(`${API_URL}/api/auth/register`, {
                 fullName,
+                rollNo,
                 email,
-                password
+                password,
+                enrollmentNo,
+                rollNo,
+                branch,
+                year,
+                semester,
+                role: 'student'
             });
 
             // Success - store email for verification flow
@@ -48,6 +73,8 @@ export default function RegisterPage() {
             setLoading(false);
         }
     };
+
+    if (!isMounted) return null;
 
     return (
         <div className="flex flex-col min-h-screen bg-slate-50 font-sans selection:bg-orange-100">
@@ -85,6 +112,21 @@ export default function RegisterPage() {
                         </div>
 
                         <div className="space-y-2">
+                            <Label htmlFor="rollNo" className="text-xs font-black uppercase tracking-widest text-slate-400">University Roll Number</Label>
+                            <div className="relative">
+                                <Input
+                                    id="rollNo"
+                                    placeholder="Enter your university roll no."
+                                    className="h-14 pl-12 rounded-xl bg-slate-50 border-transparent focus:border-orange-500 focus:bg-white transition-all font-medium"
+                                    value={rollNo}
+                                    onChange={(e) => setRollNo(e.target.value)}
+                                    required
+                                />
+                                <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+                            </div>
+                        </div>
+
+                        <div className="space-y-2">
                             <Label htmlFor="email" className="text-xs font-black uppercase tracking-widest text-slate-400">University Email</Label>
                             <div className="relative">
                                 <Input
@@ -102,7 +144,7 @@ export default function RegisterPage() {
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="password" className="text-xs font-black uppercase tracking-widest text-slate-400">Password</Label>
+                            <Label htmlFor="password" university-selectable="true" className="text-xs font-black uppercase tracking-widest text-slate-400">Password</Label>
                             <div className="relative">
                                 <Input
                                     id="password"
@@ -114,6 +156,70 @@ export default function RegisterPage() {
                                     required
                                 />
                                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label className="text-xs font-black uppercase tracking-widest text-slate-400">Enrollment No</Label>
+                                <Input
+                                    placeholder="2024CSE001"
+                                    value={enrollmentNo}
+                                    onChange={e => setEnrollmentNo(e.target.value)}
+                                    required
+                                    className="h-14 rounded-xl bg-slate-50 border-transparent focus:border-orange-500 focus:bg-white transition-all font-medium"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label className="text-xs font-black uppercase tracking-widest text-slate-400">Roll No</Label>
+                                <Input
+                                    placeholder="240101001"
+                                    value={rollNo}
+                                    onChange={e => setRollNo(e.target.value)}
+                                    required
+                                    className="h-14 rounded-xl bg-slate-50 border-transparent focus:border-orange-500 focus:bg-white transition-all font-medium"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label className="text-xs font-black uppercase tracking-widest text-slate-400">Branch</Label>
+                            <Select onValueChange={v => setBranch(v)}>
+                                <SelectTrigger className="h-14 rounded-xl bg-slate-50 border-transparent focus:border-orange-500 focus:bg-white transition-all font-medium">
+                                    <SelectValue placeholder="Select Branch" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="CSE">Computer Science & Eng.</SelectItem>
+                                    <SelectItem value="IT">Information Technology</SelectItem>
+                                    <SelectItem value="ECE">Electronics & Comm. Eng.</SelectItem>
+                                    <SelectItem value="EE">Electrical Eng.</SelectItem>
+                                    <SelectItem value="ME">Mechanical Eng.</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label className="text-xs font-black uppercase tracking-widest text-slate-400">Year</Label>
+                                <Select onValueChange={v => setYear(parseInt(v))}>
+                                    <SelectTrigger className="h-14 rounded-xl bg-slate-50 border-transparent focus:border-orange-500 focus:bg-white transition-all font-medium">
+                                        <SelectValue placeholder="Year" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {[1,2,3,4].map(y => <SelectItem key={y} value={y.toString()}>{y}st Year</SelectItem>)}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="space-y-2">
+                                <Label className="text-xs font-black uppercase tracking-widest text-slate-400">Semester</Label>
+                                <Select onValueChange={v => setSemester(parseInt(v))}>
+                                    <SelectTrigger className="h-14 rounded-xl bg-slate-50 border-transparent focus:border-orange-500 focus:bg-white transition-all font-medium">
+                                        <SelectValue placeholder="Sem" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {[1,2,3,4,5,6,7,8].map(s => <SelectItem key={s} value={s.toString()}>Sem {s}</SelectItem>)}
+                                    </SelectContent>
+                                </Select>
                             </div>
                         </div>
 

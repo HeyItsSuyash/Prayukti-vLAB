@@ -1,0 +1,2 @@
+[2026-03-16T18:46:02.080Z] onLogout for logId: 69b84fe8fa58aed946cd4da1, student_id: 699d3bca687d95a3617e1540
+[2026-03-16T18:46:02.419Z] Update result for 69b84fe8fa58aed946cd4da1: {"acknowledged":true,"modifiedCount":1,"upsertedId":null,"upsertedCount":0,"matchedCount":1}

@@ -28,6 +28,10 @@ const OOPSCompiler = dynamic(() => import("@/components/simulation/oops/OOPSComp
     ssr: false,
     loading: () => <LoadingSpinner />
 });
+const DAACompiler = dynamic(() => import("@/components/simulation/daa/DAACompiler"), {
+    ssr: false,
+    loading: () => <LoadingSpinner />
+});
 const BasicOperationsSimulation = dynamic(() => import("@/components/simulation/dbms/BasicOperationsSimulation"), {
     ssr: false,
     loading: () => <LoadingSpinner />
@@ -49,6 +53,11 @@ const HostLanguageSimulation = dynamic(() => import("@/components/simulation/dbm
     loading: () => <LoadingSpinner />
 });
 const MPMCSimulator = dynamic(() => import("@/components/simulation/mpmc/MPMCSimulator"), {
+    ssr: false,
+    loading: () => <LoadingSpinner />
+});
+
+const CodeCompiler = dynamic(() => import("@/components/simulation/core/CodeCompiler"), {
     ssr: false,
     loading: () => <LoadingSpinner />
 });
@@ -86,6 +95,9 @@ const COMPONENT_MAP: Record<string, React.ComponentType<any>> = {
     "oops-exp-3": OOPSCompiler,
     "oops-exp-4": OOPSCompiler,
 
+    // DAA
+    "daa-exp-1": DAACompiler,
+
     // DBMS
     "dbms-exp-1": BasicOperationsSimulation,
     "dbms-exp-2": ApplicationDevelopmentSimulation,
@@ -102,6 +114,14 @@ const COMPONENT_MAP: Record<string, React.ComponentType<any>> = {
     "mpmc-exp-6": MPMCSimulator,
     "mpmc-exp-7": MPMCSimulator,
     "mpmc-exp-8": MPMCSimulator,
+
+    // C Programming & DSA (Fallback to CodeCompiler for coding experiments)
+    "c-exp-1": CodeCompiler,
+    "c-exp-2": CodeCompiler,
+    "c-exp-3": CodeCompiler,
+    "dsa-exp-1": CodeCompiler,
+    "dsa-exp-2": CodeCompiler,
+    "dsa-exp-3": CodeCompiler,
 };
 
 export default function SimulationRenderer({ labId }: { labId: string }) {
@@ -116,6 +136,12 @@ export default function SimulationRenderer({ labId }: { labId: string }) {
         else if (lowerId.startsWith('mpmc')) Component = COMPONENT_MAP['mpmc-exp-1'];
         else Component = COMPONENT_MAP['dld-exp-1']; // Default to DLD circuit builder
     }
+export default function SimulationRenderer({ labId, initialCode, language }: {
+    labId: string,
+    initialCode?: string,
+    language?: string
+}) {
+    const Component = COMPONENT_MAP[labId] || CodeCompiler; // Fallback to compiler if not explicitly mapped
 
     if (!Component) {
         return (
@@ -127,5 +153,5 @@ export default function SimulationRenderer({ labId }: { labId: string }) {
 
     // Pass labId to the component. Some older components might ignore it, 
     // but newer ones like MPMCSimulator expect it.
-    return <Component labId={labId} practicalId={labId} />;
+    return <Component labId={labId} practicalId={labId} initialCode={initialCode} language={language} />;
 }

@@ -1,0 +1,64 @@
+[
+  {
+    "title": "Data Structures and Algorithms",
+    "description": "Master arrays, linked lists, trees, and core algorithms with interactive execution.",
+    "icon": "dsa",
+    "experimentsCount": 0,
+    "subject_id": "BCS-301"
+  },
+  {
+    "title": "Computer Networks",
+    "description": "Explore the architecture of the internet, networking protocols, and OSI models.",
+    "icon": "cn",
+    "slug": "cn",
+    "experimentsCount": 0,
+    "subject_id": "BCS-502"
+  },
+  {
+    "title": "Digital Logic & Design",
+    "description": "Master the fundamentals of digital electronics, logic gates, and circuit design.",
+    "icon": "dld",
+    "slug": "dld",
+    "experimentsCount": 0,
+    "subject_id": "BCS-303"
+  },
+  {
+    "title": "Database Management",
+    "description": "Learn to design, query, and manage relational databases using SQL.",
+    "icon": "dbms",
+    "slug": "dbms",
+    "experimentsCount": 0,
+    "subject_id": "BCS-404"
+  },
+  {
+    "title": "Object Oriented Programming",
+    "description": "Learn the principles of encapsulation, inheritance, polymorphism, and abstraction.",
+    "icon": "oops",
+    "slug": "oops",
+    "experimentsCount": 0,
+    "subject_id": "BCS-405"
+  },
+  {
+    "title": "Microprocessor and Microcontroller",
+    "description": "Study the architecture, programming, and interfacing of 8085/8086 microprocessors.",
+    "icon": "mpmc",
+    "slug": "mpmc",
+    "experimentsCount": 0,
+    "subject_id": "BCS-506"
+  },
+  {
+    "title": "C Programming Lab",
+    "description": "Master the foundations of C programming, memory management, and data types.",
+    "icon": "c",
+    "experimentsCount": 0,
+    "subject_id": "BCS-107"
+  },
+  {
+    "title": "Design and Analysis of Algorithms",
+    "description": "Design and Analysis of Algorithms Virtual Lab",
+    "icon": "FlaskConical",
+    "slug": "daa",
+    "experimentsCount": 0,
+    "subject_id": "BCS-408"
+  }
+]

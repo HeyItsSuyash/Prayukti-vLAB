@@ -1,109 +1,115 @@
 "use client";
 
-import { useState, useMemo, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { Suspense, useState, useEffect, useMemo } from 'react';
+
+// UI Components
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { MOCK_TEACHER_DATA, StudentMetric } from '@/data/mock-teacher-data';
-import { Users, UserPlus, Activity, ShieldCheck, Search, Trash2, Edit, LogOut, Video, LucideIcon } from 'lucide-react';
+import { Users, ShieldCheck, BookOpen, Activity, Search, Shield, UserPlus, ArrowLeft } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+
+// Admin Views
+import { AnalyticsDashboard } from '@/components/admin/AnalyticsDashboard';
+import { TeacherManagement } from '@/components/admin/TeacherManagement';
+import { SubjectManagement } from '@/components/admin/SubjectManagement';
+import { ExperimentManagement } from '@/components/admin/ExperimentManagement';
+import { ResourceManager } from '@/components/admin/ResourceManager';
+import { ActivityLogView } from '@/components/admin/ActivityLogView';
+import { SettingsPanel } from '@/components/admin/SettingsPanel';
+import { EnrollmentForm } from '@/components/admin/EnrollmentForm';
+
+// Current Dashboard (for Overview/Students)
 import { StudentTable } from '../teacher/StudentTable';
-import { AddTeacherDialog, Teacher } from './AddTeacherDialog';
-import { VideoManager } from '@/components/admin/VideoManager';
-import { AddStudentDialog } from '../teacher/AddStudentDialog';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { StudentDetailView } from '../teacher/StudentDetailView';
 
-// --- Admin Stats Component ---
-// import { LucideIcon } from 'lucide-react'; // Removing duplicate, already imported above or better to use named import if needed
-
-// --- Admin Stats Component ---
-interface AdminStatCardProps {
-    title: string;
-    value: string | number;
-    subtext: string;
-    icon: LucideIcon;
-    colorClass: string;
+function QuickLinkButton({ label, icon: Icon, onClick }: { label: string, icon: any, onClick: () => void }) {
+    return (
+        <Button 
+            variant="outline" 
+            onClick={onClick}
+            className="flex flex-col items-center justify-center h-24 rounded-3xl border-slate-100 hover:bg-indigo-50 hover:border-indigo-100 group transition-all"
+        >
+            <div className="p-3 bg-slate-50 group-hover:bg-indigo-100 rounded-2xl mb-2 transition-colors">
+                <Icon size={18} className="text-slate-400 group-hover:text-indigo-600" />
+            </div>
+            <span className="text-[10px] font-black text-slate-500 group-hover:text-indigo-700 uppercase tracking-tighter">{label}</span>
+        </Button>
+    );
 }
 
-const AdminStatCard = ({ title, value, subtext, icon: Icon, colorClass }: AdminStatCardProps) => (
-    <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">{title}</CardTitle>
-            <Icon className={`h-4 w-4 ${colorClass}`} />
-        </CardHeader>
-        <CardContent>
-            <div className="text-2xl font-bold">{value}</div>
-            <p className="text-xs text-muted-foreground">{subtext}</p>
-        </CardContent>
-    </Card>
-);
+function StatCard({ title, value, subtext, icon: Icon, color }: any) {
+    return (
+        <Card className="rounded-[2.5rem] border-none shadow-2xl shadow-slate-100/50 hover:scale-[1.02] transition-all bg-white overflow-hidden group border-b-4 border-transparent hover:border-indigo-600/20">
+            <CardContent className="p-8">
+                <div className="flex justify-between items-start mb-6">
+                    <div className="p-4 bg-slate-50 rounded-[1.5rem] group-hover:bg-indigo-50 transition-colors">
+                        <Icon size={24} className={color} />
+                    </div>
+                </div>
+                <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">{title}</h3>
+                <div className="text-4xl font-black text-slate-900 tracking-tighter mb-1">{value}</div>
+                {subtext && <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest italic">{subtext}</p>}
+            </CardContent>
+        </Card>
+    );
+}
 
-export default function AdminDashboard() {
+function AdminContent() {
+    const searchParams = useSearchParams();
     const router = useRouter();
-    const [data, setData] = useState<StudentMetric[]>([]);
-    const [teachers, setTeachers] = useState<Teacher[]>([]); // New teacher state
-    const [searchQuery, setSearchQuery] = useState("");
-    const [isAddStudentOpen, setIsAddStudentOpen] = useState(false);
-    const [isAddTeacherOpen, setIsAddTeacherOpen] = useState(false); // New dialog state
-    const [isVideoManagerOpen, setIsVideoManagerOpen] = useState(false); // New video manager state
-    const [selectedStudent, setSelectedStudent] = useState<StudentMetric | null>(null);
-    const [isClient, setIsClient] = useState(false);
+    const currentView = searchParams.get('view') || 'overview';
+    
+    const [data, setData] = useState<any[]>([]);
+    const [teachers, setTeachers] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [selectedStudent, setSelectedStudent] = useState<any | null>(null);
 
-    const fetchUsers = async () => {
+    const fetchData = async () => {
+        setLoading(true);
         try {
-            const res = await fetch("http://localhost:5000/api/users");
+            const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
+            const res = await fetch(`${baseUrl}/api/users`);
+            const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+            const token = localStorage.getItem('vlab_token');
+            const res = await fetch(`${baseUrl}/api/users`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            
             if (!res.ok) throw new Error("Failed to fetch users");
             const allUsers = await res.json();
 
-            // Separate students and teachers
             const fetchedStudents = allUsers
-                .filter((u: any) => u.role === 'student')
+                .filter((u: any) => u.role === 'student' || u.role === undefined)
                 .map((u: any) => ({
                     id: u._id,
                     name: u.fullName,
+                    rollNo: u.rollNo || "N/A",
                     email: u.email,
-                    rollNo: u.rollNo || "N/A", // Roll number might not exist in backend schema
-                    subject: u.subject || "Computer Networks",
+                    branch: u.branch || "N/A",
+                    semester: u.semester || "N/A",
                     practicalsAssigned: 10,
-                    practicalsCompleted: 0,
-                    quizScoreAvg: 0,
-                    avgAttempts: 0,
-                    totalTimeSpent: 0,
-                    lastActive: u.createdAt || new Date().toISOString(),
-                    status: 'Average' as const,
-                    quizTrend: [],
-                    completedPracticals: [],
-                    weakAreas: []
+                    practicalsCompleted: 2,
+                    quizScoreAvg: 75,
+                    avgAttempts: 1.2,
+                    status: 'Good'
                 }));
-
-            const fetchedTeachers = allUsers
-                .filter((u: any) => u.role === 'teacher')
-                .map((u: any) => ({
-                    id: u._id,
-                    name: u.fullName,
-                    email: u.email,
-                    employeeId: u.employeeId || "N/A",
-                    subject: u.subject || "Computer Networks",
-                    status: 'Active',
-                    joinedDate: u.createdAt || new Date().toISOString()
-                }));
-
+            
+            const fetchedTeachers = allUsers.filter((u: any) => u.role === 'teacher' || u.role === 'admin');
+                
             setData(fetchedStudents);
             setTeachers(fetchedTeachers);
         } catch (error) {
-            console.error("Error fetching users:", error);
-            // Fallback to empty if API fails
-            setData([]);
-            setTeachers([]);
+            console.error("Error fetching admin data:", error);
         } finally {
-            setIsClient(true);
+            setLoading(false);
         }
     };
 
-    // Fetch data on mount
     useEffect(() => {
-        fetchUsers();
+        fetchData();
     }, []);
 
     // We no longer sync automatically to localStorage unless we specifically want a cache
@@ -125,18 +131,23 @@ export default function AdminDashboard() {
     const handleDeleteStudent = async (id: string, name: string) => {
         if (confirm(`Are you sure you want to delete ${name}? This action cannot be undone.`)) {
             try {
-                const res = await fetch(`http://localhost:5000/api/users/${id}`, {
+                const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
+                const res = await fetch(`${baseUrl}/api/users/${id}`, {
                     method: 'DELETE'
+    const handleLogout = async () => {
+        try {
+            const token = localStorage.getItem('vlab_token');
+            if (token) {
+                await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/attendance/logout`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
                 });
-                if (!res.ok) throw new Error("Failed to delete user");
-
-                // Update UI on success
-                const updatedData = data.filter(s => s.id !== id);
-                setData(updatedData);
-            } catch (err: any) {
-                console.error("Error deleting student:", err);
-                alert("Failed to delete student: " + err.message);
             }
+        } catch (err) {
+            console.error("Logout log failed:", err);
         }
     };
 
@@ -144,158 +155,138 @@ export default function AdminDashboard() {
         setSelectedStudent(student);
     };
 
-    const handleLogout = () => {
+    const handleLogout = async () => {
+        try {
+            const token = localStorage.getItem('vlab_token');
+            if (token) {
+                await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/attendance/logout`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+            }
+        } catch (err) {
+            console.error("Logout log failed:", err);
+        }
         localStorage.removeItem('vlab_user');
         localStorage.removeItem('vlab_token');
         router.push('/login');
     };
 
-    // ... (keep filtering logic)
-    const filteredData = useMemo(() => {
-        return data.filter(s =>
-            s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            s.rollNo.includes(searchQuery) ||
-            s.email.includes(searchQuery)
-        );
-    }, [data, searchQuery]);
+    const renderView = () => {
+        if (selectedStudent && (currentView === 'overview' || currentView === 'students')) {
+            return (
+                <div className="space-y-6 animate-in fade-in duration-500">
+                    <Button variant="ghost" onClick={() => setSelectedStudent(null)} className="mb-4">
+                        <ArrowLeft className="mr-2 h-4 w-4" /> Back to List
+                    </Button>
+                    <StudentDetailView student={selectedStudent} />
+                </div>
+            );
+        }
 
-    const activeStudents = data.filter(s => s.practicalsCompleted > 0).length;
-
-    return (
-        <div className="min-h-screen bg-gray-50 font-sans">
-            {!isClient && <div className="absolute inset-0 flex items-center justify-center bg-gray-50 z-50">Loading Admin Console...</div>}
-
-            {isClient && (
-                <>
-                    <header className="bg-white border-b sticky top-0 z-30 px-6 py-4 flex items-center justify-between shadow-sm">
-                        <div>
-                            <h1 className="text-2xl font-bold tracking-tight text-gray-900">Admin Console</h1>
-                            <p className="text-sm text-muted-foreground">System-wide user management</p>
-                        </div>
-                        <div className="flex items-center gap-4">
-                            <div className="relative w-[300px] hidden md:block">
-                                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                                <Input
-                                    type="search"
-                                    placeholder="Search by Name, Roll No or Email..."
-                                    className="pl-8 bg-gray-100 border-none"
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                />
+        switch (currentView) {
+            case 'overview':
+                return (
+                    <div className="space-y-8 animate-in fade-in duration-700">
+                        <div className="flex justify-between items-center mb-2">
+                            <div>
+                                <h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase italic">Control Center</h1>
+                                <p className="text-slate-500 text-sm font-medium">Core system management and analytical overview.</p>
                             </div>
-                            <div className="flex gap-2">
-                                <Button onClick={() => setIsVideoManagerOpen(true)} variant="outline" className="border-slate-300">
-                                    <Video className="mr-2 h-4 w-4" /> Manage Videos
-                                </Button>
-                                <Button onClick={() => setIsAddTeacherOpen(true)} variant="outline" className="border-slate-300">
-                                    <UserPlus className="mr-2 h-4 w-4" /> Add Teacher
-                                </Button>
-                                <Button onClick={() => setIsAddStudentOpen(true)} className="bg-slate-900 hover:bg-slate-800 text-white">
-                                    <UserPlus className="mr-2 h-4 w-4" /> Add Student
-                                </Button>
+                            <Button variant="outline" className="rounded-2xl border-slate-200" onClick={handleLogout}>Logout</Button>
+                        </div>
+
+                        <div className="grid gap-6 md:grid-cols-4">
+                            <StatCard title="Total Students" value={data.length} subtext="Enrolled successfully" icon={Users} color="text-indigo-600" />
+                            <StatCard title="Total Staff" value={teachers.length} subtext="Active administration" icon={ShieldCheck} color="text-emerald-500" />
+                            <StatCard title="Active Session" value="ENABLED" subtext="System online" icon={Activity} color="text-amber-500" />
+                            <StatCard title="Security" value="SAFE" subtext="Mock Auth Active" icon={Shield} color="text-emerald-600" />
+                        </div>
+
+                        <div className="grid grid-cols-1 lg:grid-cols-10 gap-8">
+                            <div className="lg:col-span-7 space-y-6">
+                                <Card className="rounded-[2.5rem] border-none shadow-2xl shadow-slate-200/50 overflow-hidden bg-white">
+                                    <div className="p-8 pb-4 flex justify-between items-center bg-white border-b border-slate-50">
+                                        <h3 className="text-xl font-black text-slate-900 tracking-tight uppercase">Recent Students</h3>
+                                        <Button variant="link" className="text-indigo-600 font-black text-xs uppercase" onClick={() => router.push('?view=students')}>
+                                            View All
+                                        </Button>
+                                    </div>
+                                    <CardContent className="p-0">
+                                        <StudentTable data={data.slice(0, 5)} onViewStudent={(s) => setSelectedStudent(s)} />
+                                    </CardContent>
+                                </Card>
                             </div>
-                            <div className="h-8 w-[1px] bg-gray-200 mx-2"></div>
-                            <Button variant="ghost" size="icon" onClick={handleLogout} className="text-red-600 hover:text-red-700 hover:bg-red-50" title="Logout">
-                                <LogOut className="h-5 w-5" />
-                            </Button>
+
+                            <div className="lg:col-span-3 space-y-8">
+                                <Card className="rounded-[2.5rem] border-none bg-indigo-600 text-white p-8 shadow-2xl shadow-indigo-200 overflow-hidden relative group">
+                                    <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform">
+                                        <UserPlus size={120} />
+                                    </div>
+                                    <div className="relative z-10 space-y-6">
+                                        <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center">
+                                            <UserPlus size={24} />
+                                        </div>
+                                        <h3 className="text-2xl font-black tracking-tighter">Fast Enrollment</h3>
+                                        <Button 
+                                            onClick={() => router.push('?view=students')}
+                                            className="w-full bg-white text-indigo-600 hover:bg-slate-50 font-black py-6 rounded-2xl uppercase"
+                                        >
+                                            Open Form
+                                        </Button>
+                                    </div>
+                                </Card>
+
+                                <div className="space-y-4">
+                                    <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-4">System Utilities</h4>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <QuickLinkButton label="Videos" icon={Activity} onClick={() => router.push('?view=subjects')} />
+                                        <QuickLinkButton label="Logs" icon={Activity} onClick={() => router.push('?view=logs')} />
+                                        <QuickLinkButton label="Database" icon={Activity} onClick={() => router.push('?view=settings')} />
+                                        <QuickLinkButton label="Stats" icon={Activity} onClick={() => router.push('?view=analytics')} />
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                    </header>
-
-                    <main className="p-6 space-y-6">
-
-                        {/* Admin Stats */}
-                        <div className="grid gap-4 md:grid-cols-4">
-                            <AdminStatCard
-                                title="Total Students"
-                                value={data.length}
-                                subtext="Registered across all years"
-                                icon={Users}
-                                colorClass="text-slate-600"
-                            />
-                            <AdminStatCard
-                                title="Total Teachers"
-                                value={teachers.length + 42}
-                                subtext={`+${teachers.length} recently added`}
-                                icon={ShieldCheck}
-                                colorClass="text-indigo-600"
-                            />
-                            {/* ... (keep other stats) */}
-                            <AdminStatCard
-                                title="Active Students"
-                                value={activeStudents}
-                                subtext="Engaged in last 30 days"
-                                icon={Activity}
-                                colorClass="text-emerald-600"
-                            />
-                            <AdminStatCard
-                                title="System Status"
-                                value="Healthy"
-                                subtext="All services operational"
-                                icon={ShieldCheck}
-                                colorClass="text-green-600"
-                            />
-                        </div>
-
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Global Student Database</CardTitle>
-                                <CardDescription>Manage all registered students.</CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                                <StudentTable data={filteredData} onViewStudent={handleViewStudent} />
+                    </div>
+                );
+            case 'students':
+                return (
+                    <div className="space-y-6 animate-in fade-in duration-500">
+                        <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase">Student Management</h2>
+                        <EnrollmentForm onSuccess={fetchData} />
+                        <Card className="rounded-[2.5rem] border-none shadow-xl overflow-hidden mt-8">
+                            <CardContent className="p-0">
+                                <StudentTable data={data} onViewStudent={(s) => setSelectedStudent(s)} />
                             </CardContent>
                         </Card>
+                    </div>
+                );
+            case 'teachers': return <TeacherManagement />;
+            case 'subjects': return <SubjectManagement />;
+            case 'experiments': return <ExperimentManagement />;
+            case 'resources': return <ResourceManager />;
+            case 'analytics': return <AnalyticsDashboard />;
+            case 'logs': return <ActivityLogView />;
+            case 'settings': return <SettingsPanel />;
+            default: return <div>View not found</div>;
+        }
+    };
 
-                        {/* Dialogs */}
-                        <Dialog open={isVideoManagerOpen} onOpenChange={setIsVideoManagerOpen}>
-                            <DialogContent className="max-w-2xl">
-                                <DialogHeader>
-                                    <DialogTitle>Experiment Video Manager</DialogTitle>
-                                    <DialogDescription>
-                                        Assign YouTube videos to experiments.
-                                    </DialogDescription>
-                                </DialogHeader>
-                                <VideoManager />
-                            </DialogContent>
-                        </Dialog>
-
-                        <AddStudentDialog
-                            open={isAddStudentOpen}
-                            onOpenChange={setIsAddStudentOpen}
-                            onAddStudent={handleAddStudent}
-                        />
-
-                        <AddTeacherDialog
-                            open={isAddTeacherOpen}
-                            onOpenChange={setIsAddTeacherOpen}
-                            onAddTeacher={handleAddTeacher}
-                        />
-
-                        {/* Detail Dialog */}
-                        <Dialog open={!!selectedStudent} onOpenChange={(open: boolean) => !open && setSelectedStudent(null)}>
-                            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-                                <DialogHeader>
-                                    <DialogTitle>Student Analysis (Admin View)</DialogTitle>
-                                    <DialogDescription>Full record for {selectedStudent?.name}</DialogDescription>
-                                </DialogHeader>
-                                {selectedStudent && (
-                                    <div className="space-y-4">
-                                        <div className="flex justify-end">
-                                            <Button variant="destructive" onClick={() => {
-                                                handleDeleteStudent(selectedStudent.id, selectedStudent.name);
-                                                setSelectedStudent(null);
-                                            }}>
-                                                <Trash2 className="mr-2 h-4 w-4" /> Delete Student
-                                            </Button>
-                                        </div>
-                                        <StudentDetailView student={selectedStudent} />
-                                    </div>
-                                )}
-                            </DialogContent>
-                        </Dialog>
-                    </main>
-                </>
-            )}
+    return (
+        <div className="p-8 max-w-[1600px] mx-auto w-full h-full overflow-y-auto">
+            {renderView()}
         </div>
+    );
+}
+
+export default function AdminDashboard() {
+    return (
+        <Suspense fallback={<div className="flex items-center justify-center min-h-screen">Loading Administration...</div>}>
+            <AdminContent />
+        </Suspense>
     );
 }

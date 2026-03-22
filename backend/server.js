@@ -11,10 +11,18 @@ Object.keys(process.env).forEach(key => {
     }
 });
 
+// Fix for local DNS issues with MongoDB Atlas SRV records
+try {
+    const dns = require('dns');
+    dns.setServers(['8.8.8.8', '8.8.4.4']);
+    console.log("DNS Override: Using Google DNS for SRV resolution.");
+} catch (dnsErr) {
+    console.warn("DNS Override failed:", dnsErr.message);
+}
+
 const express = require('express');
 const cors = require('cors');
 const connectDB = require('./config/db');
-const authRoutes = require('./routes/auth');
 
 // Connect to Database
 const startServer = async () => {
@@ -27,6 +35,7 @@ const startServer = async () => {
 
         await connectDB();
 
+        console.log("Starting server (Database connection might be missing)...");
         // Auto-seed test user for deployments
         try {
             const User = require('./models/User');
@@ -35,7 +44,7 @@ const startServer = async () => {
             let testUser = await User.findOne({ email: testEmail });
             if (!testUser) {
                 console.log("Auto-seeding test student for deployment...");
-                const hashedPassword = await bcrypt.hash("password123", 10);
+                const hashedPassword = await bcrypt.hash("test123", 10);
                 testUser = new User({
                     fullName: "Test Student",
                     email: testEmail,
@@ -78,6 +87,13 @@ const startServer = async () => {
         const authRoutes = require('./routes/auth');
         const userRoutes = require('./routes/userRoutes');
         const examRoutes = require('./routes/examRoutes');
+        const subjectRoutes = require('./routes/subjectRoutes');
+        const experimentRoutes = require('./routes/experimentRoutes');
+        const resourceRoutes = require('./routes/resourceRoutes');
+        const logRoutes = require('./routes/logRoutes');
+        const settingRoutes = require('./routes/settingRoutes');
+        const codeRoutes = require('./routes/codeRoutes');
+        const attendanceRoutes = require('./routes/attendance');
 
         // Middleware
         // Improved CORS to handle credentials with dynamic origin
@@ -94,6 +110,15 @@ const startServer = async () => {
         app.use("/api/auth", authRoutes);
         app.use("/api/users", userRoutes);
         app.use("/api/exams", examRoutes);
+        app.use("/api/subjects", subjectRoutes);
+        app.use("/api/experiments", experimentRoutes);
+        app.use("/api/resources", resourceRoutes);
+        app.use("/api/logs", logRoutes);
+        app.use("/api/settings", settingRoutes);
+        app.use("/api/code", codeRoutes);
+        app.use("/api/users", userRoutes);
+        app.use('/api/attendance', require('./routes/attendance'));
+        app.use("/api/attendance", attendanceRoutes);
 
         // Health check
         app.get("/", (req, res) => {

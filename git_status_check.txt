@@ -1,0 +1,182 @@
+On branch Divyanshu
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+	modified:   README.md
+	new file:   backend/check_db.js
+	new file:   backend/check_users.js
+	new file:   backend/config/db.js
+	new file:   backend/controllers/authController.js
+	new file:   backend/controllers/codeController.js
+	new file:   backend/controllers/experimentController.js
+	new file:   backend/controllers/subjectController.js
+	new file:   backend/controllers/userController.js
+	new file:   backend/debug-db.js
+	new file:   backend/debug_login.js
+	new file:   backend/debug_orphans.js
+	new file:   backend/diagnose_judge0.js
+	new file:   backend/exps.json
+	new file:   backend/final_fix.js
+	new file:   backend/get_rs_name.js
+	new file:   backend/init_db.js
+	new file:   backend/models/Experiment.js
+	new file:   backend/models/Subject.js
+	new file:   backend/models/User.js
+	modified:   backend/package.json
+	new file:   backend/reset_test_user.js
+	new file:   backend/resolve_shards.js
+	new file:   backend/resolve_srv.js
+	new file:   backend/routes/auth.js
+	new file:   backend/routes/codeRoutes.js
+	new file:   backend/routes/experimentRoutes.js
+	new file:   backend/routes/subjectRoutes.js
+	new file:   backend/routes/userRoutes.js
+	new file:   backend/scripts/create-test-user.js
+	new file:   backend/server.js
+	new file:   backend/server_log.txt
+	new file:   backend/shard_ips.txt
+	deleted:    backend/src/config/env.ts
+	deleted:    backend/src/domains/labs/lab.routes.ts
+	deleted:    backend/src/domains/users/user.routes.ts
+	deleted:    backend/src/index.ts
+	deleted:    backend/src/models/Circuit.ts
+	deleted:    backend/src/models/User.ts
+	deleted:    backend/src/modules/oopj/compiler/javaRunner.ts
+	deleted:    backend/src/modules/oopj/controller.ts
+	deleted:    backend/src/modules/oopj/model.ts
+	deleted:    backend/src/modules/oopj/routes.ts
+	deleted:    backend/src/modules/oopj/service.ts
+	deleted:    backend/src/routes/auth.ts
+	deleted:    backend/src/routes/circuit.ts
+	new file:   backend/subjects.json
+	new file:   backend/sync_experiments.js
+	new file:   backend/test_complexity.js
+	new file:   backend/test_dataset_gen.js
+	new file:   backend/test_dns_fix.js
+	new file:   backend/test_login_script.js
+	deleted:    backend/tsconfig.json
+	new file:   backend/utils/generateOtp.js
+	new file:   backend/verify_validation.js
+	new file:   build_error_v4.log
+	new file:   dev_error.log
+	new file:   frontend/app/about/page.tsx
+	modified:   frontend/app/api/chat/route.ts
+	new file:   frontend/app/api/videos/route.ts
+	new file:   frontend/app/contact/page.tsx
+	modified:   frontend/app/dashboard/admin/AddTeacherDialog.tsx
+	modified:   frontend/app/dashboard/admin/page.tsx
+	modified:   frontend/app/dashboard/cn/[id]/page.tsx
+	modified:   frontend/app/dashboard/cn/[id]/simulation/page.tsx
+	modified:   frontend/app/dashboard/cn/page.tsx
+	new file:   frontend/app/dashboard/daa/[id]/page.tsx
+	new file:   frontend/app/dashboard/daa/[id]/simulation/page.tsx
+	new file:   frontend/app/dashboard/daa/page.tsx
+	modified:   frontend/app/dashboard/dbms/[id]/page.tsx
+	modified:   frontend/app/dashboard/dbms/[id]/simulation/page.tsx
+	modified:   frontend/app/dashboard/dbms/page.tsx
+	modified:   frontend/app/dashboard/dld/[id]/page.tsx
+	modified:   frontend/app/dashboard/dld/[id]/simulation/page.tsx
+	modified:   frontend/app/dashboard/dld/page.tsx
+	new file:   frontend/app/dashboard/mpmc/[id]/page.tsx
+	new file:   frontend/app/dashboard/mpmc/[id]/simulation/page.tsx
+	new file:   frontend/app/dashboard/mpmc/page.tsx
+	modified:   frontend/app/dashboard/oops/[id]/page.tsx
+	modified:   frontend/app/dashboard/oops/[id]/simulation/page.tsx
+	modified:   frontend/app/dashboard/oops/page.tsx
+	modified:   frontend/app/dashboard/page.tsx
+	modified:   frontend/app/dashboard/teacher/AddStudentDialog.tsx
+	modified:   frontend/app/dashboard/teacher/page.tsx
+	new file:   frontend/app/experiment/[id]/page.tsx
+	new file:   frontend/app/explore/page.tsx
+	new file:   frontend/app/features/page.tsx
+	modified:   frontend/app/globals.css
+	new file:   frontend/app/lab/[subjectId]/page.tsx
+	modified:   frontend/app/labs/page.tsx
+	modified:   frontend/app/layout.tsx
+	modified:   frontend/app/login/page.tsx
+	modified:   frontend/app/page.tsx
+	modified:   frontend/app/register/page.tsx
+	new file:   frontend/app/student-auth/page.tsx
+	modified:   frontend/app/subjects/computer-networks/page.tsx
+	modified:   frontend/app/subjects/dbms/experiments/basic-operations/observation.tsx
+	modified:   frontend/app/subjects/dbms/experiments/basic-operations/page.tsx
+	modified:   frontend/app/subjects/dbms/experiments/basic-operations/simulation.tsx
+	modified:   frontend/app/subjects/dbms/page.tsx
+	modified:   frontend/app/subjects/oopj/page.tsx
+	new file:   frontend/app/verify/[id]/page.tsx
+	new file:   frontend/app/verify/page.tsx
+	new file:   frontend/build_error_utf8.log
+	new file:   frontend/build_frontend_fresh.log
+	new file:   frontend/build_frontend_v3.log
+	new file:   frontend/components/admin/VideoManager.tsx
+	new file:   frontend/components/features/FeatureCard.tsx
+	new file:   frontend/components/features/FeatureHighlight.tsx
+	new file:   frontend/components/home/AcademicModulesSection.tsx
+	new file:   frontend/components/home/FAQ.tsx
+	modified:   frontend/components/home/Hero.tsx
+	modified:   frontend/components/home/LabsGrid.tsx
+	new file:   frontend/components/home/PlatformPreview.tsx
+	new file:   frontend/components/home/UniversityAlignment.tsx
+	new file:   frontend/components/lab/MonacoEditor.tsx
+	new file:   frontend/components/lab/QuizView.tsx
+	new file:   frontend/components/lab/ResourcesSection.tsx
+	new file:   frontend/components/lab/TheorySection.tsx
+	modified:   frontend/components/layout/Footer.tsx
+	modified:   frontend/components/layout/Navbar.tsx
+	modified:   frontend/components/simulation/SimulationRenderer.tsx
+	new file:   frontend/components/simulation/core/CodeCompiler.tsx
+	new file:   frontend/components/simulation/core/ExecutionInsights.tsx
+	new file:   frontend/components/simulation/core/LabConsole.tsx
+	new file:   frontend/components/simulation/core/TheoryPanel.tsx
+	new file:   frontend/components/simulation/daa/DAACompiler.tsx
+	modified:   frontend/components/simulation/dld/CircuitCanvas.tsx
+	new file:   frontend/components/simulation/mpmc/MPMCSimulator.tsx
+	new file:   frontend/components/simulation/mpmc/OpcodeGuide.tsx
+	new file:   frontend/components/simulation/mpmc/TrainerKit.tsx
+	modified:   frontend/components/ui/progress.tsx
+	new file:   frontend/components/ui/tabs.tsx
+	new file:   frontend/data/experiment-videos.json
+	new file:   frontend/dev_output.txt
+	new file:   frontend/lib/certificate.ts
+	modified:   frontend/lib/labs/registry.ts
+	modified:   frontend/lib/labs/rich-content.old.tsx
+	deleted:    frontend/lib/labs/rich-content.ts
+	new file:   frontend/lib/mpmc/8085-cpu.ts
+	new file:   frontend/lib/mpmc/assembler.ts
+	new file:   frontend/lib/progress-utils.ts
+	new file:   frontend/login.html
+	new file:   frontend/public/1.png
+	new file:   frontend/public/2.png
+	new file:   frontend/public/aktu-logo.png
+	new file:   frontend/public/certificate_demo.html
+	new file:   frontend/public/cn-module.jpg.jpg
+	new file:   frontend/public/dbms-module.jpg.jpg
+	new file:   frontend/public/ddu-logo.png
+	new file:   frontend/public/dld-module.jpg.jpg
+	new file:   frontend/public/hbtu-logo.png
+	new file:   frontend/public/mmm-logo.png
+	new file:   frontend/public/moreuni.png
+	new file:   frontend/public/nit-logo.png
+	new file:   frontend/public/oops-module.jpg.jpg
+	new file:   frontend/register.html
+	modified:   frontend/tailwind.config.ts
+	new file:   frontend/type_errors.txt
+	new file:   frontend/type_errors_utf8.txt
+	new file:   frontend/typegen/.next/trace
+	new file:   frontend/verify.html
+	new file:   git_log.txt
+	new file:   git_status.txt
+	modified:   package.json
+	modified:   turbo.json
+	new file:   type_errors.log
+
+Unmerged paths:
+  (use "git restore --staged <file>..." to unstage)
+  (use "git add <file>..." to mark resolution)
+	both modified:   frontend/package.json
+	both modified:   package-lock.json
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	git_diag.txt
+	git_status_check.txt
+

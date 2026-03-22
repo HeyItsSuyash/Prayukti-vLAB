@@ -9,7 +9,9 @@ import { WorkspacesPanel } from '../core/WorkspacesPanel';
 import { Table, Play, Pause, Save, ZoomIn, ZoomOut, Maximize } from 'lucide-react';
 
 // Use environment variable for API URL
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
+
+import { DLD_PRESETS } from '@/lib/dld-presets';
 
 import AndGate from './nodes/AndGate';
 import OrGate from './nodes/OrGate';
@@ -86,6 +88,16 @@ export default function CircuitCanvas({
 }) {
     const [nodes, setNodes, onNodesChange] = useNodesState<AppNode>(initialData?.nodes || initialNodes);
     const [edges, setEdges, onEdgesChange] = useEdgesState(initialData?.edges || initialEdges);
+
+    // Load Preset if available
+    useEffect(() => {
+        if (practicalId && DLD_PRESETS[practicalId]) {
+            console.log("Loading preset for:", practicalId);
+            const preset = DLD_PRESETS[practicalId];
+            setNodes(preset.nodes as AppNode[]);
+            setEdges(preset.edges);
+        }
+    }, [practicalId, setNodes, setEdges]);
 
     // Workspaces State
     const [showWorkspaces, setShowWorkspaces] = useState(false);
